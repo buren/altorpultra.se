@@ -7,7 +7,7 @@ const manrope = Manrope({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: "Altorp Ultra - May 10, 2025",
-  description: "How many laps can you do? Join us for an epic day. Challenge yourself, go further than you think you could.",
+  description: 'Join us for an epic day. Altorp 6.7 km loop - "Långa gula". May 10 2025, 10:00-18:00. As many laps as you can.',
 };
 
 export default function RootLayout({
