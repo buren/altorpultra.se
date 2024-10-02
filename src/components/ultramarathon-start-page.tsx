@@ -72,7 +72,7 @@ export function UltramarathonStartPageComponent() {
                 <Clock className="h-8 w-8 text-primary mr-4" />
                 <div>
                   <h3 className="font-semibold text-lg">Duration</h3>
-                  <p>10:00-18:00 (6h)</p>
+                  <p>10:00-18:00 (8h)</p>
                 </div>
               </CardContent>
             </Card>
