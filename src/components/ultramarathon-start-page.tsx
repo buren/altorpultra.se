@@ -39,7 +39,7 @@ export function UltramarathonStartPageComponent() {
           <div className="text-xl text-gray-600">
             <ul className="w-96 mx-auto">
               <li>Join us for an epic day.</li>
-              <li><a className="underline" href="https://www.strava.com/routes/altorp_3771133989584529065">Altorp 6.7 km loop</a> - "Långa gula".</li>
+              <li><a className="underline" href="https://www.strava.com/routes/altorp_3771133989584529065">Altorp 6.7 km loop</a> - &lsquo;Långa gula&lsquo;.</li>
               <li>May 10 2025, between 10:00 and 18:00.</li>
               <li>As many laps as you can.</li>
               <li>Go further than you think.</li>
