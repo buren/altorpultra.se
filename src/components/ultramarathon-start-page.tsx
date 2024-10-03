@@ -1,10 +1,14 @@
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { CalendarDays, MapPin, Clock, Route } from "lucide-react"
+import { CalendarDays, MapPin, Clock, Route, HandCoins } from "lucide-react"
 
 import altorpPic from '../public/altorp.webp'
 import { QuestionMarkIcon } from "@radix-ui/react-icons"
+import GoogleMapsRoute from "./GoogleMapsRoute"
+import FAQ from "./FAQ"
+import SectionTitle from "./SectionTitle"
+import RegisterButton from "./RegisterButton"
 
 
 export function UltramarathonStartPageComponent() {
@@ -31,27 +35,23 @@ export function UltramarathonStartPageComponent() {
       <main className="container mx-auto px-4 py-8">
         <section className="mb-12">
           <div className="text-center mx-auto">
-            <h2 className="text-3xl font-semibold mb-4">How many laps can you do?</h2>
+            <SectionTitle title="How many laps can you do?" />
             {/* <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Join us for an epic day.
             </p> */}
           </div>
           <div className="text-xl text-gray-600">
             <ul className="w-96 mx-auto">
-              <li>Join us for an epic day.</li>
-              <li><a className="underline" href="https://www.strava.com/routes/altorp_3771133989584529065">Altorp 6.7 km loop</a> - &lsquo;Långa gula&lsquo;.</li>
-              <li>May 10 2025, between 10:00 and 18:00.</li>
-              <li>As many laps as you can.</li>
-              <li>Go further than you think.</li>
-              <li>Challenge yourself, friends and family.</li>
+              <li className="leading-8">Join us for an epic day.</li>
+              <li className="leading-8">Altorp 6.7 km loop - &lsquo;Långa gula&lsquo;.</li>
+              <li className="leading-8">May 10 2025, between 10:00 and 18:00.</li>
+              <li className="leading-8">As many laps as you can in 8 hours.</li>
+              <li className="leading-8">Go further than you think.</li>
+              <li className="leading-8">Challenge yourself, friends and family.</li>
             </ul>
 
             <section className="text-center mt-4">
-              <a href="https://i.washere.io/join/CAJI1EYS?utm_source=altorpultra.se">
-                <Button size="lg" className="text-lg px-8 py-6">
-                  Register Now
-                </Button>
-              </a>
+              <RegisterButton />
             </section>
           </div>
         </section>
@@ -78,7 +78,7 @@ export function UltramarathonStartPageComponent() {
             </Card>
             <Card>
               <CardContent className="flex items-center p-6">
-                <MapPin className="h-8 w-8 text-primary mr-4" />
+                <HandCoins className="h-8 w-8 text-primary mr-4" />
                 <div>
                   <h3 className="font-semibold text-lg">Price</h3>
                   <p>200 SEK (early bird)</p>
@@ -119,12 +119,20 @@ export function UltramarathonStartPageComponent() {
           </div>
         </section>
 
-        <section className="text-center">
-          <a href="https://i.washere.io/join/CAJI1EYS?utm_source=altorpultra.se">
-            <Button size="lg" className="text-lg px-8 py-6">
-              Register Now
-            </Button>
-          </a>
+        <div className="text-center mt-4">
+          <RegisterButton />
+        </div>
+
+        <div className="mt-4 flex justify-center">
+          <FAQ />
+        </div>
+
+        <div className="mt-4 w-full">
+          <GoogleMapsRoute />
+        </div>
+
+        <section className="text-center mt-4">
+          <RegisterButton />
         </section>
       </main>
     </div>
