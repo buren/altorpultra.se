@@ -9,7 +9,7 @@ import GoogleMapsRoute from "./GoogleMapsRoute"
 import FAQ from "./FAQ"
 import SectionTitle from "./SectionTitle"
 import RegisterButton from "./RegisterButton"
-
+import ImageCarousel from "./ImageCarousel"
 
 export function UltramarathonStartPageComponent() {
   return (
@@ -129,6 +129,10 @@ export function UltramarathonStartPageComponent() {
 
         <div className="mt-4 w-full">
           <GoogleMapsRoute />
+        </div>
+
+        <div className="mt-4 flex justify-center">
+          <ImageCarousel />
         </div>
 
         <section className="text-center mt-4">
