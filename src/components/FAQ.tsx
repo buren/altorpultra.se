@@ -44,7 +44,7 @@ export default function FAQ() {
         <AccordionItem value="item-3">
           <AccordionTrigger className="text-xl font-bold">How do I pay?</AccordionTrigger>
           <AccordionContent className="text-lg">
-            At this point we're not excepting payments. The event will cost 200 SEK for early birds (thats you!). Register your interest now to secure your early bird price.
+            At this point we&apos;re not excepting payments. The event will cost 200 SEK for early birds (thats you!). Register your interest now to secure your early bird price.
             More information and how to pay will be communicated soon.
           </AccordionContent>
         </AccordionItem>
