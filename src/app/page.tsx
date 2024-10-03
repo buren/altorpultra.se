@@ -1,5 +1,5 @@
-import { UltramarathonStartPageComponent } from "@/components/ultramarathon-start-page";
+import { AltorpUltra } from "@/components/AltorpUltra";
 
 export default function Home() {
-  return <UltramarathonStartPageComponent />
+  return <AltorpUltra />
 }

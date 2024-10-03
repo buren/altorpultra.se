@@ -1,5 +1,4 @@
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { CalendarDays, MapPin, Clock, Route, HandCoins } from "lucide-react"
 
@@ -11,7 +10,7 @@ import SectionTitle from "./SectionTitle"
 import RegisterButton from "./RegisterButton"
 import ImageCarousel from "./ImageCarousel"
 
-export function UltramarathonStartPageComponent() {
+export function AltorpUltra() {
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="relative h-[50vh] min-h-[400px]">
