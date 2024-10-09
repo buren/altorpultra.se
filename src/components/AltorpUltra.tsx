@@ -57,12 +57,10 @@ function eventStructuredData() {
 export function AltorpUltra() {
   return (
     <>
-      {/* <Head> */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(eventStructuredData()) }}
-        />
-      {/* </Head> */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventStructuredData()) }}
+      />
       <div className="min-h-screen bg-gray-100">
         <header className="relative h-[50vh] min-h-[400px]">
           <Image
