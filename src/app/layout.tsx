@@ -21,6 +21,7 @@ export default function RootLayout({
         className={`${manrope.className} antialiased`}
       >
         {children}
+        <Script src="https://scripts.simpleanalyticscdn.com/latest.js" />
       </body>
     </html>
   );
