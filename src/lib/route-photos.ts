@@ -1,5 +1,6 @@
 import i1 from "../public/route-gallery/4.webp";
 
+
 import i4 from "../public/route-gallery/PXL_20241005_123331352.MP.jpg";
 import i5 from "../public/route-gallery/PXL_20241005_123341496.MP.jpg";
 import i6 from "../public/route-gallery/PXL_20241005_123710973.MP.jpg";
@@ -15,8 +16,6 @@ import i15 from "../public/route-gallery/2.jpg";
 
 export const routePhotos = [
   i1,
-  // i2,
-  // i3,
   i4,
   i5,
   i6,

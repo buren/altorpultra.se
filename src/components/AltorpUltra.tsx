@@ -10,6 +10,7 @@ import SectionTitle from "./SectionTitle"
 import RegisterButton from "./RegisterButton"
 import ImageCarousel from "./ImageCarousel"
 import { routePhotos } from "@/lib/route-photos"
+import PhotoGallery from "./PhotoGallery"
 
 function eventStructuredData() {
   return {
@@ -86,9 +87,6 @@ export function AltorpUltra() {
         <section className="mb-12">
           <div className="text-center mx-auto">
             <SectionTitle title="How many laps can you do?" />
-            {/* <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Join us for an epic day.
-            </p> */}
           </div>
           <div className="text-xl text-gray-600">
             <ul className="w-96 mx-auto">
@@ -178,12 +176,12 @@ export function AltorpUltra() {
           <FAQ />
         </div>
 
-        <div className="mt-4 w-full">
-          <GoogleMapsRoute />
+        <div className="mt-4 flex justify-center">
+          <PhotoGallery images={routePhotos} />
         </div>
 
-        <div className="mt-4 flex justify-center">
-          <ImageCarousel images={routePhotos} />
+        <div className="mt-4 w-full">
+          <GoogleMapsRoute />
         </div>
 
         <section className="text-center mt-4">
