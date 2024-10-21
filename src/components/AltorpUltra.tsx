@@ -9,6 +9,7 @@ import FAQ from "./FAQ"
 import SectionTitle from "./SectionTitle"
 import RegisterButton from "./RegisterButton"
 import ImageCarousel from "./ImageCarousel"
+import { routePhotos } from "@/lib/route-photos"
 
 function eventStructuredData() {
   return {
@@ -181,7 +182,7 @@ export function AltorpUltra() {
           </div>
 
           <div className="mt-4 flex justify-center">
-            <ImageCarousel />
+            <ImageCarousel images={routePhotos} />
           </div>
 
           <section className="text-center mt-4">
