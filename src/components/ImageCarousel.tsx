@@ -1,5 +1,5 @@
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
-import Image, { StaticImageData } from "next/legacy/image";
+import Image, { StaticImageData } from "next/image";
 
 export default function ImageCarousel({ images }: { images: (string | StaticImageData)[] }) {
   return (
@@ -7,12 +7,18 @@ export default function ImageCarousel({ images }: { images: (string | StaticImag
       <CarouselContent>
         {images.map((imageSrc, index) => (
           <CarouselItem key={`carousel-${index}`}>
-            <Image src={imageSrc} alt="Altorp" />
+            <Image
+              src={imageSrc}
+              alt="Altorp"
+              style={{
+                maxWidth: "100%",
+                height: "auto"
+              }} />
           </CarouselItem>  
         ))}
       </CarouselContent>
       <CarouselPrevious />
       <CarouselNext />
     </Carousel>
-  )
+  );
 }
