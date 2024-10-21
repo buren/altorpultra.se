@@ -8,7 +8,6 @@ import GoogleMapsRoute from "./GoogleMapsRoute"
 import FAQ from "./FAQ"
 import SectionTitle from "./SectionTitle"
 import RegisterButton from "./RegisterButton"
-import ImageCarousel from "./ImageCarousel"
 import { routePhotos } from "@/lib/route-photos"
 import PhotoGallery from "./PhotoGallery"
 
