@@ -1,4 +1,4 @@
-import Image from "next/image"
+import Image from "next/legacy/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { CalendarDays, MapPin, Clock, Route, HandCoins } from "lucide-react"
 

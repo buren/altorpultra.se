@@ -1,4 +1,4 @@
-import { StaticImageData } from "next/image";
+import { StaticImageData } from "next/legacy/image";
 import { RowsPhotoAlbum } from "react-photo-album";
 
 export default function PhotoGallery({ images }: { images: StaticImageData[] }) {
