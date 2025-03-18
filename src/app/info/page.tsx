@@ -13,7 +13,7 @@ export default function Info() {
               <br />
               <p><strong>Start och mål:</strong> Loppet är mellan 10:00-16:00.</p>
               <br />
-              <p><strong>Format:</strong> Så många varv som möjligt. <em>**</em>Det finns ingen maxtid på varje varv ta den tid ni behöver (det är INTE ett backyard format). </p>
+              <p><strong>Format:</strong> Så många varv som möjligt. Det finns ingen maxtid på varje varv ta den tid ni behöver (det är INTE ett backyard format). </p>
               <br />
               <p><strong>Hur vinner man?:</strong> Den som har sprungit färdigt flest varv kl 16:00 vinner. Är det flera som sprungit lika många vinner den som tidigast kom in på det sista varvet.</p>
               <br />
@@ -23,7 +23,7 @@ export default function Info() {
               <br />
               <p><strong>Information om banan</strong>: Varje varv är 6.9 km och drygt 100 höjdmeter. <a className="underline text-blue-400" href="https://www.strava.com/routes/3337146615650736332">Här finns rutten på Strava</a>.</p>
               <br />
-              <p><strong>Bib/nummerlapp:</strong> Vi kommer köra nummerlappsfritt och istället använda Apple/Google Wallet pass för att räkna alla varv ni springer. Om ni inte vill springa med er telefon kommer det vara möjligt, ni kommer då få en lapp med en QR-kod på som ni kan använda istället.</p>
+              <p><strong>Bib/nummerlapp:</strong> Vi kommer köra nummerlappsfritt och istället använda Apple/Google Wallet pass för att räkna alla varv ni springer (tack till <a href="https://washere.io?utm_source=altorpultra">WasHere</a>). Om ni inte vill springa med er telefon kommer det vara möjligt, ni kommer då få en lapp med en QR-kod på som ni kan använda istället.</p>
               <br />
               <p><strong>Hur hittar jag till starten?</strong></p>
               <p>Här är en <a className="underline text-blue-400" href="https://maps.app.goo.gl/W14VxkKt3ajJaBgKA">Google Maps pin</a> till där starten går. </p>
