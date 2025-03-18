@@ -26,7 +26,6 @@ export default function Info() {
               <p><strong>Bib/nummerlapp:</strong> Vi kommer köra nummerlappsfritt och istället använda Apple/Google Wallet pass för att räkna alla varv ni springer. Om ni inte vill springa med er telefon kommer det vara möjligt, ni kommer då få en lapp med en QR-kod på som ni kan använda istället.</p>
               <br />
               <p><strong>Hur hittar jag till starten?</strong></p>
-              <br />
               <p>Här är en <a className="underline text-blue-400" href="https://maps.app.goo.gl/W14VxkKt3ajJaBgKA">Google Maps pin</a> till där starten går. </p>
               <p>Åker ni kommunalt så kan ni ta er hit med Roslagsbanan mot Näsbypark från Tekniska Högskolan på under 15 minuter. Det är knappt 200 meter till starten från stationen.</p>
               <p>Tar ni bilen finns det parkering precis vid stationen (<a className="underline text-blue-400" href="https://maps.app.goo.gl/UBk2QJHDFteU7duH9">Google Maps pin</a>).</p>
