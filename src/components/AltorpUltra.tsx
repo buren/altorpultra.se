@@ -98,7 +98,7 @@ export function AltorpUltra() {
               <li className="leading-8">Go further than you think.</li>
               <li className="leading-8">Challenge yourself, friends and family.</li>
               <li className="leading-8">Everyone is welcome.</li>
-              <li className="leading-8">Detailed race info can be <Link className="underline text-blue-400" href="/info">found here</Link>.</li>
+              <li className="leading-8"><Link className="underline text-blue-400" href="/info">Detailed race info</Link> (Swedish).</li>
             </ul>
 
             <section className="text-center mt-4">
@@ -123,7 +123,7 @@ export function AltorpUltra() {
                 <Clock className="h-8 w-8 text-primary mr-4" />
                 <div>
                   <h3 className="font-semibold text-lg">Duration</h3>
-                  <p>10:00-16:00 (8h)</p>
+                  <p>10:00-16:00 (6h)</p>
                 </div>
               </CardContent>
             </Card>
@@ -147,7 +147,7 @@ export function AltorpUltra() {
                 </CardContent>
               </Card>
             </a>
-            <a href="https://strava.app.link/3ngwyVPOmNb">
+            <a href="https://www.strava.com/routes/3337146615650736332">
               <Card>
                 <CardContent className="flex items-center p-6">
                   <Route className="h-8 w-8 text-primary mr-4" />
