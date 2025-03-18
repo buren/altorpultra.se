@@ -22,6 +22,8 @@ export default function RegisterButton() {
       }
     });
 
+    // TODO handle links like: https://altorpultra.se/?utm_source=https%3A%2F%2Flinks.washere.io%2F%3FmemberNo%3D5QTPB0
+
     setRegisterUrl(url.toString());
   }, [searchParams]);
 

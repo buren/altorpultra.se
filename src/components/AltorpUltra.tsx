@@ -10,15 +10,16 @@ import SectionTitle from "./SectionTitle"
 import RegisterButton from "./RegisterButton"
 import { routePhotos } from "@/lib/route-photos"
 import PhotoGallery from "./PhotoGallery"
+import Link from "next/link"
 
 function eventStructuredData() {
   return {
     "@context": "https://schema.org",
     "@type": "Event",
     "name": "Altorp Ultra",
-    "description": "Join us for an epic day. Altorp 6.7 km loop - 'Långa gula'. May 10, 2025, 10:00-18:00. As many laps as you can.",
+    "description": "Join us for an epic day. Altorp 6.7 km loop - 'Långa gula'. May 10, 2025, 10:00-16:00. As many laps as you can.",
     "startDate": "2025-05-10T10:00:00+02:00",
-    "endDate": "2025-05-10T18:00:00+02:00",
+    "endDate": "2025-05-10T16:00:00+02:00",
     "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
     "eventStatus": "https://schema.org/EventScheduled",
     "location": {
@@ -92,10 +93,12 @@ export function AltorpUltra() {
               <li className="leading-8">Join us for an epic day.</li>
               <li className="leading-8">Altorp 6.7 km loop - &lsquo;Långa gula&lsquo;.</li>
               <li className="leading-8">~120m of elevation per loop.</li>
-              <li className="leading-8">May 10 2025, between 10:00 and 18:00.</li>
+              <li className="leading-8">May 10 2025, between 10:00 and 16:00.</li>
               <li className="leading-8">As many laps as you can in 8 hours.</li>
               <li className="leading-8">Go further than you think.</li>
               <li className="leading-8">Challenge yourself, friends and family.</li>
+              <li className="leading-8">Everyone is welcome.</li>
+              <li className="leading-8">Detailed race info can be <Link className="underline text-blue-400" href="/info">found here</Link>.</li>
             </ul>
 
             <section className="text-center mt-4">
@@ -120,7 +123,7 @@ export function AltorpUltra() {
                 <Clock className="h-8 w-8 text-primary mr-4" />
                 <div>
                   <h3 className="font-semibold text-lg">Duration</h3>
-                  <p>10:00-18:00 (8h)</p>
+                  <p>10:00-16:00 (8h)</p>
                 </div>
               </CardContent>
             </Card>
@@ -150,7 +153,7 @@ export function AltorpUltra() {
                   <Route className="h-8 w-8 text-primary mr-4" />
                   <div>
                     <h3 className="font-semibold text-lg">Strava route</h3>
-                    <p>&quot;Långa gula&quot; 6.7km</p>
+                    <p>&quot;Långa gula&quot; 6.9km</p>
                   </div>
                 </CardContent>
               </Card>
