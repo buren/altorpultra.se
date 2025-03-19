@@ -17,7 +17,7 @@ export default function Info() {
               <br />
               <p><strong>Hur vinner man?:</strong> Den som har sprungit färdigt flest varv kl 18:00 vinner. Är det flera som sprungit lika många vinner den som tidigast kom in på det sista varvet.</p>
               <br />
-              <p><strong>Vätska och energi:</strong> För alla som är med kommer det finnas tillgång till vatten och enkla snacks (kexchoklad, kanelbullar och liknande). För er som verkligen vill pusha er själva alla 6 timmarna rekommenderar jag att ni tar med er egen sportdryck och gels. Om ni har vänner och familj med er som tittar på så kommer de få köpa snacka till ett rimligt pris, vatten bjuder vi på såklart.</p>
+              <p><strong>Vätska och energi:</strong> För alla som är med kommer det finnas tillgång till vatten och enkla snacks (kexchoklad, kanelbullar och liknande). För er som verkligen vill pusha er själva alla 8 timmarna rekommenderar jag att ni tar med er egen sportdryck och gels. Om ni har vänner och familj med er som tittar på så kommer de få köpa snacka till ett rimligt pris, vatten bjuder vi på såklart.</p>
               <br />
               <p>Utöver snacks så planerar vi grilla burgare, korv och dylikt som man kan köpa.</p>
               <br />
