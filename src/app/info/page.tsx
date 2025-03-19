@@ -11,11 +11,11 @@ export default function Info() {
               <p>Det finns absolut inget krav på hur många varv man springer, om det är att promenera ett varv med barnvagn, springa ett eller tio varv är helt upp till er! Alla är välkomna och det kommer vara en salig blandning. Det går alldeles utmärkt att ta sig an ett varv och sedan vila i 1, 2, 3 eller 4 timmar och sedan ta sig an ett till, alla gör som man vill.</p>
               <p>Vi kommer se till att det blir bra häng i start/mål området med nice musik, snacks och grill!</p>
               <br />
-              <p><strong>Start och mål:</strong> Loppet är mellan 10:00-16:00.</p>
+              <p><strong>Start och mål:</strong> Loppet är mellan 10:00-18:00.</p>
               <br />
               <p><strong>Format:</strong> Så många varv som möjligt. Det finns ingen maxtid på varje varv ta den tid ni behöver (det är INTE ett backyard format). </p>
               <br />
-              <p><strong>Hur vinner man?:</strong> Den som har sprungit färdigt flest varv kl 16:00 vinner. Är det flera som sprungit lika många vinner den som tidigast kom in på det sista varvet.</p>
+              <p><strong>Hur vinner man?:</strong> Den som har sprungit färdigt flest varv kl 18:00 vinner. Är det flera som sprungit lika många vinner den som tidigast kom in på det sista varvet.</p>
               <br />
               <p><strong>Vätska och energi:</strong> För alla som är med kommer det finnas tillgång till vatten och enkla snacks (kexchoklad, kanelbullar och liknande). För er som verkligen vill pusha er själva alla 6 timmarna rekommenderar jag att ni tar med er egen sportdryck och gels. Om ni har vänner och familj med er som tittar på så kommer de få köpa snacka till ett rimligt pris, vatten bjuder vi på såklart.</p>
               <br />

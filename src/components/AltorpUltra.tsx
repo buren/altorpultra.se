@@ -17,9 +17,9 @@ function eventStructuredData() {
     "@context": "https://schema.org",
     "@type": "Event",
     "name": "Altorp Ultra",
-    "description": "Join us for an epic day. Altorp 6.7 km loop - 'Långa gula'. May 10, 2025, 10:00-16:00. As many laps as you can.",
+    "description": "Join us for an epic day. Altorp 6.7 km loop - 'Långa gula'. May 10, 2025, 10:00-18:00. As many laps as you can.",
     "startDate": "2025-05-10T10:00:00+02:00",
-    "endDate": "2025-05-10T16:00:00+02:00",
+    "endDate": "2025-05-10T18:00:00+02:00",
     "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
     "eventStatus": "https://schema.org/EventScheduled",
     "location": {
@@ -93,7 +93,7 @@ export function AltorpUltra() {
               <li className="leading-8">Join us for an epic day.</li>
               <li className="leading-8">Altorp 6.7 km loop - &lsquo;Långa gula&lsquo;.</li>
               <li className="leading-8">~120m of elevation per loop.</li>
-              <li className="leading-8">May 10 2025, between 10:00 and 16:00.</li>
+              <li className="leading-8">May 10 2025, between 10:00 and 18:00.</li>
               <li className="leading-8">As many laps as you can in 8 hours.</li>
               <li className="leading-8">Go further than you think.</li>
               <li className="leading-8">Challenge yourself, friends and family.</li>
@@ -123,7 +123,7 @@ export function AltorpUltra() {
                 <Clock className="h-8 w-8 text-primary mr-4" />
                 <div>
                   <h3 className="font-semibold text-lg">Duration</h3>
-                  <p>10:00-16:00 (6h)</p>
+                  <p>10:00-18:00 (8h)</p>
                 </div>
               </CardContent>
             </Card>
