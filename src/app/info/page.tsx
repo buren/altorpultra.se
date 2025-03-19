@@ -21,7 +21,7 @@ export default function Info() {
               <br />
               <p>Utöver snacks så planerar vi grilla burgare, korv och dylikt som man kan köpa.</p>
               <br />
-              <p><strong>Information om banan</strong>: Varje varv är 6.9 km och drygt 100 höjdmeter. <a className="underline text-blue-400" href="https://www.strava.com/routes/3337146615650736332">Här finns rutten på Strava</a>.</p>
+              <p><strong>Information om banan</strong>: Varje varv är 7.0 km och drygt 100 höjdmeter. <a className="underline text-blue-400" href="https://www.strava.com/routes/3337146615650736332">Här finns rutten på Strava</a>.</p>
               <br />
               <p><strong>Bib/nummerlapp:</strong> Vi kommer köra nummerlappsfritt och istället använda Apple/Google Wallet pass för att räkna alla varv ni springer (tack till <a href="https://washere.io?utm_source=altorpultra">WasHere</a>). Om ni inte vill springa med er telefon kommer det vara möjligt, ni kommer då få en lapp med en QR-kod på som ni kan använda istället.</p>
               <br />
@@ -35,6 +35,8 @@ export default function Info() {
               <p><strong>Värdesaker:</strong> Ta gärna med så lite värdesaker som möjligt och i första hand lägg det i bilen, ge det till en kompis eller familjemedlem som är på plats. Skulle det inte vara möjligt så kan ni lämna t.ex telefon och plånbok så har vi koll på det under dagen, har ni andra behov hör av er. </p>
               <br />
               <p><strong>Väskor:</strong> Väskor med tröjor, extra skor, energi etc kommer ni kunna lämna på området och vi kommer generellt ha lite koll, dock kan vi ej ansvara för värdesaker i väskorna.</p>
+              <br />
+              <p><strong>Betalning:</strong> Sker enklast genom att Swisha 200 kr till 073 500 5004 (Jacob Burenstam Linder).</p>
               <br />
               <p>Har ni frågor är det bara att höra av er till <a className="underline" href="mailto:altorpultra@gmail.com">altorpultra@gmail.com</a>.</p>
 
