@@ -9,7 +9,7 @@ export default function Info() {
           <section className="mb-12">
             <div className="mx-auto max-w-lg">
               <SectionTitle title="Information om loppet" />
-              <p>Inte registrerad än? <a href={baseRegisterUrl} className="underline text-blue-400">Registrera dig här</a>.</p>
+              <p>Inte registrerad än? <a href={baseRegisterUrl} className="underline text-blue-600">Registrera dig här</a>.</p>
               <br />
               <p>Det finns absolut inget krav på hur många varv man springer, om det är att promenera ett varv med barnvagn, springa ett eller tio varv är helt upp till er! Alla är välkomna och det kommer vara en salig blandning. Det går alldeles utmärkt att ta sig an ett varv och sedan vila i 1, 2, 3 eller 4 timmar och sedan ta sig an ett till, alla gör som man vill.</p>
               <p>Vi kommer se till att det blir bra häng i start/mål området med nice musik, snacks och grill!</p>
@@ -24,14 +24,14 @@ export default function Info() {
               <br />
               <p>Utöver snacks så planerar vi grilla burgare, korv och dylikt som man kan köpa.</p>
               <br />
-              <p><strong>Information om banan</strong>: Varje varv är 7.0 km och drygt 100 höjdmeter. <a className="underline text-blue-400" href="https://www.strava.com/routes/3337146615650736332">Här finns rutten på Strava</a>.</p>
+              <p><strong>Information om banan</strong>: Varje varv är 7.0 km och drygt 100 höjdmeter. <a className="underline text-blue-600" href="https://www.strava.com/routes/3337146615650736332">Här finns rutten på Strava</a>.</p>
               <br />
               <p><strong>Bib/nummerlapp:</strong> Vi kommer köra nummerlappsfritt och istället använda Apple/Google Wallet pass för att räkna alla varv ni springer (tack till <a href="https://washere.io?utm_source=altorpultra">WasHere</a>). Om ni inte vill springa med er telefon kommer det vara möjligt, ni kommer då få en lapp med en QR-kod på som ni kan använda istället.</p>
               <br />
               <p><strong>Hur hittar jag till starten?</strong></p>
-              <p>Här är en <a className="underline text-blue-400" href="https://maps.app.goo.gl/W14VxkKt3ajJaBgKA">Google Maps pin</a> till där starten går. </p>
+              <p>Här är en <a className="underline text-blue-600" href="https://maps.app.goo.gl/W14VxkKt3ajJaBgKA">Google Maps pin</a> till där starten går. </p>
               <p>Åker ni kommunalt så kan ni ta er hit med Roslagsbanan mot Näsbypark från Tekniska Högskolan på under 15 minuter. Det är knappt 200 meter till starten från stationen.</p>
-              <p>Tar ni bilen finns det parkering precis vid stationen (<a className="underline text-blue-400" href="https://maps.app.goo.gl/UBk2QJHDFteU7duH9">Google Maps pin</a>).</p>
+              <p>Tar ni bilen finns det parkering precis vid stationen (<a className="underline text-blue-600" href="https://maps.app.goo.gl/UBk2QJHDFteU7duH9">Google Maps pin</a>).</p>
               <br />
               <p><strong>Vad behöver jag för utrustning?:</strong> Precis det du vill! Det finns inga specifika krav på utrustning.</p>
               <br />

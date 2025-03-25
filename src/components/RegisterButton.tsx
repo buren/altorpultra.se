@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useSearchParams } from "next/navigation";
 
-const baseRegisterUrl = "https://i.washere.io/join/CAJI1EYS?utm_source=altorpultra.se";
+export const baseRegisterUrl = "https://i.washere.io/join/CAJI1EYS?utm_source=altorpultra.se";
 const utmNames = ['utm_source', 'utm_content', 'utm_medium', 'utm_term', 'utm_campaign'];
 
 export default function RegisterButton() {

@@ -98,7 +98,7 @@ export function AltorpUltra() {
               <li className="leading-8">Go further than you think.</li>
               <li className="leading-8">Challenge yourself, friends and family.</li>
               <li className="leading-8">Everyone is welcome.</li>
-              <li className="leading-8"><Link className="underline text-blue-400" href="/info">Detailed race info</Link> (Swedish).</li>
+              <li className="leading-8"><Link className="underline text-blue-600" href="/info">Detailed race info</Link> (Swedish).</li>
             </ul>
 
             <section className="text-center mt-4">
