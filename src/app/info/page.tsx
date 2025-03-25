@@ -1,3 +1,4 @@
+import { baseRegisterUrl } from "@/components/RegisterButton"
 import SectionTitle from "@/components/SectionTitle"
 
 export default function Info() {
@@ -8,6 +9,8 @@ export default function Info() {
           <section className="mb-12">
             <div className="mx-auto max-w-lg">
               <SectionTitle title="Information om loppet" />
+              <p>Inte registrerad än? <a href={baseRegisterUrl} className="underline text-blue-400">Registrera dig här</a>.</p>
+              <br />
               <p>Det finns absolut inget krav på hur många varv man springer, om det är att promenera ett varv med barnvagn, springa ett eller tio varv är helt upp till er! Alla är välkomna och det kommer vara en salig blandning. Det går alldeles utmärkt att ta sig an ett varv och sedan vila i 1, 2, 3 eller 4 timmar och sedan ta sig an ett till, alla gör som man vill.</p>
               <p>Vi kommer se till att det blir bra häng i start/mål området med nice musik, snacks och grill!</p>
               <br />
