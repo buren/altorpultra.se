@@ -14,6 +14,8 @@ export default function Info() {
               <p>Det finns absolut inget krav på hur många varv man springer, om det är att promenera ett varv med barnvagn, springa ett eller tio varv är helt upp till er! Alla är välkomna och det kommer vara en salig blandning. Det går alldeles utmärkt att ta sig an ett varv och sedan vila i 1, 2, 3 eller 4 timmar och sedan ta sig an ett till, alla gör som man vill.</p>
               <p>Vi kommer se till att det blir bra häng i start/mål området med nice musik, snacks och grill!</p>
               <br />
+              <p><strong>Betalning:</strong> Sker enklast genom att Swisha 200 kr till 073 500 5004 (Jacob Burenstam Linder).</p>
+              <br />
               <p><strong>Start och mål:</strong> Loppet är mellan 10:00-18:00.</p>
               <br />
               <p><strong>Format:</strong> Så många varv som möjligt. Det finns ingen maxtid på varje varv ta den tid ni behöver (det är INTE ett backyard format). </p>
