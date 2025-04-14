@@ -26,7 +26,7 @@ export default function Info() {
               <br />
               <p>Utöver snacks så planerar vi grilla burgare, korv och dylikt som man kan köpa.</p>
               <br />
-              <p><strong>Information om banan</strong>: Varje varv är 7.0 km och drygt 100 höjdmeter. <a className="underline text-blue-600" href="https://www.strava.com/routes/3337146615650736332">Här finns rutten på Strava</a> och <a href="https://www.google.com/maps/d/viewer?mid=17KhHxrunD84z9Jz_3hDSuNhpK0fFMZ0&femb=1&ll=59.4162307464269%2C18.07003&z=14">här på Google Maps</a>.</p>
+              <p><strong>Information om banan</strong>: Varje varv är 7.0 km och drygt 100 höjdmeter. <a className="underline text-blue-600" href="https://www.strava.com/routes/3337146615650736332">Här finns rutten på Strava</a> och <a className="underline text-blue-600" href="https://www.google.com/maps/d/viewer?mid=17KhHxrunD84z9Jz_3hDSuNhpK0fFMZ0&femb=1&ll=59.4162307464269%2C18.07003&z=14">här på Google Maps</a>.</p>
               <br />
               <p><strong>Bib/nummerlapp:</strong> Vi kommer köra nummerlappsfritt och istället använda Apple/Google Wallet pass för att räkna alla varv ni springer (tack till <a href="https://washere.io?utm_source=altorpultra">WasHere</a>). Om ni inte vill springa med er telefon kommer det vara möjligt, ni kommer då få en lapp med en QR-kod på som ni kan använda istället.</p>
               <br />
