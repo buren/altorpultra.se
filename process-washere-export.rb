@@ -66,9 +66,9 @@ unpaid = []
 csv.rows.each do |row|
   if row.has_paid
     paid << row
-    puts row.email
   else
     unpaid << row
+    puts row.email
   end
 end
 
