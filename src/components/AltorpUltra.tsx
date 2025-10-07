@@ -7,19 +7,19 @@ import { QuestionMarkIcon } from "@radix-ui/react-icons"
 import GoogleMapsRoute from "./GoogleMapsRoute"
 import FAQ from "./FAQ"
 import SectionTitle from "./SectionTitle"
-import RegisterButton from "./RegisterButton"
+import RegisterButton, { baseRegisterUrl } from "./RegisterButton"
 import { routePhotos } from "@/lib/route-photos"
 import PhotoGallery from "./PhotoGallery"
-import Link from "next/link"
+// import Link from "next/link"
 
 function eventStructuredData() {
   return {
     "@context": "https://schema.org",
     "@type": "Event",
     "name": "Altorp Ultra",
-    "description": "Join us for an epic day. Altorp 7.0 km loop - 'Långa gula'. May 10, 2025, 10:00-18:00. As many laps as you can.",
-    "startDate": "2025-05-10T10:00:00+02:00",
-    "endDate": "2025-05-10T18:00:00+02:00",
+    "description": "Join us for an epic day. Altorp 7.0 km loop - 'Långa gula'. May 9, 2026, 10:00-18:00. As many laps as you can.",
+    "startDate": "2026-05-09T10:00:00+02:00",
+    "endDate": "2026-05-09T18:00:00+02:00",
     "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
     "eventStatus": "https://schema.org/EventScheduled",
     "location": {
@@ -37,8 +37,8 @@ function eventStructuredData() {
     ],
     "offers": {
       "@type": "Offer",
-      "url": "https://i.washere.io/join/CAJI1EYS?utm_source=altorpultra.se",
-      "price": "200",
+      "url": baseRegisterUrl,
+      "price": "250",
       "priceCurrency": "SEK",
       "availability": "https://schema.org/InStock",
       "validFrom": "2024-10-09T00:00:00+02:00"
@@ -78,7 +78,7 @@ export function AltorpUltra() {
             <h1 className="text-4xl md:text-6xl font-bold text-white text-center">
               Altorp Ultra
             </h1>
-            <h3 className="text-lg md:text-xl font-bold text-white text-center mt-4">May 10, 2025</h3>
+            <h3 className="text-lg md:text-xl font-bold text-white text-center mt-4">May 9, 2026</h3>
           </div>
         </div>
       </header>
@@ -92,13 +92,14 @@ export function AltorpUltra() {
             <ul className="w-96 mx-auto">
               <li className="leading-8">Join us for an epic day.</li>
               <li className="leading-8">Altorp 7.0 km loop - &lsquo;Långa gula&lsquo;.</li>
-              <li className="leading-8">104m of elevation per loop.</li>
-              <li className="leading-8">May 10 2025, between 10:00 and 18:00.</li>
+              <li className="leading-8">~100m of elevation per loop.</li>
+              <li className="leading-8">May 9 2026, between 10:00 and 18:00.</li>
               <li className="leading-8">As many laps as you can in 8 hours.</li>
               <li className="leading-8">Go further than you think.</li>
               <li className="leading-8">Challenge yourself, friends and family.</li>
               <li className="leading-8">Everyone is welcome.</li>
-              <li className="leading-8"><Link className="underline text-blue-600" href="/info">Detailed race info</Link> (Swedish).</li>
+              {/* TODO */}
+              {/* <li className="leading-8"><Link className="underline text-blue-600" href="/info">Detailed race info</Link> (Swedish).</li> */}
             </ul>
 
             <section className="text-center mt-4">
@@ -114,7 +115,7 @@ export function AltorpUltra() {
                 <CalendarDays className="h-8 w-8 text-primary mr-4" />
                 <div>
                   <h3 className="font-semibold text-lg">Date</h3>
-                  <p>May 10, 2025</p>
+                  <p>May 9, 2026</p>
                 </div>
               </CardContent>
             </Card>
@@ -132,7 +133,7 @@ export function AltorpUltra() {
                 <HandCoins className="h-8 w-8 text-primary mr-4" />
                 <div>
                   <h3 className="font-semibold text-lg">Price</h3>
-                  <p>200 SEK (early bird)</p>
+                  <p>250 SEK (early bird)</p>
                 </div>
               </CardContent>
             </Card>

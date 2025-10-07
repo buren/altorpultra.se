@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useSearchParams } from "next/navigation";
 
-export const baseRegisterUrl = "https://i.washere.io/join/CAJI1EYS?utm_source=altorpultra.se";
+export const baseRegisterUrl = "https://forms.gle/fmNSNWbQMRHHYi8V9?utm_source=altorpultra.se";
 const utmNames = ['utm_source', 'utm_content', 'utm_medium', 'utm_term', 'utm_campaign'];
 
 export default function RegisterButton() {
@@ -21,8 +21,6 @@ export default function RegisterButton() {
         url.searchParams.set(utmName, value);
       }
     });
-
-    // TODO handle links like: https://altorpultra.se/?utm_source=https%3A%2F%2Flinks.washere.io%2F%3FmemberNo%3D5QTPB0
 
     setRegisterUrl(url.toString());
   }, [searchParams]);
