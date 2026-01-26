@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useSearchParams } from "next/navigation";
 
-export const baseRegisterUrl = "https://forms.gle/fmNSNWbQMRHHYi8V9?utm_source=altorpultra.se";
+export const baseRegisterUrl = "https://raceid.com/en/races/14211/registration?distance=26641";
 const utmNames = ['utm_source', 'utm_content', 'utm_medium', 'utm_term', 'utm_campaign'];
 
 export default function RegisterButton() {

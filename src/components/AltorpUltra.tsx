@@ -48,7 +48,7 @@ function eventStructuredData() {
     "offers": {
       "@type": "Offer",
       "url": baseRegisterUrl,
-      "price": "250",
+      "price": "300",
       "priceCurrency": "SEK",
       "availability": "https://schema.org/InStock",
       "validFrom": "2024-10-09T00:00:00+02:00"
@@ -111,7 +111,7 @@ const infoItems = [
   {
     icon: <HandCoins className="h-8 w-8" />,
     title: "Price",
-    description: "250 SEK (early bird)",
+    description: "300 SEK",
   },
   {
     icon: <MapPin className="h-8 w-8" />,
