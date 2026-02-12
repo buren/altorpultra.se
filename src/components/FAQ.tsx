@@ -41,11 +41,10 @@ export default function FAQ() {
           </AccordionContent>
         </AccordionItem>
 
-        <AccordionItem value="item-3">
+        <AccordionItem value="item-4">
           <AccordionTrigger className="text-xl font-bold">How do I pay?</AccordionTrigger>
           <AccordionContent className="text-lg">
-            At this point we&apos;re not excepting payments. The event will cost 300 SEK for early birds (thats you!). Register your interest now to secure your early bird price.
-            More information and how to pay will be communicated soon.
+            The entry fee is 300 SEK. You can register and pay directly through our registration page on RaceID.
           </AccordionContent>
         </AccordionItem>
       </Accordion>

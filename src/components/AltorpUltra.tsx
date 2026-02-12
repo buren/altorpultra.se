@@ -186,7 +186,7 @@ export function AltorpUltra() {
           <SectionTitle title="How many laps can you do?" />
           <div className="max-w-3xl mx-auto">
             <p className="text-xl text-gray-700 leading-relaxed">
-              Join us for an epic day of pushing your limits on the beautiful <strong>&lsquo;Långa gula&lsquo; 7.0 km loop</strong> in Altorp. With ~100m of elevation per lap, it&rsquo;s a fun challenge.
+              Join us for an epic day of pushing your limits on the beautiful <strong>&lsquo;Långa gula&rsquo; 7.0 km loop</strong> in Altorp. With ~100m of elevation per lap, it&rsquo;s a fun challenge.
             </p>
             <p className="text-xl text-gray-700 leading-relaxed mt-4">
               This isn&rsquo;t just for serious runners. <strong>Everyone is welcome.</strong> Whether you walk one lap or run twelve, the goal is to challenge yourself, enjoy the forest, and be part of an amazing community. Run, walk, rest, and see what you&rsquo;re capable of in 8 hours.
