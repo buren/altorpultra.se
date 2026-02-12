@@ -197,6 +197,16 @@ export function AltorpUltra() {
           </div>
         </section>
 
+        <section className="mb-16 bg-primary/10 border border-primary/20 rounded-lg p-8 md:p-12 text-center">
+          <span className="inline-block bg-primary text-white text-sm font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wide">
+            New for 2026
+          </span>
+          <h2 className="text-3xl font-bold mb-4">Kids Race</h2>
+          <p className="text-xl text-gray-700 leading-relaxed max-w-2xl mx-auto">
+            This year we&rsquo;re introducing a <strong>kids race</strong>! A fun ~400m run, starting at <strong>09:30</strong> before the main event. It&rsquo;s <strong>free for everyone</strong> &mdash; just show up and run!
+          </p>
+        </section>
+
         <section className="mb-16 bg-white rounded-lg shadow-sm p-8 md:p-12">
           <h2 className="text-3xl font-bold text-center mb-8">What to Expect</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
