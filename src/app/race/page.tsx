@@ -7,6 +7,7 @@ import { formatLapTime, formatTimestamp, formatLastCompleted } from "@/lib/race/
 import { site, currentYear, event } from "@/lib/constants";
 import { supabase } from "@/lib/race/supabase";
 import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
+import { Search } from "lucide-react";
 
 interface LeaderboardData {
   leaderboard: LeaderboardEntry[];
@@ -41,6 +42,7 @@ function LeaderboardTable({
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [nameFilter, setNameFilter] = useState("");
+  const filterRef = React.useRef<HTMLInputElement>(null);
 
   // Reset to first page when entries or filter change
   useEffect(() => {
@@ -67,9 +69,21 @@ function LeaderboardTable({
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-xl font-bold">{title}</h2>
+        <h2 className="text-xl font-bold">
+          {title}
+          {paginate && (
+            <button
+              type="button"
+              onClick={() => filterRef.current?.focus()}
+              className="ml-2 text-gray-400 hover:text-gray-600 align-middle"
+            >
+              <Search className="h-5 w-5 inline align-text-bottom" />
+            </button>
+          )}
+        </h2>
         {paginate && (
           <input
+            ref={filterRef}
             type="text"
             value={nameFilter}
             onChange={(e) => setNameFilter(e.target.value)}

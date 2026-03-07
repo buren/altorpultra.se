@@ -242,11 +242,11 @@ export default function AdminPage() {
       {/* Header */}
       <header className="bg-gray-900 text-white px-4 py-3">
         <div className="container mx-auto flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold">{site.name} Admin</h1>
+            <p className="text-gray-400 text-sm">{currentYear}</p>
+          </div>
           <div className="flex items-center gap-4">
-            <div>
-              <h1 className="text-xl font-bold">{site.name} Admin</h1>
-              <p className="text-gray-400 text-sm">{currentYear}</p>
-            </div>
             <a
               href="/race"
               target="_blank"
@@ -254,8 +254,6 @@ export default function AdminPage() {
             >
               View Leaderboard
             </a>
-          </div>
-          <div className="text-right">
             {(() => {
               const phase = getRacePhase(event.startDateTime, event.endDateTime, now);
               if (phase === "before") {
