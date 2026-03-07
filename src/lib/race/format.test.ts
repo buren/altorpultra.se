@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatLapTime, formatTimestamp, formatTimeAgo } from "./format";
+import { formatLapTime, formatTimestamp, formatTimeAgo, formatLastCompleted } from "./format";
 
 describe("formatLapTime", () => {
   it("formats seconds into MM:SS", () => {
@@ -47,5 +47,27 @@ describe("formatTimeAgo", () => {
 
   it("returns dash for null", () => {
     expect(formatTimeAgo(null, new Date())).toBe("–");
+  });
+});
+
+describe("formatLastCompleted", () => {
+  it("returns 'just now' for < 1 minute", () => {
+    const now = new Date("2026-05-09T10:00:30+02:00");
+    expect(formatLastCompleted("2026-05-09T10:00:00+02:00", now)).toBe("just now");
+  });
+
+  it("returns minutes for < 60 minutes", () => {
+    const now = new Date("2026-05-09T10:25:00+02:00");
+    expect(formatLastCompleted("2026-05-09T10:00:00+02:00", now)).toBe("25 min ago");
+  });
+
+  it("returns HH:MM for >= 60 minutes", () => {
+    const now = new Date("2026-05-09T12:00:00+02:00");
+    const result = formatLastCompleted("2026-05-09T10:00:00+02:00", now);
+    expect(result).toMatch(/^\d{2}:\d{2}$/);
+  });
+
+  it("returns dash for null", () => {
+    expect(formatLastCompleted(null, new Date())).toBe("–");
   });
 });

@@ -48,7 +48,7 @@ export async function getRunners(
     .from("runners")
     .select("*")
     .eq("edition_year", editionYear)
-    .order("bib");
+    .order("created_at", { ascending: false });
 
   if (error) throw error;
   return data as Runner[];

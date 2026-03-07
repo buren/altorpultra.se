@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
 import { getRunners, getLaps } from "@/lib/race/db";
 import { buildLeaderboard, filterByGender } from "@/lib/race/leaderboard";
-import { supabaseServer } from "@/lib/race/supabase-server";
+import { createServerClient } from "@/lib/race/supabase-server";
 import { currentYear, event } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
+    const supabase = createServerClient();
     const [runners, laps] = await Promise.all([
-      getRunners(supabaseServer, currentYear),
-      getLaps(supabaseServer, currentYear),
+      getRunners(supabase, currentYear),
+      getLaps(supabase, currentYear),
     ]);
 
     const leaderboard = buildLeaderboard(

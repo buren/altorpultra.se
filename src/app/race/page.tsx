@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { LeaderboardEntry } from "@/lib/race/types";
-import { formatLapTime, formatTimestamp } from "@/lib/race/format";
+import { LeaderboardEntry, Gender } from "@/lib/race/types";
+import { formatLapTime, formatTimestamp, formatLastCompleted } from "@/lib/race/format";
 import { site, currentYear, event } from "@/lib/constants";
 import { supabase } from "@/lib/race/supabase";
 
@@ -13,14 +13,24 @@ interface LeaderboardData {
   topWomen: LeaderboardEntry[];
 }
 
+function GenderIcon({ gender }: { gender: Gender }) {
+  if (gender === "male") return <span title="Male">♂</span>;
+  if (gender === "female") return <span title="Female">♀</span>;
+  return <span title="Other">–</span>;
+}
+
 function LeaderboardTable({
   entries,
   title,
   showMedals,
+  showGender,
+  now,
 }: {
   entries: LeaderboardEntry[];
   title: string;
   showMedals?: boolean;
+  showGender?: boolean;
+  now?: Date;
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -39,6 +49,7 @@ function LeaderboardTable({
             <tr>
               <th className="px-3 py-2 w-10">#</th>
               <th className="px-3 py-2 w-14">Bib</th>
+              {showGender && <th className="px-3 py-2 w-10"></th>}
               <th className="px-3 py-2">Name</th>
               <th className="px-3 py-2 text-right">Laps</th>
               <th className="px-3 py-2 text-right hidden sm:table-cell">
@@ -50,13 +61,17 @@ function LeaderboardTable({
               <th className="px-3 py-2 text-right hidden md:table-cell">
                 Fastest
               </th>
+              {now && (
+                <th className="px-3 py-2 text-right hidden sm:table-cell">
+                  Last Lap
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {entries.map((e, i) => (
-              <>
+              <React.Fragment key={e.runner.id}>
                 <tr
-                  key={e.runner.id}
                   className="hover:bg-gray-50 cursor-pointer"
                   onClick={() =>
                     setExpandedId(
@@ -74,6 +89,11 @@ function LeaderboardTable({
                   <td className="px-3 py-2 font-mono font-bold text-gray-600">
                     {e.runner.bib}
                   </td>
+                  {showGender && (
+                    <td className="px-3 py-2 text-gray-500">
+                      <GenderIcon gender={e.runner.gender} />
+                    </td>
+                  )}
                   <td className="px-3 py-2 font-medium">{e.runner.name}</td>
                   <td className="px-3 py-2 text-right font-bold">
                     {e.totalLaps}
@@ -87,10 +107,15 @@ function LeaderboardTable({
                   <td className="px-3 py-2 text-right text-gray-600 hidden md:table-cell">
                     {formatLapTime(e.fastestLapSeconds)}
                   </td>
+                  {now && (
+                    <td className="px-3 py-2 text-right text-gray-500 text-sm hidden sm:table-cell">
+                      {formatLastCompleted(e.lastLapTimestamp, now)}
+                    </td>
+                  )}
                 </tr>
                 {expandedId === e.runner.id && e.laps.length > 0 && (
-                  <tr key={`${e.runner.id}-detail`}>
-                    <td colSpan={7} className="bg-gray-50 px-6 py-3">
+                  <tr>
+                    <td colSpan={(showGender ? 8 : 7) + (now ? 1 : 0)} className="bg-gray-50 px-6 py-3">
                       <p className="text-sm font-semibold text-gray-500 mb-2">
                         Lap splits for #{e.runner.bib} {e.runner.name}
                       </p>
@@ -126,7 +151,7 @@ function LeaderboardTable({
                     </td>
                   </tr>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </table>
@@ -137,6 +162,12 @@ function LeaderboardTable({
 
 export default function RacePage() {
   const [data, setData] = useState<LeaderboardData | null>(null);
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchData = useCallback(async () => {
     const res = await fetch("/api/race/leaderboard");
@@ -219,6 +250,14 @@ export default function RacePage() {
           </Card>
         </div>
 
+        {/* Full Leaderboard */}
+        <LeaderboardTable
+          entries={data.leaderboard}
+          title="Overall Leaderboard"
+          showGender
+          now={now}
+        />
+
         {/* Top Men & Women side by side */}
         {(data.topMen.length > 0 || data.topWomen.length > 0) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -234,12 +273,6 @@ export default function RacePage() {
             />
           </div>
         )}
-
-        {/* Full Leaderboard */}
-        <LeaderboardTable
-          entries={data.leaderboard}
-          title="Overall Leaderboard"
-        />
       </main>
 
       <footer className="text-center py-6 text-gray-400 text-sm">

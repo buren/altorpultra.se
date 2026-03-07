@@ -37,6 +37,8 @@ export default function AdminPage() {
     bib: "",
     gender: "male" as Gender,
   });
+  const [highlightRunnerId, setHighlightRunnerId] = useState<string | null>(null);
+  const [editingRunner, setEditingRunner] = useState<Runner | null>(null);
   const [runnerMessage, setRunnerMessage] = useState<{
     text: string;
     type: "success" | "error";
@@ -153,10 +155,43 @@ export default function AdminPage() {
         text: `Added #${data.data.bib} ${data.data.name}`,
         type: "success",
       });
+      setHighlightRunnerId(data.data.id);
+      setTimeout(() => setHighlightRunnerId(null), 2000);
       setNewRunner({ name: "", bib: "", gender: "male" });
       fetchData();
     } else {
       setRunnerMessage({ text: data.error, type: "error" });
+    }
+  }
+
+  async function handleUpdateRunner(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingRunner) return;
+    const res = await fetch(`/api/race/runners`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: editingRunner.id,
+        name: editingRunner.name,
+        bib: editingRunner.bib,
+        gender: editingRunner.gender,
+      }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      setEditingRunner(null);
+      fetchData();
+    } else {
+      setRunnerMessage({ text: data.error, type: "error" });
+    }
+  }
+
+  async function handleDeleteRunner(id: string) {
+    const res = await fetch(`/api/race/runners?id=${id}`, { method: "DELETE" });
+    const data = await res.json();
+    if (data.ok) {
+      setEditingRunner(null);
+      fetchData();
     }
   }
 
@@ -442,22 +477,106 @@ export default function AdminPage() {
                   <p className="text-gray-500">No runners registered</p>
                 ) : (
                   <div className="space-y-1 max-h-96 overflow-y-auto">
-                    {runners.map((r) => (
-                      <div
-                        key={r.id}
-                        className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded"
-                      >
-                        <div>
-                          <span className="font-mono font-bold text-gray-600">
-                            #{r.bib}
-                          </span>{" "}
-                          <span className="font-medium">{r.name}</span>
+                    {runners.map((r) =>
+                      editingRunner?.id === r.id ? (
+                        <form
+                          key={r.id}
+                          onSubmit={handleUpdateRunner}
+                          className="bg-white border border-blue-300 rounded-md p-3 space-y-2"
+                        >
+                          <div className="grid grid-cols-2 gap-2">
+                            <input
+                              type="text"
+                              value={editingRunner.name}
+                              onChange={(e) =>
+                                setEditingRunner({ ...editingRunner, name: e.target.value })
+                              }
+                              className="border rounded px-2 py-1 text-sm"
+                              placeholder="Name"
+                            />
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              value={editingRunner.bib}
+                              onChange={(e) =>
+                                setEditingRunner({
+                                  ...editingRunner,
+                                  bib: parseInt(e.target.value.replace(/\D/g, ""), 10) || 0,
+                                })
+                              }
+                              className="border rounded px-2 py-1 text-sm font-mono"
+                              placeholder="Bib"
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            {(["male", "female", "other"] as const).map((g) => (
+                              <label
+                                key={g}
+                                className={`flex-1 text-center py-1 rounded border cursor-pointer text-sm transition-colors ${
+                                  editingRunner.gender === g
+                                    ? "bg-blue-100 text-blue-800 border-blue-400 font-semibold"
+                                    : "bg-white text-gray-700 border-gray-300"
+                                }`}
+                              >
+                                <input
+                                  type="radio"
+                                  name="edit-gender"
+                                  value={g}
+                                  checked={editingRunner.gender === g}
+                                  onChange={() =>
+                                    setEditingRunner({ ...editingRunner, gender: g })
+                                  }
+                                  className="sr-only"
+                                />
+                                {g.charAt(0).toUpperCase() + g.slice(1)}
+                              </label>
+                            ))}
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              type="submit"
+                              className="flex-1 bg-gray-900 text-white rounded py-1 text-sm font-semibold hover:bg-gray-800"
+                            >
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingRunner(null)}
+                              className="flex-1 border border-gray-300 rounded py-1 text-sm font-medium hover:bg-gray-50"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteRunner(r.id)}
+                              className="border border-red-300 text-red-600 rounded px-3 py-1 text-sm font-medium hover:bg-red-50"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <div
+                          key={r.id}
+                          onClick={() => setEditingRunner(r)}
+                          className={`flex items-center justify-between px-3 py-2 rounded cursor-pointer hover:bg-gray-100 transition-colors duration-1000 ${
+                            highlightRunnerId === r.id
+                              ? "bg-green-100"
+                              : "bg-gray-50"
+                          }`}
+                        >
+                          <div>
+                            <span className="font-mono font-bold text-gray-600">
+                              #{r.bib}
+                            </span>{" "}
+                            <span className="font-medium">{r.name}</span>
+                          </div>
+                          <span className="text-sm text-gray-400 capitalize">
+                            {r.gender}
+                          </span>
                         </div>
-                        <span className="text-sm text-gray-400 capitalize">
-                          {r.gender}
-                        </span>
-                      </div>
-                    ))}
+                      )
+                    )}
                   </div>
                 )}
               </CardContent>
