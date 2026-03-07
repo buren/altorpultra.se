@@ -13,7 +13,7 @@ import {
 
 import altorpPic from '../public/altorp.webp'
 import { QuestionMarkIcon } from "@radix-ui/react-icons"
-import GoogleMapsRoute from "./GoogleMapsRoute"
+import StravaRouteEmbed from "./StravaRouteEmbed"
 import FAQ from "./FAQ"
 import SectionTitle from "./SectionTitle"
 import RegisterButton from "./RegisterButton"
@@ -260,7 +260,7 @@ export function AltorpUltra() {
         </div>
 
         <div className="mt-12 w-full">
-          <GoogleMapsRoute />
+          <StravaRouteEmbed />
         </div>
 
         <section className="text-center mt-12 mb-8">
