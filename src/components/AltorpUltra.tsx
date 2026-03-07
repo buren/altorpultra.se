@@ -9,6 +9,9 @@ import {
   Trees,
   Users,
   Award,
+  UtensilsCrossed,
+  Music,
+  PartyPopper,
 } from "lucide-react"
 
 import altorpPic from '../public/altorp.webp'
@@ -220,10 +223,13 @@ export function AltorpUltra() {
           </p>
         </section>
 
-        {/* What to Expect */}
-        <section id="expect" className="mb-16 bg-white rounded-lg shadow-sm p-8 md:p-12 scroll-mt-20">
-          <h2 className="text-3xl font-bold text-center mb-8">What to Expect</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+        {/* More Than a Race */}
+        <section className="mb-16 bg-white rounded-lg shadow-sm p-8 md:p-12 text-center">
+          <h2 className="text-3xl font-bold mb-4">More Than a Race</h2>
+          <p className="text-xl text-gray-700 leading-relaxed max-w-2xl mx-auto mb-8">
+            Altorp Ultra is a full day out. Bring your friends and family, hang out, and soak up the atmosphere. Good vibes, good food, and good music.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {featureItems.map((feature) => (
               <div key={feature.title} className="flex flex-col items-center">
                 {feature.icon}
@@ -231,6 +237,21 @@ export function AltorpUltra() {
                 <p className="text-gray-600">{feature.description}</p>
               </div>
             ))}
+            <div className="flex flex-col items-center">
+              <UtensilsCrossed className="h-10 w-10 text-primary" />
+              <h3 className="text-2xl font-semibold mt-4 mb-2">Food & Drinks</h3>
+              <p className="text-gray-600"><strong>Burgers, hot dogs, snacks, and drinks.</strong> Free for all runners &mdash; available for everyone else for a small fee.</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <Music className="h-10 w-10 text-primary" />
+              <h3 className="text-2xl font-semibold mt-4 mb-2">Music</h3>
+              <p className="text-gray-600">Tunes all day long to keep the energy up &mdash; whether you&rsquo;re running, cheering, or just chilling.</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <PartyPopper className="h-10 w-10 text-primary" />
+              <h3 className="text-2xl font-semibold mt-4 mb-2">Hang Out</h3>
+              <p className="text-gray-600">Come for the race, stay for the atmosphere. Everyone is welcome &mdash; runners, spectators, and families alike.</p>
+            </div>
           </div>
         </section>
 
