@@ -23,13 +23,13 @@ import React from "react"
 import Navbar from "./Navbar"
 import Countdown from "./Countdown"
 import Footer from "./Footer"
-import { currentYear, event, googleMaps, raceIdUrl, stravaRoutes } from "@/lib/constants"
+import { currentYear, event, googleMaps, raceIdUrl, site } from "@/lib/constants"
 
 function eventStructuredData() {
   return {
     "@context": "https://schema.org",
     "@type": "Event",
-    "name": event.name,
+    "name": site.name,
     "description": `Join us for an epic day. Altorp ${event.lapDistanceKm} km loop - 'Långa gula'. ${event.dateFormatted}, ${event.startTime}-${event.endTime}. As many laps as you can.`,
     "startDate": event.startDateTime,
     "endDate": event.endDateTime,
@@ -41,7 +41,7 @@ function eventStructuredData() {
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Djursholm",
-        "addressRegion": event.region,
+        "addressRegion": site.region,
         "addressCountry": "SE"
       }
     },
@@ -58,13 +58,13 @@ function eventStructuredData() {
     },
     "performer": {
       "@type": "Organization",
-      "name": event.name
+      "name": site.name
     },
     "organizer": {
       "@type": "Organization",
-      "name": event.name,
-      "url": event.website,
-      "email": event.email
+      "name": site.name,
+      "url": site.website,
+      "email": site.email
     }
   };
 }
@@ -118,20 +118,20 @@ const infoItems = [
   {
     icon: <MapPin className="h-8 w-8" />,
     title: "Location",
-    description: event.location,
+    description: site.location,
     href: googleMaps.startPin,
   },
   {
     icon: <Route className="h-8 w-8" />,
     title: "Strava route",
     description: `"Långa gula" ${event.lapDistanceKm}km`,
-    href: stravaRoutes[currentYear],
+    href: event.stravaRoute,
   },
   {
     icon: <QuestionMarkIcon className="h-8 w-8" />,
     title: "Questions",
-    description: event.email,
-    href: `mailto:${event.email}`,
+    description: site.email,
+    href: `mailto:${site.email}`,
   },
 ];
 
@@ -177,10 +177,10 @@ export function AltorpUltra() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 px-4">
           <h1 className="text-5xl md:text-7xl font-bold text-white text-center tracking-tight [text-shadow:2px_2px_12px_rgba(0,0,0,0.5)]">
-            {event.name}
+            {site.name}
           </h1>
           <p className="text-lg md:text-xl text-white/80 text-center font-medium tracking-wide">
-            {event.dateFormatted} &middot; {event.location.split(",")[1]?.trim() || event.region}
+            {event.dateFormatted} &middot; {site.region}
           </p>
           <a
             href={raceIdUrl}

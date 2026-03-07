@@ -1,5 +1,5 @@
 import SectionTitle from "@/components/SectionTitle"
-import { currentYear, event, googleMaps, stravaRoutes } from "@/lib/constants"
+import { currentYear, event, googleMaps, site } from "@/lib/constants"
 
 export default function Info() {
   return (
@@ -33,7 +33,7 @@ export default function Info() {
               <br />
               <p>Utöver snacks så planerar vi grilla burgare, korv och dylikt som man kan köpa.</p>
               <br />
-              <p><strong>Information om banan</strong>: Varje varv är {event.lapDistanceKm} km och drygt {event.lapElevationM} höjdmeter. <a className="underline text-blue-600" href={stravaRoutes[currentYear]}>Här finns rutten på Strava</a> och <a className="underline text-blue-600" href={googleMaps.routeViewer}>här på Google Maps</a>.</p>
+              <p><strong>Information om banan</strong>: Varje varv är {event.lapDistanceKm} km och drygt {event.lapElevationM} höjdmeter. <a className="underline text-blue-600" href={event.stravaRoute}>Här finns rutten på Strava</a> och <a className="underline text-blue-600" href={googleMaps.routeViewer}>här på Google Maps</a>.</p>
               <br />
               {/* TODO */}
               <p><strong>Bib/nummerlapp:</strong> TBD.</p>
@@ -47,7 +47,7 @@ export default function Info() {
               {/* TODO */}
               <p><strong>Betalning:</strong> TBD.</p>
               <br />
-              <p>Har ni frågor är det bara att höra av er till <a className="underline" href={`mailto:${event.email}`}>{event.email}</a>.</p>
+              <p>Har ni frågor är det bara att höra av er till <a className="underline" href={`mailto:${site.email}`}>{site.email}</a>.</p>
 
             </div>
           </section>

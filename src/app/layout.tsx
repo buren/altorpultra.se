@@ -3,12 +3,12 @@ import Script from 'next/script'
 import "./globals.css";
 
 import { Manrope } from 'next/font/google'
-import { event } from "@/lib/constants";
+import { event, site } from "@/lib/constants";
 
 const manrope = Manrope({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: `${event.name} - ${event.dateFormatted}`,
+  title: `${site.name} - ${event.dateFormatted}`,
   description: `Join us for an epic day. Altorp ${event.lapDistanceKm} km loop - "Långa gula". ${event.dateFormatted}, ${event.startTime}-${event.endTime}. As many laps as you can.`,
 };
 
