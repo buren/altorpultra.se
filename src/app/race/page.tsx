@@ -6,6 +6,7 @@ import { LeaderboardEntry, Gender } from "@/lib/race/types";
 import { formatLapTime, formatTimestamp, formatLastCompleted } from "@/lib/race/format";
 import { site, currentYear, event } from "@/lib/constants";
 import { supabase } from "@/lib/race/supabase";
+import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
 
 interface LeaderboardData {
   leaderboard: LeaderboardEntry[];
@@ -19,24 +20,39 @@ function GenderIcon({ gender }: { gender: Gender }) {
   return <span title="Other">–</span>;
 }
 
+const PAGE_SIZES = [10, 20, 50, 100] as const;
+
 function LeaderboardTable({
   entries,
   title,
   showMedals,
   showGender,
   now,
+  paginate,
 }: {
   entries: LeaderboardEntry[];
   title: string;
   showMedals?: boolean;
   showGender?: boolean;
   now?: Date;
+  paginate?: boolean;
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Reset to first page when entries change (e.g. realtime update)
+  useEffect(() => {
+    setPage(0);
+  }, [entries.length]);
 
   if (entries.length === 0) {
     return null;
   }
+
+  const totalPages = paginate ? Math.ceil(entries.length / pageSize) : 1;
+  const offset = paginate ? page * pageSize : 0;
+  const visibleEntries = paginate ? entries.slice(offset, offset + pageSize) : entries;
 
   const medals = ["text-yellow-500", "text-gray-400", "text-amber-600"];
 
@@ -69,7 +85,9 @@ function LeaderboardTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {entries.map((e, i) => (
+            {visibleEntries.map((e, i) => {
+              const rank = offset + i + 1;
+              return (
               <React.Fragment key={e.runner.id}>
                 <tr
                   className="hover:bg-gray-50 cursor-pointer"
@@ -80,10 +98,10 @@ function LeaderboardTable({
                   }
                 >
                   <td className="px-3 py-2">
-                    {showMedals && i < 3 ? (
-                      <span className={`font-bold ${medals[i]}`}>{i + 1}</span>
+                    {showMedals && rank <= 3 ? (
+                      <span className={`font-bold ${medals[rank - 1]}`}>{rank}</span>
                     ) : (
-                      <span className="text-gray-500">{i + 1}</span>
+                      <span className="text-gray-500">{rank}</span>
                     )}
                   </td>
                   <td className="px-3 py-2 font-mono font-bold text-gray-600">
@@ -152,10 +170,49 @@ function LeaderboardTable({
                   </tr>
                 )}
               </React.Fragment>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
+      {paginate && totalPages > 1 && (
+        <div className="flex items-center justify-between mt-3 text-sm">
+          <div className="flex items-center gap-2 text-gray-500">
+            <span>Show</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setPage(0);
+              }}
+              className="border rounded px-2 py-1 bg-white"
+            >
+              {PAGE_SIZES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-gray-500">
+              {offset + 1}–{Math.min(offset + pageSize, entries.length)} of {entries.length}
+            </span>
+            <button
+              onClick={() => setPage(page - 1)}
+              disabled={page === 0}
+              className="px-3 py-1 border rounded bg-white hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              Prev
+            </button>
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={page >= totalPages - 1}
+              className="px-3 py-1 border rounded bg-white hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -165,7 +222,7 @@ export default function RacePage() {
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
-    const interval = setInterval(() => setNow(new Date()), 30000);
+    const interval = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -221,9 +278,41 @@ export default function RacePage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-gray-900 text-white px-4 py-4">
-        <div className="container mx-auto text-center">
-          <h1 className="text-2xl font-bold">{site.name} {currentYear}</h1>
-          <p className="text-gray-400 text-sm">Live Results</p>
+        <div className="container mx-auto flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">{site.name} {currentYear}</h1>
+            <p className="text-gray-400 text-sm">Live Results</p>
+          </div>
+          <div className="text-right">
+            {(() => {
+              const phase = getRacePhase(event.startDateTime, event.endDateTime, now);
+              if (phase === "before") {
+                const secs = secondsUntil(event.startDateTime, now);
+                return (
+                  <div>
+                    <div className="text-2xl font-mono font-bold text-yellow-400">
+                      {formatDuration(secs)}
+                    </div>
+                    <div className="text-xs text-gray-400">until race starts</div>
+                  </div>
+                );
+              }
+              if (phase === "during") {
+                const secs = secondsUntil(event.endDateTime, now);
+                return (
+                  <div>
+                    <div className="text-2xl font-mono font-bold text-green-400">
+                      {formatDuration(secs)}
+                    </div>
+                    <div className="text-xs text-gray-400">remaining</div>
+                  </div>
+                );
+              }
+              return (
+                <span className="text-gray-400 font-semibold">Race completed</span>
+              );
+            })()}
+          </div>
         </div>
       </header>
 
@@ -256,6 +345,7 @@ export default function RacePage() {
           title="Overall Leaderboard"
           showGender
           now={now}
+          paginate
         />
 
         {/* Top Men & Women side by side */}
