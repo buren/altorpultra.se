@@ -3,12 +3,13 @@ import Script from 'next/script'
 import "./globals.css";
 
 import { Manrope } from 'next/font/google'
+import { event } from "@/lib/constants";
 
 const manrope = Manrope({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Altorp Ultra - May 9, 2026",
-  description: 'Join us for an epic day. Altorp 7.0 km loop - "Långa gula". May 9 2026, 10:00-18:00. As many laps as you can.',
+  title: `${event.name} - ${event.dateFormatted}`,
+  description: `Join us for an epic day. Altorp ${event.lapDistanceKm} km loop - "Långa gula". ${event.dateFormatted}, ${event.startTime}-${event.endTime}. As many laps as you can.`,
 };
 
 export default function RootLayout({
@@ -17,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-smooth">
       <body
         className={`${manrope.className} antialiased`}
       >

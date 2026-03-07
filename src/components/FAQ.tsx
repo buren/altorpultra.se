@@ -4,6 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { event } from "@/lib/constants";
 import SectionTitle from "./SectionTitle";
 
 export default function FAQ() {
@@ -44,7 +45,7 @@ export default function FAQ() {
         <AccordionItem value="item-4">
           <AccordionTrigger className="text-xl font-bold">How do I pay?</AccordionTrigger>
           <AccordionContent className="text-lg">
-            The entry fee is 300 SEK. You can register and pay directly through our registration page on RaceID.
+            The entry fee is {event.priceSEK} SEK. You can register and pay directly through our registration page on RaceID.
           </AccordionContent>
         </AccordionItem>
       </Accordion>

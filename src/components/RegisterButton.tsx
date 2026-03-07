@@ -3,17 +3,17 @@
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useSearchParams } from "next/navigation";
+import { raceIdUrl } from "@/lib/constants";
 
-export const baseRegisterUrl = "https://raceid.com/en/races/14211/registration?distance=26641";
 const utmNames = ['utm_source', 'utm_content', 'utm_medium', 'utm_term', 'utm_campaign'];
 
 export default function RegisterButton() {
-  const [registerUrl, setRegisterUrl] = useState(baseRegisterUrl);
+  const [registerUrl, setRegisterUrl] = useState(raceIdUrl);
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
-    const url = new URL(baseRegisterUrl);
+    const url = new URL(raceIdUrl);
 
     utmNames.forEach((utmName) => {
       const value = params.get(utmName);
