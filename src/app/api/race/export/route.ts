@@ -1,0 +1,40 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getRunners, getLaps } from "@/lib/race/db";
+import { buildLeaderboard } from "@/lib/race/leaderboard";
+import { buildCsvExport } from "@/lib/race/services";
+import { supabase } from "@/lib/race/supabase";
+import { currentYear, event } from "@/lib/constants";
+
+export async function GET(req: NextRequest) {
+  const password = req.cookies.get("race_admin")?.value ?? "";
+  const serverPassword = process.env.RACE_ADMIN_PASSWORD ?? "";
+
+  if (password !== serverPassword || !serverPassword) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const [runners, laps] = await Promise.all([
+      getRunners(supabase, currentYear),
+      getLaps(supabase, currentYear),
+    ]);
+
+    const leaderboard = buildLeaderboard(
+      runners,
+      laps,
+      event.lapDistanceKm,
+      event.lapElevationM
+    );
+
+    const csv = buildCsvExport(leaderboard);
+
+    return new NextResponse(csv, {
+      headers: {
+        "Content-Type": "text/csv",
+        "Content-Disposition": `attachment; filename="altorp-ultra-${currentYear}-results.csv"`,
+      },
+    });
+  } catch (err: any) {
+    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+  }
+}
