@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleAddRunner } from "@/lib/race/api-handlers";
 import { getRunners } from "@/lib/race/db";
-import { supabase } from "@/lib/race/supabase";
+import { supabaseServer } from "@/lib/race/supabase-server";
 import { currentYear } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const runners = await getRunners(supabase, currentYear);
+    const runners = await getRunners(supabaseServer, currentYear);
     return NextResponse.json({ ok: true, data: runners });
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
