@@ -40,25 +40,44 @@ function LeaderboardTable({
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [nameFilter, setNameFilter] = useState("");
 
-  // Reset to first page when entries change (e.g. realtime update)
+  // Reset to first page when entries or filter change
   useEffect(() => {
     setPage(0);
-  }, [entries.length]);
+  }, [entries.length, nameFilter]);
 
   if (entries.length === 0) {
     return null;
   }
 
-  const totalPages = paginate ? Math.ceil(entries.length / pageSize) : 1;
+  const indexedEntries = entries.map((e, i) => ({ entry: e, rank: i + 1 }));
+  const filteredEntries = nameFilter
+    ? indexedEntries.filter((item) =>
+        item.entry.runner.name.toLowerCase().includes(nameFilter.toLowerCase())
+      )
+    : indexedEntries;
+
+  const totalPages = paginate ? Math.ceil(filteredEntries.length / pageSize) : 1;
   const offset = paginate ? page * pageSize : 0;
-  const visibleEntries = paginate ? entries.slice(offset, offset + pageSize) : entries;
+  const visibleEntries = paginate ? filteredEntries.slice(offset, offset + pageSize) : filteredEntries;
 
   const medals = ["text-yellow-500", "text-gray-400", "text-amber-600"];
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-3">{title}</h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-xl font-bold">{title}</h2>
+        {paginate && (
+          <input
+            type="text"
+            value={nameFilter}
+            onChange={(e) => setNameFilter(e.target.value)}
+            placeholder="Filter by name…"
+            className="border rounded-md px-3 py-1.5 text-sm w-48"
+          />
+        )}
+      </div>
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <table className="w-full text-left">
           <thead className="bg-gray-50 text-sm text-gray-500">
@@ -85,9 +104,7 @@ function LeaderboardTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {visibleEntries.map((e, i) => {
-              const rank = offset + i + 1;
-              return (
+            {visibleEntries.map(({ entry: e, rank }) => (
               <React.Fragment key={e.runner.id}>
                 <tr
                   className="hover:bg-gray-50 cursor-pointer"
@@ -170,8 +187,7 @@ function LeaderboardTable({
                   </tr>
                 )}
               </React.Fragment>
-              );
-            })}
+            ))}
           </tbody>
         </table>
       </div>
@@ -194,7 +210,7 @@ function LeaderboardTable({
           </div>
           <div className="flex items-center gap-3">
             <span className="text-gray-500">
-              {offset + 1}–{Math.min(offset + pageSize, entries.length)} of {entries.length}
+              {offset + 1}–{Math.min(offset + pageSize, filteredEntries.length)} of {filteredEntries.length}
             </span>
             <button
               onClick={() => setPage(page - 1)}
