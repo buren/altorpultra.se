@@ -6,9 +6,3 @@ export function createServerClient() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 }
-
-// Keep for backwards compat — prefer createServerClient() per request
-export const supabaseServer = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);

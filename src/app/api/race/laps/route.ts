@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleRegisterLap, handleDeleteLap } from "@/lib/race/api-handlers";
 import { getRecentLaps } from "@/lib/race/db";
-import { supabaseServer } from "@/lib/race/supabase-server";
+import { createServerClient } from "@/lib/race/supabase-server";
 import { currentYear } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const laps = await getRecentLaps(supabaseServer, currentYear, 20);
+    const laps = await getRecentLaps(createServerClient(), currentYear, 20);
     return NextResponse.json({ ok: true, data: laps });
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err.message }, { status: 500 });

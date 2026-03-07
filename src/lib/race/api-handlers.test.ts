@@ -17,7 +17,7 @@ vi.mock("./db", () => ({
 
 // Mock supabase server module
 vi.mock("./supabase-server", () => ({
-  supabaseServer: {},
+  createServerClient: () => ({}),
 }));
 
 import * as db from "./db";

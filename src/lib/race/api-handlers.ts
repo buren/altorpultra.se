@@ -1,7 +1,7 @@
 import { validateAdminPassword } from "./admin-auth";
 import { validateNewRunner, getNextBibNumber } from "./services";
 import * as db from "./db";
-import { supabaseServer } from "./supabase-server";
+import { createServerClient } from "./supabase-server";
 import { Gender } from "./types";
 
 export type Result<T = unknown> =
@@ -43,7 +43,7 @@ export async function handleRegisterLap(
     return { ok: false, error: "Bib number must be a positive integer" };
 
   try {
-    const result = await db.registerLap(supabaseServer, bib, editionYear);
+    const result = await db.registerLap(createServerClient(), bib, editionYear);
     return { ok: true, data: result };
   } catch (err: any) {
     return { ok: false, error: err.message };
@@ -66,14 +66,14 @@ export async function handleAddRunner(
   if (validationErr) return { ok: false, error: validationErr };
 
   try {
-    const existing = await db.getRunners(supabaseServer, editionYear);
+    const existing = await db.getRunners(createServerClient(), editionYear);
     const finalBib = bibNum ?? getNextBibNumber(existing);
 
     if (existing.some((r) => r.bib === finalBib)) {
       return { ok: false, error: `Bib number ${finalBib} is already in use` };
     }
 
-    const runner = await db.addRunner(supabaseServer, {
+    const runner = await db.addRunner(createServerClient(), {
       bib: finalBib,
       name: name.trim(),
       gender: gender as Gender,
@@ -97,7 +97,7 @@ export async function handleDeleteLap(
   if (!lapId) return { ok: false, error: "Lap ID is required" };
 
   try {
-    await db.deleteLap(supabaseServer, lapId);
+    await db.deleteLap(createServerClient(), lapId);
     return { ok: true };
   } catch (err: any) {
     return { ok: false, error: err.message };

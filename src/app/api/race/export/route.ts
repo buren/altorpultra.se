@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getRunners, getLaps } from "@/lib/race/db";
 import { buildLeaderboard } from "@/lib/race/leaderboard";
 import { buildCsvExport } from "@/lib/race/services";
-import { supabaseServer } from "@/lib/race/supabase-server";
+import { createServerClient } from "@/lib/race/supabase-server";
 import { currentYear, event } from "@/lib/constants";
 
 export async function GET(req: NextRequest) {
@@ -14,9 +14,10 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    const supabase = createServerClient();
     const [runners, laps] = await Promise.all([
-      getRunners(supabaseServer, currentYear),
-      getLaps(supabaseServer, currentYear),
+      getRunners(supabase, currentYear),
+      getLaps(supabase, currentYear),
     ]);
 
     const leaderboard = buildLeaderboard(
