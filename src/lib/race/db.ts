@@ -2,7 +2,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { Runner, Lap } from "./types";
 import { getNextLapNumber } from "./services";
 import { Edition, mapDbRowToEdition, mapEditionToDbRow } from "./editions";
-import { DAYS_BEFORE_SWITCH } from "@/lib/config";
+import { DAYS_BEFORE_LEADERBOARD_SWITCH } from "@/lib/config";
 import { resolveCurrentEdition } from "./editions";
 
 // ── Edition queries ──
@@ -111,7 +111,7 @@ export async function resolveCurrentEditionFromDb(
   supabase: SupabaseClient
 ): Promise<Edition | null> {
   const editions = await getPublishedEditions(supabase);
-  return resolveCurrentEdition(editions, new Date(), DAYS_BEFORE_SWITCH);
+  return resolveCurrentEdition(editions, new Date(), DAYS_BEFORE_LEADERBOARD_SWITCH);
 }
 
 function camelToSnake(str: string): string {

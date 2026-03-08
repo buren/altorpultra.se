@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useSearchParams } from "next/navigation";
-import { raceIdUrl } from "@/lib/config";
 
 const utmNames = ['utm_source', 'utm_content', 'utm_medium', 'utm_term', 'utm_campaign'];
 
-export default function RegisterButton() {
+export default function RegisterButton({ raceIdUrl }: { raceIdUrl: string }) {
   const [registerUrl, setRegisterUrl] = useState(raceIdUrl);
   const searchParams = useSearchParams();
 

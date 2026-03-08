@@ -1,7 +1,5 @@
-import { googleMaps } from "@/lib/config";
-
-export default function GoogleMapsRoute() {
+export default function GoogleMapsRoute({ routeEmbed }: { routeEmbed: string }) {
   return (
-    <iframe src={googleMaps.routeEmbed} width="100%" height="480"></iframe>
+    <iframe src={routeEmbed} width="100%" height="480"></iframe>
   );
 }

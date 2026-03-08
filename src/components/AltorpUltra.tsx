@@ -26,51 +26,8 @@ import React from "react"
 import Navbar from "./Navbar"
 import Countdown from "./Countdown"
 import Footer from "./Footer"
-import { currentYear, event, googleMaps, raceIdUrl, site } from "@/lib/config"
-
-function eventStructuredData() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    "name": site.name,
-    "description": `Join us for an epic day. Altorp ${event.lapDistanceKm} km loop - 'Långa gula'. ${event.dateFormatted}, ${event.startTime}-${event.endTime}. As many laps as you can.`,
-    "startDate": event.startDateTime,
-    "endDate": event.endDateTime,
-    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-    "eventStatus": "https://schema.org/EventScheduled",
-    "location": {
-      "@type": "Place",
-      "name": "Altorp",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Djursholm",
-        "addressRegion": site.region,
-        "addressCountry": "SE"
-      }
-    },
-    "image": [
-      altorpPic.src
-    ],
-    "offers": {
-      "@type": "Offer",
-      "url": raceIdUrl,
-      "price": String(event.priceSEK),
-      "priceCurrency": "SEK",
-      "availability": "https://schema.org/InStock",
-      "validFrom": "2024-10-09T00:00:00+02:00"
-    },
-    "performer": {
-      "@type": "Organization",
-      "name": site.name
-    },
-    "organizer": {
-      "@type": "Organization",
-      "name": site.name,
-      "url": site.website,
-      "email": site.email
-    }
-  };
-}
+import { site, DAYS_SHOW_RESULTS_LINK } from "@/lib/config"
+import { Edition } from "@/lib/race/editions"
 
 interface InfoCardProps {
   icon: React.ReactNode;
@@ -102,68 +59,120 @@ function InfoCard({ icon, title, children, href }: InfoCardProps) {
   return content;
 }
 
-const infoItems = [
-  {
-    icon: <CalendarDays className="h-8 w-8" />,
-    title: "Date",
-    description: event.dateFormatted,
-  },
-  {
-    icon: <Clock className="h-8 w-8" />,
-    title: "Duration",
-    description: `${event.startTime}-${event.endTime} (${event.durationHours}h)`,
-  },
-  {
-    icon: <HandCoins className="h-8 w-8" />,
-    title: "Price",
-    description: `${event.priceSEK} SEK`,
-  },
-  {
-    icon: <MapPin className="h-8 w-8" />,
-    title: "Location",
-    description: site.location,
-    href: googleMaps.startPin,
-  },
-  {
-    icon: <Route className="h-8 w-8" />,
-    title: "Strava route",
-    description: `"Långa gula" ${event.lapDistanceKm}km`,
-    href: event.stravaRoute,
-  },
-  {
-    icon: <QuestionMarkIcon className="h-8 w-8" />,
-    title: "Questions",
-    description: site.email,
-    href: `mailto:${site.email}`,
-  },
-];
+function getResultsLink(edition: Edition): { label: string; href: string } | null {
+  const now = new Date();
+  const endMs = new Date(edition.endDateTime).getTime();
+  const startMs = new Date(edition.startDateTime).getTime();
+  const nowMs = now.getTime();
 
-const featureItems = [
-  {
-    icon: <Trees className="h-10 w-10 text-primary" />,
-    title: "Beautiful Scenery",
-    description: `Run on a stunning ${event.lapDistanceKm}km trail loop through the Altorp forest.`,
-  },
-  {
-    icon: <Users className="h-10 w-10 text-primary" />,
-    title: "Great Community",
-    description: "Enjoy a friendly, supportive atmosphere with fellow runners.",
-  },
-  {
-    icon: <Award className="h-10 w-10 text-primary" />,
-    title: "Personal Challenge",
-    description: `Run, walk, or rest. See how far you can go in ${event.durationHours} hours.`,
-  },
-];
+  // During the race
+  if (nowMs >= startMs && nowMs < endMs) {
+    return { label: "View Leaderboard", href: `/race/${edition.year}` };
+  }
 
+  // After the race, within the results window
+  const daysSinceEnd = (nowMs - endMs) / (1000 * 60 * 60 * 24);
+  if (daysSinceEnd >= 0 && daysSinceEnd <= DAYS_SHOW_RESULTS_LINK) {
+    return { label: `View ${edition.year} Results`, href: `/race/${edition.year}` };
+  }
 
-export function AltorpUltra() {
+  return null;
+}
+
+export function AltorpUltra({ edition }: { edition: Edition }) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": site.name,
+    "description": `Join us for an epic day. Altorp ${edition.lapDistanceKm} km loop - 'Långa gula'. ${edition.dateFormatted}, ${edition.startTime}-${edition.endTime}. As many laps as you can.`,
+    "startDate": edition.startDateTime,
+    "endDate": edition.endDateTime,
+    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+    "eventStatus": "https://schema.org/EventScheduled",
+    "location": {
+      "@type": "Place",
+      "name": "Altorp",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Djursholm",
+        "addressRegion": site.region,
+        "addressCountry": "SE"
+      }
+    },
+    "image": [altorpPic.src],
+    "offers": {
+      "@type": "Offer",
+      "url": edition.raceIdUrl,
+      "price": String(edition.priceSEK),
+      "priceCurrency": "SEK",
+      "availability": "https://schema.org/InStock",
+    },
+    "performer": { "@type": "Organization", "name": site.name },
+    "organizer": { "@type": "Organization", "name": site.name, "url": site.website, "email": site.email }
+  };
+
+  const infoItems = [
+    {
+      icon: <CalendarDays className="h-8 w-8" />,
+      title: "Date",
+      description: edition.dateFormatted,
+    },
+    {
+      icon: <Clock className="h-8 w-8" />,
+      title: "Duration",
+      description: `${edition.startTime}-${edition.endTime} (${edition.durationHours}h)`,
+    },
+    {
+      icon: <HandCoins className="h-8 w-8" />,
+      title: "Price",
+      description: `${edition.priceSEK} SEK`,
+    },
+    {
+      icon: <MapPin className="h-8 w-8" />,
+      title: "Location",
+      description: site.location,
+      href: edition.googleMaps.startPin,
+    },
+    {
+      icon: <Route className="h-8 w-8" />,
+      title: "Strava route",
+      description: `"Långa gula" ${edition.lapDistanceKm}km`,
+      href: edition.stravaRoute,
+    },
+    {
+      icon: <QuestionMarkIcon className="h-8 w-8" />,
+      title: "Questions",
+      description: site.email,
+      href: `mailto:${site.email}`,
+    },
+  ];
+
+  const featureItems = [
+    {
+      icon: <Trees className="h-10 w-10 text-primary" />,
+      title: "Beautiful Scenery",
+      description: `Run on a stunning ${edition.lapDistanceKm}km trail loop through the Altorp forest.`,
+    },
+    {
+      icon: <Users className="h-10 w-10 text-primary" />,
+      title: "Great Community",
+      description: "Enjoy a friendly, supportive atmosphere with fellow runners.",
+    },
+    {
+      icon: <Award className="h-10 w-10 text-primary" />,
+      title: "Personal Challenge",
+      description: `Run, walk, or rest. See how far you can go in ${edition.durationHours} hours.`,
+    },
+  ];
+
+  const resultsLink = getResultsLink(edition);
+
   return <>
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(eventStructuredData()) }}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
     />
-    <Navbar />
+    <Navbar raceIdUrl={edition.raceIdUrl} />
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
       <header className="relative h-[70vh] min-h-[500px] overflow-hidden">
@@ -183,15 +192,25 @@ export function AltorpUltra() {
             {site.name}
           </h1>
           <p className="text-lg md:text-xl text-white/80 text-center font-medium tracking-wide">
-            {event.dateFormatted} &middot; {site.region}
+            {edition.dateFormatted} &middot; {site.region}
           </p>
-          <a
-            href={raceIdUrl}
-            className="mt-4 inline-block bg-white text-gray-900 font-semibold text-lg px-8 py-3 rounded-md hover:bg-white/90 transition-colors shadow-lg"
-          >
-            Register Now
-          </a>
-          <Countdown />
+          <div className="mt-4 flex flex-col sm:flex-row items-center gap-3">
+            <a
+              href={edition.raceIdUrl}
+              className="inline-block bg-white text-gray-900 font-semibold text-lg px-8 py-3 rounded-md hover:bg-white/90 transition-colors shadow-lg"
+            >
+              Register Now
+            </a>
+            {resultsLink && (
+              <a
+                href={resultsLink.href}
+                className="inline-block border-2 border-white text-white font-semibold text-lg px-8 py-3 rounded-md hover:bg-white/10 transition-colors"
+              >
+                {resultsLink.label}
+              </a>
+            )}
+          </div>
+          <Countdown startDateTime={edition.startDateTime} />
         </div>
       </header>
 
@@ -201,21 +220,21 @@ export function AltorpUltra() {
           <SectionTitle title="How many laps can you do?" />
           <div className="max-w-3xl mx-auto">
             <p className="text-xl text-gray-700 leading-relaxed">
-              Join us for an epic day of pushing your limits on the beautiful <strong>&lsquo;Långa gula&rsquo; {event.lapDistanceKm} km loop</strong> in Altorp. With ~{event.lapElevationM}m of elevation per lap, it&rsquo;s a fun challenge.
+              Join us for an epic day of pushing your limits on the beautiful <strong>&lsquo;Långa gula&rsquo; {edition.lapDistanceKm} km loop</strong> in Altorp. With ~{edition.lapElevationM}m of elevation per lap, it&rsquo;s a fun challenge.
             </p>
             <p className="text-xl text-gray-700 leading-relaxed mt-4">
-              This isn&rsquo;t just for serious runners. <strong>Everyone is welcome.</strong> Whether you walk one lap or run twelve, the goal is to challenge yourself, enjoy the forest, and be part of an amazing community. Run, walk, rest, and see what you&rsquo;re capable of in {event.durationHours} hours.
+              This isn&rsquo;t just for serious runners. <strong>Everyone is welcome.</strong> Whether you walk one lap or run twelve, the goal is to challenge yourself, enjoy the forest, and be part of an amazing community. Run, walk, rest, and see what you&rsquo;re capable of in {edition.durationHours} hours.
             </p>
           </div>
           <div className="text-center mt-8">
-            <RegisterButton />
+            <RegisterButton raceIdUrl={edition.raceIdUrl} />
           </div>
         </section>
 
         {/* Kids Race */}
         <section className="mb-16 bg-primary/10 border border-primary/20 rounded-lg p-8 md:p-12 text-center">
           <span className="inline-block bg-primary text-white text-sm font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wide">
-            New for {currentYear}
+            New for {edition.year}
           </span>
           <h2 className="text-3xl font-bold mb-4">Kids Race</h2>
           <p className="text-xl text-gray-700 leading-relaxed max-w-2xl mx-auto">
@@ -267,12 +286,12 @@ export function AltorpUltra() {
         </section>
 
         <div className="text-center mt-4">
-          <RegisterButton />
+          <RegisterButton raceIdUrl={edition.raceIdUrl} />
         </div>
 
         {/* FAQ */}
         <div id="faq" className="mt-12 flex justify-center scroll-mt-20">
-          <FAQ />
+          <FAQ priceSEK={edition.priceSEK} />
         </div>
 
         {/* Gallery */}
@@ -285,10 +304,15 @@ export function AltorpUltra() {
         </div>
 
         <section className="text-center mt-12 mb-8">
-          <RegisterButton />
+          <RegisterButton raceIdUrl={edition.raceIdUrl} />
         </section>
       </main>
     </div>
-    <Footer />
+    <Footer
+      durationHours={edition.durationHours}
+      stravaRoute={edition.stravaRoute}
+      raceIdUrl={edition.raceIdUrl}
+      googleMapsStartPin={edition.googleMaps.startPin}
+    />
   </>;
 }

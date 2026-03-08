@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { raceIdUrl } from "@/lib/config";
 
 const navLinks = [
   { href: "#about", label: "About" },
@@ -11,7 +10,7 @@ const navLinks = [
   { href: "#gallery", label: "Gallery" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ raceIdUrl }: { raceIdUrl: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 

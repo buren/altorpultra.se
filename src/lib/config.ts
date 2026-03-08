@@ -1,85 +1,15 @@
 // ── App Config ──
-// This file contains stable site-wide configuration and app-level constants
-// that do NOT vary per edition. Per-edition data (dates, distances, prices,
-// map links, etc.) lives in the Supabase `editions` table.
-//
-// NOTE: The `editions` record, `currentYear`, and `event` export below are
-// TEMPORARY — they will be removed once all consumers fetch from the DB.
+// Stable site-wide configuration that does NOT vary per edition.
+// Per-edition data (dates, distances, prices, map links, etc.)
+// lives in the Supabase `editions` table.
 
-// How many days before the next edition's start date we switch the default
-// leaderboard to show the upcoming edition instead of the previous one.
-export const DAYS_BEFORE_SWITCH = 7;
+// How many days before the next edition's start date the /race redirect
+// switches to show the upcoming edition's leaderboard.
+export const DAYS_BEFORE_LEADERBOARD_SWITCH = 7;
 
-export const currentYear = 2026;
-
-export interface Edition {
-  date: string;
-  startTime: string;
-  endTime: string;
-  startDateTime: string;
-  endDateTime: string;
-  durationHours: number;
-  dateFormatted: string;
-  priceSEK: number;
-  lapDistanceKm: number;
-  lapElevationM: number;
-  raceIdUrl: string;
-  stravaRoute: string;
-  googleMaps: {
-    startPin: string;
-    parkingPin: string;
-    routeEmbed: string;
-    routeViewer: string;
-  };
-}
-
-export const editions: Record<number, Edition> = {
-  2025: {
-    date: "2025-05-10",
-    startTime: "10:00",
-    endTime: "18:00",
-    startDateTime: "2025-05-10T10:00:00+02:00",
-    endDateTime: "2025-05-10T18:00:00+02:00",
-    durationHours: 8,
-    dateFormatted: "May 10, 2025",
-    priceSEK: 200,
-    lapDistanceKm: 7.0,
-    lapElevationM: 100,
-    raceIdUrl: "",
-    stravaRoute: "https://www.strava.com/routes/3337146615650736332",
-    googleMaps: {
-      startPin: "https://maps.app.goo.gl/cYXEF76q3T1Xoj4T9",
-      parkingPin: "https://maps.app.goo.gl/UBk2QJHDFteU7duH9",
-      routeEmbed: "https://www.google.com/maps/d/embed?mid=17KhHxrunD84z9Jz_3hDSuNhpK0fFMZ0&ehbc=2E312F",
-      routeViewer: "https://www.google.com/maps/d/viewer?mid=17KhHxrunD84z9Jz_3hDSuNhpK0fFMZ0&femb=1&ll=59.4162307464269%2C18.07003&z=14",
-    },
-  },
-  2026: {
-    date: "2026-05-09",
-    startTime: "10:00",
-    endTime: "18:00",
-    startDateTime: "2026-05-09T10:00:00+02:00",
-    endDateTime: "2026-05-09T18:00:00+02:00",
-    durationHours: 8,
-    dateFormatted: "May 9, 2026",
-    priceSEK: 300,
-    lapDistanceKm: 7.0,
-    lapElevationM: 100,
-    raceIdUrl: "https://raceid.com/en/races/14211/registration?distance=26641",
-    stravaRoute: "https://www.strava.com/routes/3456172908731637010",
-    googleMaps: {
-      startPin: "https://maps.app.goo.gl/cYXEF76q3T1Xoj4T9",
-      parkingPin: "https://maps.app.goo.gl/UBk2QJHDFteU7duH9",
-      routeEmbed: "https://www.google.com/maps/d/embed?mid=17KhHxrunD84z9Jz_3hDSuNhpK0fFMZ0&ehbc=2E312F",
-      routeViewer: "https://www.google.com/maps/d/viewer?mid=17KhHxrunD84z9Jz_3hDSuNhpK0fFMZ0&femb=1&ll=59.4162307464269%2C18.07003&z=14",
-    },
-  },
-};
-
-// Current edition shortcut — used by all components
-export const event = editions[currentYear];
-export const raceIdUrl = event.raceIdUrl;
-export const googleMaps = event.googleMaps;
+// How many days after an edition ends we show a "View {year} Results" link
+// on the homepage.
+export const DAYS_SHOW_RESULTS_LINK = 30;
 
 // Stable across all years
 export const site = {

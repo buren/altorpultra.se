@@ -1,7 +1,14 @@
-import { event, googleMaps, raceIdUrl, site } from "@/lib/config";
+import { site } from "@/lib/config";
 import { MapPin } from "lucide-react";
 
-export default function Footer() {
+interface FooterProps {
+  durationHours: number;
+  stravaRoute: string;
+  raceIdUrl: string;
+  googleMapsStartPin: string;
+}
+
+export default function Footer({ durationHours, stravaRoute, raceIdUrl, googleMapsStartPin }: FooterProps) {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
@@ -11,7 +18,7 @@ export default function Footer() {
             <h3 className="text-xl font-bold mb-2">{site.name}</h3>
             <p className="text-gray-400 text-sm leading-relaxed">
               A trail running event in the beautiful Altorp forest, Djursholm.
-              Run, walk, or rest &mdash; see how far you can go in {event.durationHours} hours.
+              Run, walk, or rest &mdash; see how far you can go in {durationHours} hours.
             </p>
           </div>
 
@@ -25,7 +32,7 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href={event.stravaRoute} className="hover:text-white transition-colors">
+                <a href={stravaRoute} className="hover:text-white transition-colors">
                   Route on Strava
                 </a>
               </li>
@@ -48,7 +55,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 flex-shrink-0" />
-                <a href={googleMaps.startPin} className="hover:text-white transition-colors">
+                <a href={googleMapsStartPin} className="hover:text-white transition-colors">
                   {site.location}, {site.region}
                 </a>
               </li>

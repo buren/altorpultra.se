@@ -12,8 +12,9 @@ import {
 import { site } from "@/lib/config";
 import { supabase } from "@/lib/race/supabase";
 import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
-import { Search } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface EditionInfo {
   year: number;
@@ -393,10 +394,12 @@ function LeaderboardTable({
 
 export default function RaceYearPage() {
   const params = useParams();
+  const router = useRouter();
   const year = Number(params.year);
   const [data, setData] = useState<LeaderboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(new Date());
+  const [availableYears, setAvailableYears] = useState<number[]>([]);
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
@@ -413,6 +416,21 @@ export default function RaceYearPage() {
       setError(json.error);
     }
   }, [year]);
+
+  useEffect(() => {
+    fetch("/api/race/editions")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.ok) {
+          const years = json.data.editions
+            .filter((e: { publishedAt: string | null }) => e.publishedAt !== null)
+            .map((e: { year: number }) => e.year)
+            .sort((a: number, b: number) => b - a);
+          setAvailableYears(years);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -468,9 +486,27 @@ export default function RaceYearPage() {
       <header className="bg-gray-900 text-white px-4 py-4">
         <div className="container mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">
-              {site.name} {edition.year}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold">
+                {site.name}
+              </h1>
+              {availableYears.length > 1 ? (
+                <div className="relative">
+                  <select
+                    value={year}
+                    onChange={(e) => router.push(`/race/${e.target.value}`)}
+                    className="appearance-none bg-gray-800 text-white text-2xl font-bold rounded-md pl-2 pr-7 py-0.5 cursor-pointer hover:bg-gray-700 border-none focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  >
+                    {availableYears.map((y) => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                </div>
+              ) : (
+                <span className="text-2xl font-bold">{edition.year}</span>
+              )}
+            </div>
             <p className="text-gray-400 text-sm">Live Results</p>
           </div>
           <div className="text-right">

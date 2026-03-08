@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Eye, EyeOff, Menu, X } from "lucide-react";
 import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
-import { site, currentYear, event } from "@/lib/config";
+import { site } from "@/lib/config";
 
 export default function AdminLayout({
   children,
@@ -20,11 +20,31 @@ export default function AdminLayout({
   const [showPassword, setShowPassword] = useState(false);
   const [now, setNow] = useState(new Date());
   const [menuOpen, setMenuOpen] = useState(false);
+  const [editionYear, setEditionYear] = useState<number | null>(null);
+  const [editionStart, setEditionStart] = useState<string>("");
+  const [editionEnd, setEditionEnd] = useState<string>("");
 
   useEffect(() => {
     fetch("/api/race/auth")
       .then((res) => {
         if (res.ok) setAuthenticated(true);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/race/editions")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.ok && data.data.currentYear) {
+          const year = data.data.currentYear;
+          setEditionYear(year);
+          const ed = data.data.editions.find((e: { year: number }) => e.year === year);
+          if (ed) {
+            setEditionStart(ed.startDateTime);
+            setEditionEnd(ed.endDateTime);
+          }
+        }
       })
       .catch(() => {});
   }, []);
@@ -107,9 +127,10 @@ export default function AdminLayout({
   ];
 
   const raceTimer = (() => {
-    const phase = getRacePhase(event.startDateTime, event.endDateTime, now);
+    if (!editionStart || !editionEnd) return null;
+    const phase = getRacePhase(editionStart, editionEnd, now);
     if (phase === "before") {
-      const secs = secondsUntil(event.startDateTime, now);
+      const secs = secondsUntil(editionStart, now);
       return (
         <div className="text-right">
           <div className="text-2xl font-mono font-bold text-yellow-400">
@@ -120,7 +141,7 @@ export default function AdminLayout({
       );
     }
     if (phase === "during") {
-      const secs = secondsUntil(event.endDateTime, now);
+      const secs = secondsUntil(editionEnd, now);
       return (
         <div className="text-right">
           <div className="text-2xl font-mono font-bold text-green-400">
@@ -144,7 +165,7 @@ export default function AdminLayout({
             <div className="flex items-center gap-6">
               <div>
                 <h1 className="text-xl font-bold">{site.name} Admin</h1>
-                <p className="text-gray-400 text-sm">{currentYear}</p>
+                <p className="text-gray-400 text-sm">{editionYear}</p>
               </div>
               <nav className="flex gap-1">
                 {navLinks.map((link) => (
@@ -164,7 +185,7 @@ export default function AdminLayout({
             </div>
             <div className="flex items-center gap-4">
               <a
-                href={`/race/${currentYear}`}
+                href={`/race/${editionYear}`}
                 target="_blank"
                 className="bg-gray-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600"
               >
@@ -179,7 +200,7 @@ export default function AdminLayout({
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-lg font-bold">{site.name} Admin</h1>
-                <p className="text-gray-400 text-xs">{currentYear}</p>
+                <p className="text-gray-400 text-xs">{editionYear}</p>
               </div>
               <div className="flex items-center gap-3">
                 {raceTimer}
@@ -211,7 +232,7 @@ export default function AdminLayout({
                   </Link>
                 ))}
                 <a
-                  href={`/race/${currentYear}`}
+                  href={`/race/${editionYear}`}
                   target="_blank"
                   className="px-3 py-2 rounded-md text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800"
                 >

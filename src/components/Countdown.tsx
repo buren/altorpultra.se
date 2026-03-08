@@ -1,13 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { event } from "@/lib/config";
 
-const EVENT_DATE = new Date(event.startDateTime);
-
-function getTimeLeft() {
+function getTimeLeft(startDateTime: string) {
   const now = new Date();
-  const diff = EVENT_DATE.getTime() - now.getTime();
+  const diff = new Date(startDateTime).getTime() - now.getTime();
 
   if (diff <= 0) return null;
 
@@ -32,21 +29,21 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
   );
 }
 
-export default function Countdown() {
+export default function Countdown({ startDateTime }: { startDateTime: string }) {
   const [timeLeft, setTimeLeft] = useState<ReturnType<typeof getTimeLeft>>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setTimeLeft(getTimeLeft());
-    const interval = setInterval(() => setTimeLeft(getTimeLeft()), 1000);
+    setTimeLeft(getTimeLeft(startDateTime));
+    const interval = setInterval(() => setTimeLeft(getTimeLeft(startDateTime)), 1000);
     return () => clearInterval(interval);
   }, []);
 
   if (!mounted || !timeLeft) return null;
 
   return (
-    <div className="flex gap-6 md:gap-2 text-white">
+    <div className="flex gap-1 md:gap-2 text-white">
       <CountdownUnit value={timeLeft.days} label="Days" />
       <span className="text-4xl md:text-6xl font-light text-white/40 self-start">:</span>
       <CountdownUnit value={timeLeft.hours} label="Hours" />
