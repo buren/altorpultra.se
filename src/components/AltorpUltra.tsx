@@ -79,7 +79,7 @@ function getResultsLink(edition: Edition): { label: string; href: string } | nul
   return null;
 }
 
-export function AltorpUltra({ edition }: { edition: Edition }) {
+export function AltorpUltra({ edition, publishedYears }: { edition: Edition; publishedYears: number[] }) {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Event",
@@ -313,6 +313,7 @@ export function AltorpUltra({ edition }: { edition: Edition }) {
       stravaRoute={edition.stravaRoute}
       raceIdUrl={edition.raceIdUrl}
       googleMapsStartPin={edition.googleMaps.startPin}
+      publishedYears={publishedYears}
     />
   </>;
 }

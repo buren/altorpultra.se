@@ -6,13 +6,14 @@ interface FooterProps {
   stravaRoute: string;
   raceIdUrl: string;
   googleMapsStartPin: string;
+  publishedYears: number[];
 }
 
-export default function Footer({ durationHours, stravaRoute, raceIdUrl, googleMapsStartPin }: FooterProps) {
+export default function Footer({ durationHours, stravaRoute, raceIdUrl, googleMapsStartPin, publishedYears }: FooterProps) {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className={`grid grid-cols-1 gap-8 ${publishedYears.length > 0 ? "md:grid-cols-4" : "md:grid-cols-3"}`}>
           {/* Brand */}
           <div>
             <h3 className="text-xl font-bold mb-2">{site.name}</h3>
@@ -44,9 +45,26 @@ export default function Footer({ durationHours, stravaRoute, raceIdUrl, googleMa
             </ul>
           </div>
 
+          {/* Editions */}
+          {publishedYears.length > 0 && (
+            <div>
+              <h4 className="font-semibold mb-3 text-gray-300">Editions</h4>
+              <ul className="space-y-2 text-sm text-gray-400">
+                {publishedYears.map((year) => (
+                  <li key={year}>
+                    <a href={`/race/${year}`} className="hover:text-white transition-colors">
+                      {site.name} {year}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Contact */}
           <div>
             <h4 className="font-semibold mb-3 text-gray-300">Contact</h4>
+            <p className="text-sm text-gray-400 mb-2">Jacob Burenstam Linder</p>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
                 <a href={`mailto:${site.email}`} className="hover:text-white transition-colors">
