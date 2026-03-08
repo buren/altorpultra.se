@@ -386,7 +386,7 @@ export default function RacePage() {
           <Card>
             <CardContent className="p-4">
               <p className="text-2xl font-bold">{activeRunners}</p>
-              <p className="text-sm text-gray-500">Active</p>
+              <p className="text-sm text-gray-500">Started</p>
             </CardContent>
           </Card>
           <Card>
@@ -402,6 +402,7 @@ export default function RacePage() {
           entries={data.leaderboard}
           title="Overall Leaderboard"
           showGender
+          showMedals
           now={now}
           paginate
         />
