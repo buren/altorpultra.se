@@ -573,9 +573,14 @@ export default function RaceYearPage() {
     (sum, e) => sum + e.totalLaps,
     0
   );
-  const activeRunners = data.leaderboard.filter(
-    (e) => e.totalLaps > 0
-  ).length;
+  const totalDistanceKm = data.leaderboard.reduce(
+    (sum, e) => sum + e.totalDistanceKm,
+    0
+  );
+  const totalElevationM = data.leaderboard.reduce(
+    (sum, e) => sum + e.totalElevationM,
+    0
+  );
   const courseRecordHolderIds = new Set(data.courseRecordHolderIds);
 
   return (
@@ -661,14 +666,14 @@ export default function RaceYearPage() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-2xl font-bold">{activeRunners}</p>
-              <p className="text-sm text-gray-500">Started</p>
+              <p className="text-2xl font-bold">{totalDistanceKm.toLocaleString()} km</p>
+              <p className="text-sm text-gray-500">Total Distance</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-2xl font-bold">{data.leaderboard.length}</p>
-              <p className="text-sm text-gray-500">Runners</p>
+              <p className="text-2xl font-bold">{totalElevationM.toLocaleString()} m</p>
+              <p className="text-sm text-gray-500">Total Elevation</p>
             </CardContent>
           </Card>
         </div>
