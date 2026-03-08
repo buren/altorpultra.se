@@ -97,6 +97,7 @@ export default function AdminLayout({
   const navLinks = [
     { href: "/race/admin", label: "Register Laps" },
     { href: "/race/admin/runners", label: "Runners" },
+    { href: "/race/admin/editions", label: "Editions" },
   ];
 
   return (
