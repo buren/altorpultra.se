@@ -21,6 +21,14 @@ function GenderIcon({ gender }: { gender: Gender }) {
   return <span title="Other">–</span>;
 }
 
+function formatPace(avgLapSeconds: number | null): string {
+  if (avgLapSeconds == null) return "–";
+  const paceSeconds = avgLapSeconds / event.lapDistanceKm;
+  const mins = Math.floor(paceSeconds / 60);
+  const secs = Math.round(paceSeconds % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
 const PAGE_SIZES = [10, 20, 50, 100] as const;
 
 function LeaderboardTable({
@@ -155,9 +163,15 @@ function LeaderboardTable({
                   </td>
                   <td className="px-3 py-2 text-right text-gray-600 hidden md:table-cell">
                     {formatLapTime(e.avgLapSeconds)}
+                    {e.avgLapSeconds != null && (
+                      <span className="text-gray-400 text-xs ml-1">&middot; {formatPace(e.avgLapSeconds)} min/km</span>
+                    )}
                   </td>
                   <td className="px-3 py-2 text-right text-gray-600 hidden md:table-cell">
                     {formatLapTime(e.fastestLapSeconds)}
+                    {e.fastestLapSeconds != null && (
+                      <span className="text-gray-400 text-xs ml-1">&middot; {formatPace(e.fastestLapSeconds)} min/km</span>
+                    )}
                   </td>
                   {now && (
                     <td className="px-3 py-2 text-right text-gray-500 text-sm hidden sm:table-cell">
@@ -179,10 +193,16 @@ function LeaderboardTable({
                         <div className="bg-white border rounded px-3 py-2 text-sm">
                           <span className="text-gray-400 block text-xs">Avg Lap</span>
                           <span className="font-semibold font-mono">{formatLapTime(e.avgLapSeconds)}</span>
+                          {e.avgLapSeconds != null && (
+                            <span className="text-gray-400 text-xs ml-1">&middot; {formatPace(e.avgLapSeconds)} min/km</span>
+                          )}
                         </div>
                         <div className="bg-white border rounded px-3 py-2 text-sm">
                           <span className="text-gray-400 block text-xs">Fastest</span>
                           <span className="font-semibold font-mono">{formatLapTime(e.fastestLapSeconds)}</span>
+                          {e.fastestLapSeconds != null && (
+                            <span className="text-gray-400 text-xs ml-1">&middot; {formatPace(e.fastestLapSeconds)} min/km</span>
+                          )}
                         </div>
                         {now && e.lastLapTimestamp && (
                           <div className="bg-white border rounded px-3 py-2 text-sm">
@@ -197,12 +217,14 @@ function LeaderboardTable({
                           <div className="flex flex-wrap gap-2">
                             {e.laps.map((lap, li) => {
                               const prevTs =
-                                li > 0 ? e.laps[li - 1].timestamp : null;
-                              const dur = prevTs
-                                ? (new Date(lap.timestamp).getTime() -
-                                    new Date(prevTs).getTime()) /
-                                  1000
-                                : null;
+                                li > 0
+                                  ? e.laps[li - 1].timestamp
+                                  : event.startDateTime;
+                              const dur =
+                                (new Date(lap.timestamp).getTime() -
+                                  new Date(prevTs).getTime()) /
+                                1000;
+                              const showDur = dur > 0;
                               return (
                                 <div
                                   key={lap.id}
@@ -214,10 +236,15 @@ function LeaderboardTable({
                                   <span className="font-mono">
                                     {formatTimestamp(lap.timestamp)}
                                   </span>
-                                  {dur !== null && (
-                                    <span className="text-gray-500 ml-1">
-                                      ({formatLapTime(dur)})
-                                    </span>
+                                  {showDur && (
+                                    <>
+                                      <span className="text-gray-500 ml-1">
+                                        {formatLapTime(dur)}
+                                      </span>
+                                      <span className="text-gray-400 text-xs ml-1">
+                                        &middot; {formatPace(dur)} min/km
+                                      </span>
+                                    </>
                                   )}
                                 </div>
                               );
@@ -379,8 +406,8 @@ export default function RacePage() {
         <div className="grid grid-cols-3 gap-4 text-center">
           <Card>
             <CardContent className="p-4">
-              <p className="text-2xl font-bold">{data.leaderboard.length}</p>
-              <p className="text-sm text-gray-500">Runners</p>
+              <p className="text-2xl font-bold">{totalLaps}</p>
+              <p className="text-sm text-gray-500">Total Laps</p>
             </CardContent>
           </Card>
           <Card>
@@ -391,8 +418,8 @@ export default function RacePage() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-2xl font-bold">{totalLaps}</p>
-              <p className="text-sm text-gray-500">Total Laps</p>
+              <p className="text-2xl font-bold">{data.leaderboard.length}</p>
+              <p className="text-sm text-gray-500">Runners</p>
             </CardContent>
           </Card>
         </div>
