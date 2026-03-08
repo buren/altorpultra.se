@@ -2,18 +2,30 @@
 
 import { useEffect, useState } from "react";
 
-function getTimeLeft(startDateTime: string) {
-  const now = new Date();
-  const diff = new Date(startDateTime).getTime() - now.getTime();
-
-  if (diff <= 0) return null;
-
+function diffToUnits(diff: number) {
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
   const minutes = Math.floor((diff / (1000 * 60)) % 60);
   const seconds = Math.floor((diff / 1000) % 60);
-
   return { days, hours, minutes, seconds };
+}
+
+function getCountdownState(startDateTime: string, endDateTime?: string) {
+  const now = new Date();
+  const startDiff = new Date(startDateTime).getTime() - now.getTime();
+
+  if (startDiff > 0) {
+    return { phase: "before" as const, ...diffToUnits(startDiff) };
+  }
+
+  if (endDateTime) {
+    const endDiff = new Date(endDateTime).getTime() - now.getTime();
+    if (endDiff > 0) {
+      return { phase: "during" as const, ...diffToUnits(endDiff) };
+    }
+  }
+
+  return null;
 }
 
 function CountdownUnit({ value, label }: { value: number; label: string }) {
@@ -29,28 +41,39 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
   );
 }
 
-export default function Countdown({ startDateTime }: { startDateTime: string }) {
-  const [timeLeft, setTimeLeft] = useState<ReturnType<typeof getTimeLeft>>(null);
+export default function Countdown({ startDateTime, endDateTime }: { startDateTime: string; endDateTime?: string }) {
+  const [state, setState] = useState<ReturnType<typeof getCountdownState>>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setTimeLeft(getTimeLeft(startDateTime));
-    const interval = setInterval(() => setTimeLeft(getTimeLeft(startDateTime)), 1000);
+    setState(getCountdownState(startDateTime, endDateTime));
+    const interval = setInterval(() => setState(getCountdownState(startDateTime, endDateTime)), 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [startDateTime, endDateTime]);
 
-  if (!mounted || !timeLeft) return null;
+  if (!mounted || !state) return null;
 
   return (
-    <div className="flex gap-1 md:gap-2 text-white">
-      <CountdownUnit value={timeLeft.days} label="Days" />
-      <span className="text-4xl md:text-6xl font-light text-white/40 self-start">:</span>
-      <CountdownUnit value={timeLeft.hours} label="Hours" />
-      <span className="text-4xl md:text-6xl font-light text-white/40 self-start">:</span>
-      <CountdownUnit value={timeLeft.minutes} label="Min" />
-      <span className="text-4xl md:text-6xl font-light text-white/40 self-start">:</span>
-      <CountdownUnit value={timeLeft.seconds} label="Sec" />
+    <div className="flex flex-col items-center gap-2 text-white">
+      {state.phase === "during" && (
+        <span className="text-sm md:text-base uppercase tracking-widest text-green-400 font-semibold">
+          Race in progress — time remaining
+        </span>
+      )}
+      <div className="flex gap-1 md:gap-2">
+        {state.days > 0 && (
+          <>
+            <CountdownUnit value={state.days} label="Days" />
+            <span className="text-4xl md:text-6xl font-light text-white/40 self-start">:</span>
+          </>
+        )}
+        <CountdownUnit value={state.hours} label="Hours" />
+        <span className="text-4xl md:text-6xl font-light text-white/40 self-start">:</span>
+        <CountdownUnit value={state.minutes} label="Min" />
+        <span className="text-4xl md:text-6xl font-light text-white/40 self-start">:</span>
+        <CountdownUnit value={state.seconds} label="Sec" />
+      </div>
     </div>
   );
 }

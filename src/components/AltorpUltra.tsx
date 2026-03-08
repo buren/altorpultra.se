@@ -166,6 +166,7 @@ export function AltorpUltra({ edition, publishedYears }: { edition: Edition; pub
   ];
 
   const resultsLink = getResultsLink(edition);
+  const raceIsLive = resultsLink?.label === "View Leaderboard";
 
   return <>
     <script
@@ -194,13 +195,16 @@ export function AltorpUltra({ edition, publishedYears }: { edition: Edition; pub
           <p className="text-lg md:text-xl text-white/80 text-center font-medium tracking-wide">
             {edition.dateFormatted} &middot; {site.region}
           </p>
+          <Countdown startDateTime={edition.startDateTime} endDateTime={edition.endDateTime} />
           <div className="mt-4 flex flex-col sm:flex-row items-center gap-3">
-            <a
-              href={edition.raceIdUrl}
-              className="inline-block bg-white text-gray-900 font-semibold text-lg px-8 py-3 rounded-md hover:bg-white/90 transition-colors shadow-lg"
-            >
-              Register Now
-            </a>
+            {!raceIsLive && (
+              <a
+                href={edition.raceIdUrl}
+                className="inline-block bg-white text-gray-900 font-semibold text-lg px-8 py-3 rounded-md hover:bg-white/90 transition-colors shadow-lg"
+              >
+                Register Now
+              </a>
+            )}
             {resultsLink && (
               <a
                 href={resultsLink.href}
@@ -210,7 +214,6 @@ export function AltorpUltra({ edition, publishedYears }: { edition: Edition; pub
               </a>
             )}
           </div>
-          <Countdown startDateTime={edition.startDateTime} />
         </div>
       </header>
 
@@ -227,7 +230,7 @@ export function AltorpUltra({ edition, publishedYears }: { edition: Edition; pub
             </p>
           </div>
           <div className="text-center mt-8">
-            <RegisterButton raceIdUrl={edition.raceIdUrl} />
+            {!raceIsLive && <RegisterButton raceIdUrl={edition.raceIdUrl} />}
           </div>
         </section>
 
