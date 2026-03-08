@@ -38,6 +38,7 @@ interface LeaderboardData {
   topMen: LeaderboardEntry[];
   topWomen: LeaderboardEntry[];
   courseRecords: { male: CourseRecord | null; female: CourseRecord | null };
+  courseRecordHolderIds: string[];
 }
 
 function GenderIcon({ gender }: { gender: Gender }) {
@@ -77,7 +78,7 @@ function LeaderboardTable({
   lapDistanceKm,
   startDateTime,
   year,
-  courseRecordLaps,
+  courseRecordHolderIds,
 }: {
   entries: LeaderboardEntry[];
   title: string;
@@ -88,7 +89,7 @@ function LeaderboardTable({
   lapDistanceKm: number;
   startDateTime: string;
   year: number;
-  courseRecordLaps?: { male: number; female: number };
+  courseRecordHolderIds?: Set<string>;
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [page, setPage] = useState(0);
@@ -221,7 +222,7 @@ function LeaderboardTable({
                   </td>
                   <td className="px-3 py-2 text-right font-bold">
                     {e.totalLaps}
-                    {courseRecordLaps && e.totalLaps > 0 && (e.runner.gender === "male" || e.runner.gender === "female") && e.totalLaps >= courseRecordLaps[e.runner.gender] && (
+                    {courseRecordHolderIds?.has(e.runner.id) && (
                       <CourseRecordTag />
                     )}
                   </td>
@@ -508,10 +509,7 @@ export default function RaceYearPage() {
   const activeRunners = data.leaderboard.filter(
     (e) => e.totalLaps > 0
   ).length;
-  const courseRecordLaps = {
-    male: data.courseRecords.male?.totalLaps ?? Infinity,
-    female: data.courseRecords.female?.totalLaps ?? Infinity,
-  };
+  const courseRecordHolderIds = new Set(data.courseRecordHolderIds);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -614,7 +612,7 @@ export default function RaceYearPage() {
           lapDistanceKm={edition.lapDistanceKm}
           startDateTime={edition.startDateTime}
           year={year}
-          courseRecordLaps={courseRecordLaps}
+          courseRecordHolderIds={courseRecordHolderIds}
         />
 
         {(data.topMen.length > 0 || data.topWomen.length > 0) && (
@@ -626,7 +624,7 @@ export default function RaceYearPage() {
               lapDistanceKm={edition.lapDistanceKm}
               startDateTime={edition.startDateTime}
               year={year}
-              courseRecordLaps={courseRecordLaps}
+              courseRecordHolderIds={courseRecordHolderIds}
             />
             <LeaderboardTable
               entries={data.topWomen}
@@ -635,7 +633,7 @@ export default function RaceYearPage() {
               lapDistanceKm={edition.lapDistanceKm}
               startDateTime={edition.startDateTime}
               year={year}
-              courseRecordLaps={courseRecordLaps}
+              courseRecordHolderIds={courseRecordHolderIds}
             />
           </div>
         )}

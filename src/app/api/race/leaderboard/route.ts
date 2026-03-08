@@ -2,44 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getRunners, getAllLaps, getEdition, getPublishedEditions, resolveCurrentEditionFromDb } from "@/lib/race/db";
 import { buildLeaderboard, filterByGender } from "@/lib/race/leaderboard";
 import { createServerClient } from "@/lib/race/supabase-server";
-import { Gender } from "@/lib/race/types";
+import { computeCourseRecords, findCourseRecordHolderIds, EditionLeaderboard } from "@/lib/race/course-records";
 
 export const dynamic = "force-dynamic";
-
-interface CourseRecord {
-  name: string;
-  year: number;
-  totalLaps: number;
-  totalDistanceKm: number;
-}
-
-async function getCourseRecords(supabase: ReturnType<typeof createServerClient>) {
-  const editions = await getPublishedEditions(supabase);
-
-  const records: Record<string, CourseRecord | null> = { male: null, female: null };
-
-  for (const ed of editions) {
-    const runners = await getRunners(supabase, ed.year);
-    const laps = await getAllLaps(supabase, ed.year);
-    const board = buildLeaderboard(runners, laps, ed.lapDistanceKm, ed.lapElevationM, ed.startDateTime);
-
-    for (const gender of ["male", "female"] as Gender[]) {
-      const top = filterByGender(board, gender)[0];
-      if (!top || top.totalLaps === 0) continue;
-      const current = records[gender];
-      if (!current || top.totalLaps > current.totalLaps) {
-        records[gender] = {
-          name: top.runner.name,
-          year: ed.year,
-          totalLaps: top.totalLaps,
-          totalDistanceKm: top.totalDistanceKm,
-        };
-      }
-    }
-  }
-
-  return records;
-}
 
 export async function GET(req: NextRequest) {
   try {
@@ -65,7 +30,22 @@ export async function GET(req: NextRequest) {
       edition.startDateTime
     );
 
-    const courseRecords = await getCourseRecords(supabase);
+    // Build leaderboards for all published editions to compute course records
+    const allEditions = await getPublishedEditions(supabase);
+    const editionLeaderboards: EditionLeaderboard[] = [];
+    for (const ed of allEditions) {
+      if (ed.year === edition.year) {
+        editionLeaderboards.push({ year: ed.year, leaderboard });
+      } else {
+        const edRunners = await getRunners(supabase, ed.year);
+        const edLaps = await getAllLaps(supabase, ed.year);
+        const edBoard = buildLeaderboard(edRunners, edLaps, ed.lapDistanceKm, ed.lapElevationM, ed.startDateTime);
+        editionLeaderboards.push({ year: ed.year, leaderboard: edBoard });
+      }
+    }
+
+    const courseRecords = computeCourseRecords(editionLeaderboards, edition.year);
+    const courseRecordHolderIds = Array.from(findCourseRecordHolderIds(leaderboard, courseRecords));
 
     return NextResponse.json({
       ok: true,
@@ -82,6 +62,7 @@ export async function GET(req: NextRequest) {
         topMen: filterByGender(leaderboard, "male").slice(0, 10),
         topWomen: filterByGender(leaderboard, "female").slice(0, 10),
         courseRecords,
+        courseRecordHolderIds,
       },
     });
   } catch (err: any) {
