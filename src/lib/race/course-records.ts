@@ -5,6 +5,7 @@ type RecordGender = "male" | "female";
 
 export interface CourseRecord {
   name: string;
+  bib: number;
   year: number;
   totalLaps: number;
   totalDistanceKm: number;
@@ -42,6 +43,7 @@ export function computeCourseRecords(
       if (!current || top.totalLaps > current.totalLaps) {
         records[gender] = {
           name: top.runner.name,
+          bib: top.runner.bib,
           year,
           totalLaps: top.totalLaps,
           totalDistanceKm: top.totalDistanceKm,
@@ -55,8 +57,9 @@ export function computeCourseRecords(
 
 /**
  * Find runner IDs in a leaderboard whose performance matches or beats
- * the course record for their gender (by lap count).
- * Only runners at the top of their gender who have >= record laps are tagged.
+ * the course record for their gender.
+ * Only the #1 ranked runner per gender is tagged (most laps, earliest
+ * last-lap timestamp as tiebreak — matching leaderboard sort order).
  */
 export function findCourseRecordHolderIds(
   leaderboard: LeaderboardEntry[],
@@ -68,14 +71,9 @@ export function findCourseRecordHolderIds(
     const record = records[gender];
     if (!record) continue;
 
-    for (const entry of filterByGender(leaderboard, gender)) {
-      if (entry.totalLaps === 0) continue;
-
-      if (entry.totalLaps >= record.totalLaps) {
-        ids.add(entry.runner.id);
-      } else {
-        break; // leaderboard is sorted by laps desc, no more can match
-      }
+    const top = filterByGender(leaderboard, gender)[0];
+    if (top && top.totalLaps > 0 && top.totalLaps >= record.totalLaps) {
+      ids.add(top.runner.id);
     }
   }
 

@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const courseRecords = computeCourseRecords(editionLeaderboards, edition.year);
+    const courseRecords = computeCourseRecords(editionLeaderboards);
     const courseRecordHolderIds = Array.from(findCourseRecordHolderIds(leaderboard, courseRecords));
 
     return NextResponse.json({

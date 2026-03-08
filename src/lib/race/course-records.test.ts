@@ -65,8 +65,8 @@ describe("computeCourseRecords", () => {
       ],
     };
     const result = computeCourseRecords([edition]);
-    expect(result.male).toEqual({ name: "Bob", year: 2025, totalLaps: 10, totalDistanceKm: 70 });
-    expect(result.female).toEqual({ name: "Alice", year: 2025, totalLaps: 8, totalDistanceKm: 56 });
+    expect(result.male).toEqual({ name: "Bob", bib: 1, year: 2025, totalLaps: 10, totalDistanceKm: 70 });
+    expect(result.female).toEqual({ name: "Alice", bib: 1, year: 2025, totalLaps: 8, totalDistanceKm: 56 });
   });
 
   it("picks the best across multiple editions", () => {
@@ -220,35 +220,36 @@ describe("findCourseRecordHolderIds", () => {
     expect(result.has("f2")).toBe(false);
   });
 
-  it("tags multiple runners who both beat the record", () => {
+  it("only tags the #1 runner even when multiple beat the record", () => {
     const records: CourseRecords = {
       male: { name: "Prev", year: 2025, totalLaps: 8, totalDistanceKm: 56 },
       female: null,
     };
     const leaderboard = [
-      makeEntry(makeRunner({ id: "m1", name: "Tied A", gender: "male" }), 10, "2026-05-09T15:00:00Z"),
-      makeEntry(makeRunner({ id: "m2", name: "Tied B", gender: "male" }), 10, "2026-05-09T15:30:00Z"),
+      makeEntry(makeRunner({ id: "m1", name: "First", gender: "male" }), 10, "2026-05-09T15:00:00Z"),
+      makeEntry(makeRunner({ id: "m2", name: "Second", gender: "male" }), 10, "2026-05-09T15:30:00Z"),
       makeEntry(makeRunner({ id: "m3", name: "Below", gender: "male" }), 7, "2026-05-09T14:00:00Z"),
     ];
     const result = findCourseRecordHolderIds(leaderboard, records);
+    // Only #1 ranked (earliest timestamp tiebreak) gets CR
     expect(result.has("m1")).toBe(true);
-    expect(result.has("m2")).toBe(true);
+    expect(result.has("m2")).toBe(false);
     expect(result.has("m3")).toBe(false);
   });
 
-  it("tags only runners at or above the record, not those below", () => {
+  it("only tags #1 even when others also exceed the record", () => {
     const records: CourseRecords = {
       male: { name: "Prev", year: 2025, totalLaps: 10, totalDistanceKm: 70 },
       female: null,
     };
     const leaderboard = [
-      makeEntry(makeRunner({ id: "m1", name: "Beats", gender: "male" }), 12, "2026-05-09T17:00:00Z"),
-      makeEntry(makeRunner({ id: "m2", name: "Ties", gender: "male" }), 10, "2026-05-09T16:00:00Z"),
+      makeEntry(makeRunner({ id: "m1", name: "Best", gender: "male" }), 12, "2026-05-09T17:00:00Z"),
+      makeEntry(makeRunner({ id: "m2", name: "Also Beats", gender: "male" }), 11, "2026-05-09T16:00:00Z"),
       makeEntry(makeRunner({ id: "m3", name: "Below", gender: "male" }), 9, "2026-05-09T15:00:00Z"),
     ];
     const result = findCourseRecordHolderIds(leaderboard, records);
     expect(result.has("m1")).toBe(true);
-    expect(result.has("m2")).toBe(true);
+    expect(result.has("m2")).toBe(false);
     expect(result.has("m3")).toBe(false);
   });
 

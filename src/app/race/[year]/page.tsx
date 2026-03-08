@@ -27,6 +27,7 @@ interface EditionInfo {
 
 interface CourseRecord {
   name: string;
+  bib: number;
   year: number;
   totalLaps: number;
   totalDistanceKm: number;
@@ -644,24 +645,24 @@ export default function RaceYearPage() {
               <h2 className="text-xl font-bold mb-4">Course Records</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {data.courseRecords.male && (
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  <Link href={`/race/${data.courseRecords.male.year}/runner/${data.courseRecords.male.bib}`} className="block bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
                     <p className="text-sm text-gray-500 mb-1">Men</p>
                     <p className="text-lg font-bold">{data.courseRecords.male.name}</p>
                     <p className="text-gray-700">
                       {data.courseRecords.male.totalLaps} laps ({data.courseRecords.male.totalDistanceKm} km)
                     </p>
                     <p className="text-sm text-gray-500">{data.courseRecords.male.year}</p>
-                  </div>
+                  </Link>
                 )}
                 {data.courseRecords.female && (
-                  <div className="bg-gray-50 rounded-lg p-4">
+                  <Link href={`/race/${data.courseRecords.female.year}/runner/${data.courseRecords.female.bib}`} className="block bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
                     <p className="text-sm text-gray-500 mb-1">Women</p>
                     <p className="text-lg font-bold">{data.courseRecords.female.name}</p>
                     <p className="text-gray-700">
                       {data.courseRecords.female.totalLaps} laps ({data.courseRecords.female.totalDistanceKm} km)
                     </p>
                     <p className="text-sm text-gray-500">{data.courseRecords.female.year}</p>
-                  </div>
+                  </Link>
                 )}
               </div>
             </CardContent>
