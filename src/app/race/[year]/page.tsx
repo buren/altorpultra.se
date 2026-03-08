@@ -74,6 +74,7 @@ function LeaderboardTable({
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [nameFilter, setNameFilter] = useState("");
+  const [filterFlash, setFilterFlash] = useState(false);
   const filterRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -106,15 +107,19 @@ function LeaderboardTable({
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
-        <h2 className="text-xl font-bold">
+        <h2 className="text-xl font-bold flex items-center gap-2">
           {title}
           {paginate && (
             <button
               type="button"
-              onClick={() => filterRef.current?.focus()}
-              className="ml-2 text-gray-400 hover:text-gray-600 align-middle sm:hidden"
+              onClick={() => {
+                filterRef.current?.focus();
+                setFilterFlash(true);
+                setTimeout(() => setFilterFlash(false), 600);
+              }}
+              className="text-gray-400 hover:text-gray-600"
             >
-              <Search className="h-5 w-5 inline align-text-bottom" />
+              <Search className="h-5 w-5" />
             </button>
           )}
         </h2>
@@ -127,7 +132,7 @@ function LeaderboardTable({
               value={nameFilter}
               onChange={(e) => setNameFilter(e.target.value)}
               placeholder="Filter by name…"
-              className="border rounded-md px-3 py-1.5 text-sm w-full sm:w-48 sm:pl-8"
+              className={`border rounded-md px-3 py-1.5 text-sm w-full sm:w-48 sm:pl-8 transition-all duration-500 ${filterFlash ? "bg-blue-100 ring-2 ring-blue-300 border-blue-300" : ""}`}
             />
           </div>
         )}
