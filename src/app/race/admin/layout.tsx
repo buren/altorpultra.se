@@ -103,9 +103,26 @@ export default function AdminLayout({
     <div className="min-h-screen bg-gray-50">
       <header className="bg-gray-900 text-white px-4 py-3">
         <div className="container mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold">{site.name} Admin</h1>
-            <p className="text-gray-400 text-sm">{currentYear}</p>
+          <div className="flex items-center gap-6">
+            <div>
+              <h1 className="text-xl font-bold">{site.name} Admin</h1>
+              <p className="text-gray-400 text-sm">{currentYear}</p>
+            </div>
+            <nav className="flex gap-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    pathname === link.href
+                      ? "bg-gray-700 text-white"
+                      : "text-gray-400 hover:text-white hover:bg-gray-800"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
           </div>
           <div className="flex items-center gap-4">
             <a
@@ -154,24 +171,6 @@ export default function AdminLayout({
           </div>
         </div>
       </header>
-
-      <nav className="bg-white border-b">
-        <div className="container mx-auto px-4 flex gap-1">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-                pathname === link.href
-                  ? "border-gray-900 text-gray-900"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      </nav>
 
       {children}
     </div>

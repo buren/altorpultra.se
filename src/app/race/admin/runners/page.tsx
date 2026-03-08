@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Pencil } from "lucide-react";
 import { Runner, Gender } from "@/lib/race/types";
 
 export default function RunnersPage() {
@@ -300,9 +301,12 @@ export default function RunnersPage() {
                       </span>{" "}
                       <span className="font-medium">{r.name}</span>
                     </div>
-                    <span className="text-sm text-gray-400 capitalize">
-                      {r.gender}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-400 capitalize">
+                        {r.gender}
+                      </span>
+                      <Pencil className="h-3.5 w-3.5 text-gray-300" />
+                    </div>
                   </div>
                 )
               )}
