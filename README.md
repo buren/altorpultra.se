@@ -63,7 +63,7 @@ The site includes a live race tracking system:
 
 - `/race` — Redirects to current edition's leaderboard
 - `/race/:year` — Leaderboard for a specific edition with real-time results
-- `/race/runner/:bib` — Individual runner detail page
+- `/race/:year/runner/:bib` — Individual runner detail page
 - `/race/admin` — Admin dashboard for registering laps
 - `/race/admin/runners` — Manage runners
 - `/race/admin/editions` — Manage editions (create, edit, publish, duplicate)

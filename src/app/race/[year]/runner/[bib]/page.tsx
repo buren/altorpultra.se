@@ -29,6 +29,7 @@ function formatPace(seconds: number | null, lapDistanceKm: number): string {
 
 export default function RunnerPage() {
   const params = useParams();
+  const year = Number(params.year);
   const bib = Number(params.bib);
 
   const [entry, setEntry] = useState<LeaderboardEntry | null>(null);
@@ -37,7 +38,7 @@ export default function RunnerPage() {
   const [notFound, setNotFound] = useState(false);
 
   const fetchData = useCallback(async () => {
-    const res = await fetch("/api/race/leaderboard");
+    const res = await fetch(`/api/race/leaderboard?year=${year}`);
     const json = await res.json();
     if (!json.ok) return;
 
@@ -51,7 +52,7 @@ export default function RunnerPage() {
     setEntry(leaderboard[idx]);
     setRank(idx + 1);
     setNotFound(false);
-  }, [bib]);
+  }, [bib, year]);
 
   useEffect(() => {
     fetchData();
@@ -73,7 +74,7 @@ export default function RunnerPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-4">
         <p className="text-gray-500 text-lg">Runner with bib #{bib} not found</p>
-        <Link href="/race" className="text-blue-600 hover:underline flex items-center gap-1">
+        <Link href={`/race/${year}`} className="text-blue-600 hover:underline flex items-center gap-1">
           <ArrowLeft className="h-4 w-4" /> Back to leaderboard
         </Link>
       </div>

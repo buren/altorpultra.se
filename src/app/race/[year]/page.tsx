@@ -25,11 +25,19 @@ interface EditionInfo {
   dateFormatted: string;
 }
 
+interface CourseRecord {
+  name: string;
+  year: number;
+  totalLaps: number;
+  totalDistanceKm: number;
+}
+
 interface LeaderboardData {
   edition: EditionInfo;
   leaderboard: LeaderboardEntry[];
   topMen: LeaderboardEntry[];
   topWomen: LeaderboardEntry[];
+  courseRecords: { male: CourseRecord | null; female: CourseRecord | null };
 }
 
 function GenderIcon({ gender }: { gender: Gender }) {
@@ -51,6 +59,14 @@ function formatPace(
 
 const PAGE_SIZES = [10, 20, 50, 100] as const;
 
+function CourseRecordTag() {
+  return (
+    <span className="inline-block bg-yellow-100 text-yellow-800 text-xs font-semibold px-1.5 py-0.5 rounded ml-2">
+      CR
+    </span>
+  );
+}
+
 function LeaderboardTable({
   entries,
   title,
@@ -60,6 +76,8 @@ function LeaderboardTable({
   paginate,
   lapDistanceKm,
   startDateTime,
+  year,
+  courseRecordLaps,
 }: {
   entries: LeaderboardEntry[];
   title: string;
@@ -69,6 +87,8 @@ function LeaderboardTable({
   paginate?: boolean;
   lapDistanceKm: number;
   startDateTime: string;
+  year: number;
+  courseRecordLaps?: { male: number; female: number };
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [page, setPage] = useState(0);
@@ -192,7 +212,7 @@ function LeaderboardTable({
                   )}
                   <td className="px-3 py-2 font-medium">
                     <Link
-                      href={`/race/runner/${e.runner.bib}`}
+                      href={`/race/${year}/runner/${e.runner.bib}`}
                       className="hover:underline"
                       onClick={(ev) => ev.stopPropagation()}
                     >
@@ -201,6 +221,9 @@ function LeaderboardTable({
                   </td>
                   <td className="px-3 py-2 text-right font-bold">
                     {e.totalLaps}
+                    {courseRecordLaps && e.totalLaps > 0 && (e.runner.gender === "male" || e.runner.gender === "female") && e.totalLaps >= courseRecordLaps[e.runner.gender] && (
+                      <CourseRecordTag />
+                    )}
                   </td>
                   <td className="px-3 py-2 text-right text-gray-600 hidden sm:table-cell">
                     {e.totalDistanceKm} km
@@ -239,7 +262,7 @@ function LeaderboardTable({
                       <p className="text-sm font-semibold text-gray-500 mb-2">
                         #{e.runner.bib} {e.runner.name}
                         <Link
-                          href={`/race/runner/${e.runner.bib}`}
+                          href={`/race/${year}/runner/${e.runner.bib}`}
                           className="ml-2 text-xs font-normal text-blue-500 hover:underline"
                         >
                           View profile &rarr;
@@ -485,6 +508,10 @@ export default function RaceYearPage() {
   const activeRunners = data.leaderboard.filter(
     (e) => e.totalLaps > 0
   ).length;
+  const courseRecordLaps = {
+    male: data.courseRecords.male?.totalLaps ?? Infinity,
+    female: data.courseRecords.female?.totalLaps ?? Infinity,
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -586,6 +613,8 @@ export default function RaceYearPage() {
           paginate
           lapDistanceKm={edition.lapDistanceKm}
           startDateTime={edition.startDateTime}
+          year={year}
+          courseRecordLaps={courseRecordLaps}
         />
 
         {(data.topMen.length > 0 || data.topWomen.length > 0) && (
@@ -596,6 +625,8 @@ export default function RaceYearPage() {
               showMedals
               lapDistanceKm={edition.lapDistanceKm}
               startDateTime={edition.startDateTime}
+              year={year}
+              courseRecordLaps={courseRecordLaps}
             />
             <LeaderboardTable
               entries={data.topWomen}
@@ -603,8 +634,40 @@ export default function RaceYearPage() {
               showMedals
               lapDistanceKm={edition.lapDistanceKm}
               startDateTime={edition.startDateTime}
+              year={year}
+              courseRecordLaps={courseRecordLaps}
             />
           </div>
+        )}
+
+        {(data.courseRecords.male || data.courseRecords.female) && (
+          <Card>
+            <CardContent className="p-6">
+              <h2 className="text-xl font-bold mb-4">Course Records</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {data.courseRecords.male && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-500 mb-1">Men</p>
+                    <p className="text-lg font-bold">{data.courseRecords.male.name}</p>
+                    <p className="text-gray-700">
+                      {data.courseRecords.male.totalLaps} laps ({data.courseRecords.male.totalDistanceKm} km)
+                    </p>
+                    <p className="text-sm text-gray-500">{data.courseRecords.male.year}</p>
+                  </div>
+                )}
+                {data.courseRecords.female && (
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-500 mb-1">Women</p>
+                    <p className="text-lg font-bold">{data.courseRecords.female.name}</p>
+                    <p className="text-gray-700">
+                      {data.courseRecords.female.totalLaps} laps ({data.courseRecords.female.totalDistanceKm} km)
+                    </p>
+                    <p className="text-sm text-gray-500">{data.courseRecords.female.year}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         )}
       </main>
 
