@@ -4,7 +4,6 @@ import {
   resolveCurrentEdition,
   mapDbRowToEdition,
   mapEditionToDbRow,
-  EditionStatus,
   Edition,
 } from "./editions";
 

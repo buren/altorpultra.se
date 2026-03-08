@@ -9,7 +9,7 @@ import {
   resolveCurrentEditionFromDb,
   getRunners,
 } from "@/lib/race/db";
-import { mapEditionToDbRow, Edition } from "@/lib/race/editions";
+import { Edition } from "@/lib/race/editions";
 import { createServerClient } from "@/lib/race/supabase-server";
 
 export const dynamic = "force-dynamic";
