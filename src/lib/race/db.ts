@@ -98,14 +98,12 @@ export async function deleteLap(
   if (error) throw error;
 }
 
-export async function getLaps(
-  supabase: SupabaseClient,
-  editionYear: number
+export async function getAllLaps(
+  supabase: SupabaseClient
 ): Promise<Lap[]> {
   const { data, error } = await supabase
     .from("laps")
-    .select("*, runners!inner(edition_year)")
-    .eq("runners.edition_year", editionYear)
+    .select("*")
     .order("timestamp", { ascending: false });
 
   if (error) throw error;

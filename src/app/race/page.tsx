@@ -311,6 +311,7 @@ export default function RacePage() {
       .subscribe();
 
     return () => {
+      clearInterval(interval);
       supabase.removeChannel(channel);
     };
   }, [fetchData]);
