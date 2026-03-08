@@ -152,18 +152,21 @@ export default function RunnerPage() {
             <CardContent className="p-4">
               <p className="text-xl font-bold font-mono">{formatLapTime(e.avgLapSeconds)}</p>
               <p className="text-sm text-gray-500">Avg Lap</p>
+              {e.avgLapSeconds != null && <p className="text-xs text-gray-400">{formatPace(e.avgLapSeconds, edition.lapDistanceKm)} min/km</p>}
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <p className="text-xl font-bold font-mono text-green-600">{formatLapTime(e.fastestLapSeconds)}</p>
               <p className="text-sm text-gray-500">Fastest Lap</p>
+              {e.fastestLapSeconds != null && <p className="text-xs text-gray-400">{formatPace(e.fastestLapSeconds, edition.lapDistanceKm)} min/km</p>}
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <p className="text-xl font-bold font-mono text-red-500">{formatLapTime(e.slowestLapSeconds)}</p>
               <p className="text-sm text-gray-500">Slowest Lap</p>
+              {e.slowestLapSeconds != null && <p className="text-xs text-gray-400">{formatPace(e.slowestLapSeconds, edition.lapDistanceKm)} min/km</p>}
             </CardContent>
           </Card>
         </div>
