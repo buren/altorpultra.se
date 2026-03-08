@@ -164,7 +164,7 @@ export default function AdminLayout({
             </div>
             <div className="flex items-center gap-4">
               <a
-                href="/race"
+                href={`/race/${currentYear}`}
                 target="_blank"
                 className="bg-gray-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600"
               >
@@ -211,7 +211,7 @@ export default function AdminLayout({
                   </Link>
                 ))}
                 <a
-                  href="/race"
+                  href={`/race/${currentYear}`}
                   target="_blank"
                   className="px-3 py-2 rounded-md text-sm font-medium text-gray-400 hover:text-white hover:bg-gray-800"
                 >

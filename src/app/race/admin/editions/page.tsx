@@ -213,41 +213,42 @@ export default function EditionsPage() {
               {editions.map((ed) => (
                 <div
                   key={ed.year}
-                  className="flex items-center justify-between bg-gray-50 rounded-md px-4 py-3"
+                  className="bg-gray-50 rounded-md px-4 py-3"
                 >
-                  <div>
-                    <span className="font-bold text-lg">{ed.year}</span>
-                    {ed.year === currentYear && (
-                      <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                        Current
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <span className="font-bold text-lg">{ed.year}</span>
+                      {ed.year === currentYear && (
+                        <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                          Current
+                        </span>
+                      )}
+                      <span
+                        className={`ml-2 text-xs px-2 py-0.5 rounded-full font-medium ${
+                          ed.publishedAt
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-gray-200 text-gray-500"
+                        }`}
+                      >
+                        {ed.publishedAt ? "Published" : "Draft"}
                       </span>
-                    )}
-                    <span
-                      className={`ml-2 text-xs px-2 py-0.5 rounded-full font-medium ${
-                        ed.publishedAt
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-200 text-gray-500"
-                      }`}
-                    >
-                      {ed.publishedAt ? "Published" : "Draft"}
-                    </span>
-                    <p className="text-sm text-gray-500 mt-0.5">
-                      {ed.dateFormatted || ed.date} &middot; {ed.startTime}–
-                      {ed.endTime} &middot; {ed.lapDistanceKm} km laps &middot;{" "}
-                      {ed.priceSEK} SEK
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => handleTogglePublish(ed)}
-                      className={`px-3 py-1 rounded text-xs font-medium ${
-                        ed.publishedAt
-                          ? "border border-gray-300 text-gray-600 hover:bg-gray-100"
-                          : "bg-blue-600 text-white hover:bg-blue-700"
-                      }`}
-                    >
-                      {ed.publishedAt ? "Unpublish" : "Publish"}
-                    </button>
+                      <p className="text-sm text-gray-500 mt-0.5 truncate">
+                        {ed.dateFormatted || ed.date} &middot; {ed.startTime}–
+                        {ed.endTime} &middot; {ed.lapDistanceKm} km &middot;{" "}
+                        {ed.priceSEK} SEK
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => handleTogglePublish(ed)}
+                        className={`px-3 py-1 rounded text-xs font-medium hidden sm:block ${
+                          ed.publishedAt
+                            ? "border border-gray-300 text-gray-600 hover:bg-gray-100"
+                            : "bg-blue-600 text-white hover:bg-blue-700"
+                        }`}
+                      >
+                        {ed.publishedAt ? "Unpublish" : "Publish"}
+                      </button>
                     <button
                       onClick={() => startEdit(ed)}
                       className="p-1.5 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100"
@@ -268,6 +269,19 @@ export default function EditionsPage() {
                       title="Delete"
                     >
                       <Trash2 className="h-4 w-4" />
+                    </button>
+                    </div>
+                  </div>
+                  <div className="mt-2 sm:hidden">
+                    <button
+                      onClick={() => handleTogglePublish(ed)}
+                      className={`w-full px-3 py-1.5 rounded text-xs font-medium ${
+                        ed.publishedAt
+                          ? "border border-gray-300 text-gray-600 hover:bg-gray-100"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
+                      }`}
+                    >
+                      {ed.publishedAt ? "Unpublish" : "Publish"}
                     </button>
                   </div>
                 </div>

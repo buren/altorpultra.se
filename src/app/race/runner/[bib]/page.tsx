@@ -6,13 +6,22 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { LeaderboardEntry } from "@/lib/race/types";
 import { formatLapTime, formatTimestamp } from "@/lib/race/format";
-import { site, currentYear, event } from "@/lib/config";
+import { site } from "@/lib/config";
 import { supabase } from "@/lib/race/supabase";
 import { ArrowLeft } from "lucide-react";
 
-function formatPace(seconds: number | null): string {
+interface EditionInfo {
+  year: number;
+  startDateTime: string;
+  endDateTime: string;
+  lapDistanceKm: number;
+  lapElevationM: number;
+  dateFormatted: string;
+}
+
+function formatPace(seconds: number | null, lapDistanceKm: number): string {
   if (seconds == null) return "–";
-  const paceSeconds = seconds / event.lapDistanceKm;
+  const paceSeconds = seconds / lapDistanceKm;
   const mins = Math.floor(paceSeconds / 60);
   const secs = Math.round(paceSeconds % 60);
   return `${mins}:${secs.toString().padStart(2, "0")}`;
@@ -23,6 +32,7 @@ export default function RunnerPage() {
   const bib = Number(params.bib);
 
   const [entry, setEntry] = useState<LeaderboardEntry | null>(null);
+  const [edition, setEdition] = useState<EditionInfo | null>(null);
   const [rank, setRank] = useState<number | null>(null);
   const [notFound, setNotFound] = useState(false);
 
@@ -31,6 +41,7 @@ export default function RunnerPage() {
     const json = await res.json();
     if (!json.ok) return;
 
+    setEdition(json.data.edition);
     const leaderboard: LeaderboardEntry[] = json.data.leaderboard;
     const idx = leaderboard.findIndex((e) => e.runner.bib === bib);
     if (idx === -1) {
@@ -69,7 +80,7 @@ export default function RunnerPage() {
     );
   }
 
-  if (!entry) {
+  if (!entry || !edition) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <p className="text-gray-400">Loading...</p>
@@ -78,24 +89,23 @@ export default function RunnerPage() {
   }
 
   const e = entry;
+  const leaderboardHref = `/race/${edition.year}`;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-gray-900 text-white px-4 py-4">
         <div className="container mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">{site.name} {currentYear}</h1>
+            <h1 className="text-2xl font-bold">{site.name} {edition.year}</h1>
             <p className="text-gray-400 text-sm">Live Results</p>
           </div>
-          <Link href="/race" className="bg-gray-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600">
+          <Link href={leaderboardHref} className="bg-gray-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600">
             View Leaderboard
           </Link>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-6 space-y-6 max-w-2xl">
-        {/* Runner identity */}
         <div className="flex items-center gap-4">
           <div className="bg-gray-900 text-white font-mono font-bold text-2xl w-14 h-14 rounded-lg flex items-center justify-center">
             {e.runner.bib}
@@ -109,7 +119,6 @@ export default function RunnerPage() {
           </div>
         </div>
 
-        {/* Stats grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Card>
             <CardContent className="p-4">
@@ -131,13 +140,12 @@ export default function RunnerPage() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-2xl font-bold font-mono">{formatPace(e.avgLapSeconds)}</p>
+              <p className="text-2xl font-bold font-mono">{formatPace(e.avgLapSeconds, edition.lapDistanceKm)}</p>
               <p className="text-sm text-gray-500">Avg Pace (min/km)</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Timing stats */}
         <div className="grid grid-cols-3 gap-3">
           <Card>
             <CardContent className="p-4">
@@ -159,7 +167,6 @@ export default function RunnerPage() {
           </Card>
         </div>
 
-        {/* Lap splits */}
         {e.laps.length > 0 && (
           <div>
             <h3 className="text-lg font-bold mb-3">Lap Splits</h3>
@@ -175,7 +182,7 @@ export default function RunnerPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {e.laps.map((lap, li) => {
-                    const prevTs = li > 0 ? e.laps[li - 1].timestamp : event.startDateTime;
+                    const prevTs = li > 0 ? e.laps[li - 1].timestamp : edition.startDateTime;
                     const dur = (new Date(lap.timestamp).getTime() - new Date(prevTs).getTime()) / 1000;
                     const isFastest = dur === e.fastestLapSeconds;
                     const isSlowest = dur === e.slowestLapSeconds;
@@ -188,7 +195,7 @@ export default function RunnerPage() {
                           {dur > 0 ? formatLapTime(dur) : "–"}
                         </td>
                         <td className="px-4 py-2 text-right font-mono text-gray-500">
-                          {dur > 0 ? `${formatPace(dur)} min/km` : "–"}
+                          {dur > 0 ? `${formatPace(dur, edition.lapDistanceKm)} min/km` : "–"}
                         </td>
                       </tr>
                     );
@@ -199,7 +206,7 @@ export default function RunnerPage() {
           </div>
         )}
         <div className="pt-2">
-          <Link href="/race" className="bg-gray-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600 inline-flex items-center gap-1">
+          <Link href={leaderboardHref} className="bg-gray-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600 inline-flex items-center gap-1">
             <ArrowLeft className="h-4 w-4" /> View Leaderboard
           </Link>
         </div>
