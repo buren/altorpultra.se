@@ -88,8 +88,8 @@ export default function RunnerPage() {
             <h1 className="text-2xl font-bold">{site.name} {currentYear}</h1>
             <p className="text-gray-400 text-sm">Live Results</p>
           </div>
-          <Link href="/race" className="text-gray-400 hover:text-white text-sm flex items-center gap-1">
-            <ArrowLeft className="h-4 w-4" /> Leaderboard
+          <Link href="/race" className="bg-gray-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600">
+            View Leaderboard
           </Link>
         </div>
       </header>
@@ -199,7 +199,7 @@ export default function RunnerPage() {
           </div>
         )}
         <div className="pt-2">
-          <Link href="/race" className="text-gray-500 hover:text-gray-900 text-sm inline-flex items-center gap-1">
+          <Link href="/race" className="bg-gray-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600 inline-flex items-center gap-1">
             <ArrowLeft className="h-4 w-4" /> View Leaderboard
           </Link>
         </div>

@@ -189,6 +189,7 @@ function LeaderboardTable({
                     <td colSpan={(showGender ? 8 : 7) + (now ? 1 : 0)} className="bg-gray-50 px-6 py-3">
                       <p className="text-sm font-semibold text-gray-500 mb-2">
                         #{e.runner.bib} {e.runner.name}
+                        <Link href={`/race/${e.runner.bib}`} className="ml-2 text-xs font-normal text-blue-500 hover:underline">View profile &rarr;</Link>
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                         <div className="bg-white border rounded px-3 py-2 text-sm">
