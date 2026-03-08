@@ -4,6 +4,9 @@ import {
   resolveCurrentEdition,
   mapDbRowToEdition,
   mapEditionToDbRow,
+  toStockholmISO,
+  formatEditionDate,
+  computeDurationHours,
   Edition,
 } from "./editions";
 
@@ -32,6 +35,48 @@ function makeEdition(overrides: Partial<Edition> = {}): Edition {
     ...overrides,
   };
 }
+
+describe("toStockholmISO", () => {
+  it("produces correct offset for summer (CEST = +02:00)", () => {
+    const result = toStockholmISO("2026-05-09", "10:00");
+    expect(result).toBe("2026-05-09T10:00:00+02:00");
+  });
+
+  it("produces correct offset for winter (CET = +01:00)", () => {
+    const result = toStockholmISO("2026-01-15", "10:00");
+    expect(result).toBe("2026-01-15T10:00:00+01:00");
+  });
+});
+
+describe("formatEditionDate", () => {
+  it("formats a date string to 'Month Day, Year'", () => {
+    expect(formatEditionDate("2026-05-09")).toBe("May 9, 2026");
+  });
+
+  it("formats another date correctly", () => {
+    expect(formatEditionDate("2025-05-10")).toBe("May 10, 2025");
+  });
+});
+
+describe("computeDurationHours", () => {
+  it("computes duration from two ISO strings", () => {
+    expect(
+      computeDurationHours(
+        "2026-05-09T10:00:00+02:00",
+        "2026-05-09T18:00:00+02:00"
+      )
+    ).toBe(8);
+  });
+
+  it("handles different durations", () => {
+    expect(
+      computeDurationHours(
+        "2026-05-09T09:00:00+02:00",
+        "2026-05-09T15:00:00+02:00"
+      )
+    ).toBe(6);
+  });
+});
 
 describe("getEditionStatus", () => {
   it("returns 'draft' when publishedAt is null", () => {
@@ -163,16 +208,12 @@ describe("resolveCurrentEdition", () => {
 });
 
 describe("mapDbRowToEdition", () => {
-  it("maps snake_case DB row to camelCase Edition with nested googleMaps", () => {
+  it("maps snake_case DB row to camelCase Edition, computing derived fields", () => {
     const row = {
       year: 2026,
       date: "2026-05-09",
       start_time: "10:00",
       end_time: "18:00",
-      start_date_time: "2026-05-09T10:00:00+02:00",
-      end_date_time: "2026-05-09T18:00:00+02:00",
-      duration_hours: 8,
-      date_formatted: "May 9, 2026",
       price_sek: 300,
       lap_distance_km: 7.0,
       lap_elevation_m: 100,
@@ -191,10 +232,12 @@ describe("mapDbRowToEdition", () => {
     expect(edition.year).toBe(2026);
     expect(edition.startTime).toBe("10:00");
     expect(edition.endTime).toBe("18:00");
+    // Derived fields
     expect(edition.startDateTime).toBe("2026-05-09T10:00:00+02:00");
     expect(edition.endDateTime).toBe("2026-05-09T18:00:00+02:00");
     expect(edition.durationHours).toBe(8);
     expect(edition.dateFormatted).toBe("May 9, 2026");
+    // Stored fields
     expect(edition.priceSEK).toBe(300);
     expect(edition.lapDistanceKm).toBe(7.0);
     expect(edition.lapElevationM).toBe(100);
@@ -213,10 +256,6 @@ describe("mapDbRowToEdition", () => {
       date: "2027-06-07",
       start_time: "10:00",
       end_time: "18:00",
-      start_date_time: "2027-06-07T10:00:00+02:00",
-      end_date_time: "2027-06-07T18:00:00+02:00",
-      duration_hours: 8,
-      date_formatted: "June 7, 2027",
       price_sek: 300,
       lap_distance_km: 7.0,
       lap_elevation_m: 100,
@@ -232,10 +271,34 @@ describe("mapDbRowToEdition", () => {
 
     expect(mapDbRowToEdition(row).publishedAt).toBeNull();
   });
+
+  it("computes winter timezone offset correctly", () => {
+    const row = {
+      year: 2026,
+      date: "2026-01-15",
+      start_time: "10:00",
+      end_time: "18:00",
+      price_sek: 300,
+      lap_distance_km: 7.0,
+      lap_elevation_m: 100,
+      race_id_url: "",
+      strava_route: "",
+      google_maps_start_pin: "",
+      google_maps_parking_pin: "",
+      google_maps_route_embed: "",
+      google_maps_route_viewer: "",
+      published_at: null,
+      created_at: "2026-01-01T00:00:00Z",
+    };
+
+    const edition = mapDbRowToEdition(row);
+    expect(edition.startDateTime).toBe("2026-01-15T10:00:00+01:00");
+    expect(edition.endDateTime).toBe("2026-01-15T18:00:00+01:00");
+  });
 });
 
 describe("mapEditionToDbRow", () => {
-  it("maps camelCase Edition to snake_case DB row with flat googleMaps", () => {
+  it("maps camelCase Edition to snake_case DB row, excluding derived fields", () => {
     const edition: Edition = {
       year: 2026,
       date: "2026-05-09",
@@ -264,10 +327,6 @@ describe("mapEditionToDbRow", () => {
     expect(row.year).toBe(2026);
     expect(row.start_time).toBe("10:00");
     expect(row.end_time).toBe("18:00");
-    expect(row.start_date_time).toBe("2026-05-09T10:00:00+02:00");
-    expect(row.end_date_time).toBe("2026-05-09T18:00:00+02:00");
-    expect(row.duration_hours).toBe(8);
-    expect(row.date_formatted).toBe("May 9, 2026");
     expect(row.price_sek).toBe(300);
     expect(row.lap_distance_km).toBe(7.0);
     expect(row.lap_elevation_m).toBe(100);
@@ -278,7 +337,11 @@ describe("mapEditionToDbRow", () => {
     expect(row.google_maps_route_embed).toBe("https://maps/embed");
     expect(row.google_maps_route_viewer).toBe("https://maps/viewer");
     expect(row.published_at).toBe("2026-01-01T00:00:00Z");
-    // Should not include created_at or googleMaps nested object
+    // Should not include derived or nested fields
+    expect("start_date_time" in row).toBe(false);
+    expect("end_date_time" in row).toBe(false);
+    expect("duration_hours" in row).toBe(false);
+    expect("date_formatted" in row).toBe(false);
     expect("googleMaps" in row).toBe(false);
     expect("created_at" in row).toBe(false);
   });

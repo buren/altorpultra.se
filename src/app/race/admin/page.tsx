@@ -85,13 +85,14 @@ export default function LapsPage() {
           <h2 className="text-lg font-bold mb-4">Register Lap</h2>
           <form
             onSubmit={handleRegisterLap}
-            className="flex gap-3 items-end"
+            className="flex flex-col sm:flex-row gap-3 sm:items-end"
           >
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-600 mb-1">
+              <label htmlFor="bib-input" className="block text-sm font-medium text-gray-600 mb-1">
                 Bib #
               </label>
               <input
+                id="bib-input"
                 ref={bibRef}
                 type="text"
                 inputMode="numeric"
@@ -105,7 +106,7 @@ export default function LapsPage() {
             </div>
             <button
               type="submit"
-              className="bg-green-600 text-white px-6 py-3 rounded-md font-semibold text-lg hover:bg-green-700"
+              className="bg-green-600 text-white px-6 py-3 rounded-md font-semibold text-lg hover:bg-green-700 w-full sm:w-auto"
             >
               Register
             </button>

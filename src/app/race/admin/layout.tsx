@@ -163,10 +163,10 @@ export default function AdminLayout({
           {/* Desktop header */}
           <div className="hidden md:flex items-center justify-between">
             <div className="flex items-center gap-6">
-              <div>
+              <Link href="/race/admin">
                 <h1 className="text-xl font-bold">{site.name} Admin</h1>
                 <p className="text-gray-400 text-sm">{editionYear}</p>
-              </div>
+              </Link>
               <nav className="flex gap-1">
                 {navLinks.map((link) => (
                   <Link
@@ -198,10 +198,10 @@ export default function AdminLayout({
           {/* Mobile header */}
           <div className="md:hidden">
             <div className="flex items-center justify-between">
-              <div>
+              <Link href="/race/admin">
                 <h1 className="text-lg font-bold">{site.name} Admin</h1>
                 <p className="text-gray-400 text-xs">{editionYear}</p>
-              </div>
+              </Link>
               <div className="flex items-center gap-3">
                 {raceTimer}
                 <button

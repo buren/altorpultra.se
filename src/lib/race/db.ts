@@ -1,7 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Runner, Lap } from "./types";
 import { getNextLapNumber } from "./services";
-import { Edition, mapDbRowToEdition, mapEditionToDbRow } from "./editions";
+import { Edition, mapDbRowToEdition, mapEditionToDbRow, DERIVED_EDITION_FIELDS } from "./editions";
 import { DAYS_BEFORE_LEADERBOARD_SWITCH } from "@/lib/config";
 import { resolveCurrentEdition } from "./editions";
 
@@ -71,6 +71,8 @@ export async function updateEdition(
   // Only include fields that were actually in updates
   const partialRow: Record<string, unknown> = {};
   for (const key of Object.keys(updates)) {
+    // Skip computed fields that don't exist in the DB
+    if (DERIVED_EDITION_FIELDS.has(key)) continue;
     // Map camelCase update keys to their snake_case DB equivalents
     if (key === "googleMaps") {
       if (updates.googleMaps) {

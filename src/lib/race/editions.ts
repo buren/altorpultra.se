@@ -1,3 +1,44 @@
+import { TIMEZONE } from "@/lib/config";
+
+/**
+ * Build an ISO 8601 string with the correct Stockholm offset for a given date/time.
+ * e.g. ("2026-05-09", "10:00") -> "2026-05-09T10:00:00+02:00"
+ */
+export function toStockholmISO(date: string, time: string): string {
+  // Parse the date in Stockholm timezone to determine the correct UTC offset
+  const dt = new Date(`${date}T${time}:00`);
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: TIMEZONE,
+    timeZoneName: "longOffset",
+  });
+  const parts = formatter.formatToParts(dt);
+  const tzPart = parts.find((p) => p.type === "timeZoneName")?.value ?? "";
+  const offset = tzPart.replace("GMT", "") || "+00:00";
+  return `${date}T${time}:00${offset}`;
+}
+
+/**
+ * Format a date string like "2026-05-09" to "May 9, 2026".
+ */
+export function formatEditionDate(date: string): string {
+  const dt = new Date(`${date}T12:00:00`); // noon to avoid timezone edge issues
+  return dt.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: TIMEZONE,
+  });
+}
+
+/**
+ * Compute duration in hours between two ISO datetime strings.
+ */
+export function computeDurationHours(startISO: string, endISO: string): number {
+  return Math.round(
+    (new Date(endISO).getTime() - new Date(startISO).getTime()) / (1000 * 60 * 60)
+  );
+}
+
 export interface Edition {
   year: number;
   date: string;
@@ -82,15 +123,17 @@ export function resolveCurrentEdition(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapDbRowToEdition(row: any): Edition {
+  const startDateTime = toStockholmISO(row.date, row.start_time);
+  const endDateTime = toStockholmISO(row.date, row.end_time);
   return {
     year: row.year,
     date: row.date,
     startTime: row.start_time,
     endTime: row.end_time,
-    startDateTime: row.start_date_time,
-    endDateTime: row.end_date_time,
-    durationHours: row.duration_hours,
-    dateFormatted: row.date_formatted,
+    startDateTime,
+    endDateTime,
+    durationHours: computeDurationHours(startDateTime, endDateTime),
+    dateFormatted: formatEditionDate(row.date),
     priceSEK: row.price_sek,
     lapDistanceKm: row.lap_distance_km,
     lapElevationM: row.lap_elevation_m,
@@ -106,16 +149,20 @@ export function mapDbRowToEdition(row: any): Edition {
   };
 }
 
+// Fields that are computed from date/startTime/endTime — not stored in the DB.
+export const DERIVED_EDITION_FIELDS = new Set([
+  "startDateTime",
+  "endDateTime",
+  "durationHours",
+  "dateFormatted",
+]);
+
 export function mapEditionToDbRow(edition: Edition) {
   return {
     year: edition.year,
     date: edition.date,
     start_time: edition.startTime,
     end_time: edition.endTime,
-    start_date_time: edition.startDateTime,
-    end_date_time: edition.endDateTime,
-    duration_hours: edition.durationHours,
-    date_formatted: edition.dateFormatted,
     price_sek: edition.priceSEK,
     lap_distance_km: edition.lapDistanceKm,
     lap_elevation_m: edition.lapElevationM,

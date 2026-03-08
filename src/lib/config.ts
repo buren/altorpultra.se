@@ -3,6 +3,9 @@
 // Per-edition data (dates, distances, prices, map links, etc.)
 // lives in the Supabase `editions` table.
 
+// The race always takes place in Stockholm, Sweden.
+export const TIMEZONE = "Europe/Stockholm";
+
 // How many days before the next edition's start date the /race redirect
 // switches to show the upcoming edition's leaderboard.
 export const DAYS_BEFORE_LEADERBOARD_SWITCH = 7;

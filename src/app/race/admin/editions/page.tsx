@@ -9,10 +9,6 @@ interface Edition {
   date: string;
   startTime: string;
   endTime: string;
-  startDateTime: string;
-  endDateTime: string;
-  durationHours: number;
-  dateFormatted: string;
   priceSEK: number;
   lapDistanceKm: number;
   lapElevationM: number;
@@ -32,10 +28,6 @@ const emptyEdition: Edition = {
   date: "",
   startTime: "10:00",
   endTime: "18:00",
-  startDateTime: "",
-  endDateTime: "",
-  durationHours: 8,
-  dateFormatted: "",
   priceSEK: 300,
   lapDistanceKm: 7.0,
   lapElevationM: 100,
@@ -233,7 +225,7 @@ export default function EditionsPage() {
                         {ed.publishedAt ? "Published" : "Draft"}
                       </span>
                       <p className="text-sm text-gray-500 mt-0.5 truncate">
-                        {ed.dateFormatted || ed.date} &middot; {ed.startTime}–
+                        {ed.date} &middot; {ed.startTime}–
                         {ed.endTime} &middot; {ed.lapDistanceKm} km &middot;{" "}
                         {ed.priceSEK} SEK
                       </p>
@@ -355,21 +347,6 @@ export default function EditionsPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Duration (hours)
-                  </label>
-                  <input
-                    type="number"
-                    value={editing.durationHours}
-                    onChange={(e) =>
-                      updateEditing({
-                        durationHours: parseInt(e.target.value, 10) || 0,
-                      })
-                    }
-                    className="w-full border rounded-md px-3 py-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
                     Price (SEK)
                   </label>
                   <input
@@ -416,67 +393,19 @@ export default function EditionsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Date Formatted
-                  </label>
-                  <input
-                    type="text"
-                    value={editing.dateFormatted}
-                    onChange={(e) =>
-                      updateEditing({ dateFormatted: e.target.value })
-                    }
-                    placeholder="e.g. May 9, 2026"
-                    className="w-full border rounded-md px-3 py-2 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                    RaceID URL
-                  </label>
-                  <input
-                    type="text"
-                    value={editing.raceIdUrl}
-                    onChange={(e) =>
-                      updateEditing({ raceIdUrl: e.target.value })
-                    }
-                    placeholder="https://raceid.com/..."
-                    className="w-full border rounded-md px-3 py-2 text-sm"
-                  />
-                </div>
-              </div>
-
-              {/* DateTime fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Start DateTime (ISO)
-                  </label>
-                  <input
-                    type="text"
-                    value={editing.startDateTime}
-                    onChange={(e) =>
-                      updateEditing({ startDateTime: e.target.value })
-                    }
-                    placeholder="2026-05-09T10:00:00+02:00"
-                    className="w-full border rounded-md px-3 py-2 text-sm font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                    End DateTime (ISO)
-                  </label>
-                  <input
-                    type="text"
-                    value={editing.endDateTime}
-                    onChange={(e) =>
-                      updateEditing({ endDateTime: e.target.value })
-                    }
-                    placeholder="2026-05-09T18:00:00+02:00"
-                    className="w-full border rounded-md px-3 py-2 text-sm font-mono"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">
+                  RaceID URL
+                </label>
+                <input
+                  type="text"
+                  value={editing.raceIdUrl}
+                  onChange={(e) =>
+                    updateEditing({ raceIdUrl: e.target.value })
+                  }
+                  placeholder="https://raceid.com/..."
+                  className="w-full border rounded-md px-3 py-2 text-sm"
+                />
               </div>
 
               {/* Links */}
