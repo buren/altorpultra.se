@@ -1,10 +1,17 @@
 import { Gender, Lap, LeaderboardEntry, Runner } from "./types";
 
-export function calcLapDurationsSeconds(laps: Lap[]): number[] {
-  if (laps.length < 2) return [];
+export function calcLapDurationsSeconds(laps: Lap[], startDateTime?: string): number[] {
+  if (laps.length === 0) return [];
 
   const sorted = [...laps].sort((a, b) => a.lap_number - b.lap_number);
   const durations: number[] = [];
+
+  // Include first lap duration when startDateTime is provided
+  if (startDateTime) {
+    const start = new Date(startDateTime).getTime();
+    const first = new Date(sorted[0].timestamp).getTime();
+    durations.push((first - start) / 1000);
+  }
 
   for (let i = 1; i < sorted.length; i++) {
     const prev = new Date(sorted[i - 1].timestamp).getTime();
@@ -19,7 +26,8 @@ export function buildLeaderboard(
   runners: Runner[],
   laps: Lap[],
   lapDistanceKm: number,
-  lapElevationM: number
+  lapElevationM: number,
+  startDateTime?: string
 ): LeaderboardEntry[] {
   const lapsByRunner = new Map<string, Lap[]>();
 
@@ -33,7 +41,7 @@ export function buildLeaderboard(
     const runnerLaps = lapsByRunner.get(runner.id) ?? [];
     const sorted = [...runnerLaps].sort((a, b) => a.lap_number - b.lap_number);
     const totalLaps = sorted.length;
-    const durations = calcLapDurationsSeconds(sorted);
+    const durations = calcLapDurationsSeconds(sorted, startDateTime);
 
     const lastLapTimestamp =
       totalLaps > 0 ? sorted[sorted.length - 1].timestamp : null;

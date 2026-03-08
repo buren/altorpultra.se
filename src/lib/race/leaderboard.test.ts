@@ -114,9 +114,15 @@ describe("calcLapDurationsSeconds", () => {
     expect(calcLapDurationsSeconds([])).toEqual([]);
   });
 
-  it("returns empty array for single lap (no intervals)", () => {
+  it("returns empty array for single lap without startDateTime", () => {
     const laps = [makeLap("r1", 1, "2026-05-09T10:40:00+02:00")];
     expect(calcLapDurationsSeconds(laps)).toEqual([]);
+  });
+
+  it("returns first lap duration when startDateTime is provided", () => {
+    const laps = [makeLap("r1", 1, "2026-05-09T10:40:00+02:00")];
+    // 40 min = 2400s from race start
+    expect(calcLapDurationsSeconds(laps, "2026-05-09T10:00:00+02:00")).toEqual([2400]);
   });
 
   it("calculates durations between consecutive laps", () => {
@@ -126,6 +132,14 @@ describe("calcLapDurationsSeconds", () => {
       makeLap("r1", 3, "2026-05-09T12:00:00+02:00"), // 35 min = 2100s
     ];
     expect(calcLapDurationsSeconds(laps)).toEqual([2700, 2100]);
+  });
+
+  it("includes first lap duration when startDateTime is provided", () => {
+    const laps = [
+      makeLap("r1", 1, "2026-05-09T10:40:00+02:00"), // 40 min = 2400s
+      makeLap("r1", 2, "2026-05-09T11:25:00+02:00"), // 45 min = 2700s
+    ];
+    expect(calcLapDurationsSeconds(laps, "2026-05-09T10:00:00+02:00")).toEqual([2400, 2700]);
   });
 });
 

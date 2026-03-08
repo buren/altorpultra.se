@@ -16,7 +16,8 @@ export async function GET() {
       runners,
       laps,
       event.lapDistanceKm,
-      event.lapElevationM
+      event.lapElevationM,
+      event.startDateTime
     );
 
     return NextResponse.json({
