@@ -99,14 +99,14 @@ describe("resolveCurrentEdition", () => {
     expect(result?.year).toBe(2026);
   });
 
-  it("returns previous edition when more than 7 days before next", () => {
-    const now = new Date("2027-05-20"); // 18 days before 2027 race
+  it("returns next edition when previous has ended even if >7 days before next", () => {
+    const now = new Date("2027-05-20"); // 18 days before 2027 race, but 2026 ended
     const result = resolveCurrentEdition(
       [edition2025, edition2026, edition2027],
       now,
       7
     );
-    expect(result?.year).toBe(2026);
+    expect(result?.year).toBe(2027);
   });
 
   it("switches to upcoming edition when within 7 days of start", () => {
@@ -130,14 +130,14 @@ describe("resolveCurrentEdition", () => {
     expect(result?.year).toBe(2027);
   });
 
-  it("does not switch at 8 days before", () => {
-    const now = new Date("2027-05-30T09:00:00+02:00"); // >7 days
+  it("returns next edition when all past editions have ended", () => {
+    const now = new Date("2027-05-30T09:00:00+02:00"); // >7 days but 2026 ended
     const result = resolveCurrentEdition(
       [edition2025, edition2026, edition2027],
       now,
       7
     );
-    expect(result?.year).toBe(2026);
+    expect(result?.year).toBe(2027);
   });
 
   it("ignores draft editions", () => {

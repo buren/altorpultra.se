@@ -43,19 +43,33 @@ export function resolveCurrentEdition(
   const switchMs = daysBeforeSwitch * 24 * 60 * 60 * 1000;
   const nowMs = now.getTime();
 
-  // Find the next upcoming edition (hasn't ended yet)
+  // Find any currently active edition (started but not yet ended)
+  const active = sorted.find(
+    (e) =>
+      new Date(e.startDateTime).getTime() <= nowMs &&
+      new Date(e.endDateTime).getTime() > nowMs
+  );
+  if (active) return active;
+
+  // Find the next upcoming edition (hasn't started yet)
   const upcoming = sorted.find(
     (e) => new Date(e.startDateTime).getTime() > nowMs
   );
 
-  // If there's an upcoming edition and we're within the switch window, show it
+  // If all past editions have ended and there's an upcoming one, use it
+  const allPastEnded = sorted
+    .filter((e) => new Date(e.startDateTime).getTime() <= nowMs)
+    .every((e) => new Date(e.endDateTime).getTime() <= nowMs);
+
+  if (upcoming && allPastEnded) return upcoming;
+
+  // If there's an upcoming edition within the switch window, show it
   if (upcoming) {
     const msUntilStart = new Date(upcoming.startDateTime).getTime() - nowMs;
     if (msUntilStart <= switchMs) return upcoming;
   }
 
-  // Otherwise return the most recent past/active edition
-  // (the last one whose startDateTime <= now, or if none, the earliest overall)
+  // Otherwise return the most recent past edition
   const pastOrActive = sorted.filter(
     (e) => new Date(e.startDateTime).getTime() <= nowMs
   );
