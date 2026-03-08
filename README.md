@@ -6,12 +6,47 @@ Built with Next.js 14, React 18, TypeScript, Tailwind CSS, and Supabase.
 
 ## Getting Started
 
+### Prerequisites
+
+- [pnpm](https://pnpm.io/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for local Supabase)
+- [Supabase CLI](https://supabase.com/docs/guides/cli) (`brew install supabase/tap/supabase`)
+
+### Setup
+
 ```bash
 pnpm install
+
+# Start local Supabase (runs migrations + seed data)
+supabase start
+
+# Create .env.development.local with the local keys printed by supabase start
+cp .env.local.example .env.development.local
+# Then fill in the local URL/keys from the supabase start output
+
+# Start dev server
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
+
+### Environment Files
+
+- `.env.development.local` — Local Supabase keys, used by `pnpm dev`
+- `.env.local` — Production Supabase keys, used by `pnpm build`
+- `.env.local.example` — Template with instructions
+
+### Local Supabase
+
+```bash
+supabase start       # Start containers
+supabase stop        # Stop containers
+supabase db reset    # Wipe DB and re-run migrations + seed data
+```
+
+- Schema: `supabase/migrations/`
+- Seed data: `supabase/seed.sql` (sample editions + runners)
+- Studio UI: http://127.0.0.1:54323
 
 ## Scripts
 
@@ -26,29 +61,32 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 The site includes a live race tracking system:
 
-- `/race` — Public leaderboard with real-time results
+- `/race` — Redirects to current edition's leaderboard
+- `/race/:year` — Leaderboard for a specific edition with real-time results
+- `/race/runner/:bib` — Individual runner detail page
 - `/race/admin` — Admin dashboard for registering laps
-- `/race/admin/runners` — Admin dashboard for managing runners
+- `/race/admin/runners` — Manage runners
+- `/race/admin/editions` — Manage editions (create, edit, publish, duplicate)
 
 Race data is stored in Supabase. Admin access is protected by a shared password (`RACE_ADMIN_PASSWORD` env var).
 
 ## Preparing for a New Year
 
-All year-specific configuration lives in `src/lib/constants.ts`. To get the site ready for the next edition:
+Edition data (dates, prices, routes, map links) is stored in the Supabase `editions` table — there are no hardcoded edition values in the codebase. To set up a new edition:
 
-1. **Add a new edition entry** — In `constants.ts`, add a new entry to the `editions` record with the upcoming year as the key. Fill in all fields:
-   - `date`, `startDateTime`, `endDateTime`, `dateFormatted` — the event date and times
-   - `startTime`, `endTime`, `durationHours` — schedule details
-   - `priceSEK` — registration price
-   - `lapDistanceKm`, `lapElevationM` — route stats (update if the route changes)
-   - `raceIdUrl` — registration link from [RaceID](https://raceid.com) (leave empty until registration is live)
-   - `stravaRoute` — link to the Strava route (update if the route changes)
-   - `googleMaps` — start pin, parking pin, route embed and viewer URLs (update if the route changes)
+1. **Create a new edition** — Go to `/race/admin/editions` and either duplicate last year's edition or create one from scratch. Fill in all fields (date, times, price, route links, etc.).
 
-2. **Update `currentYear`** — Change the `currentYear` constant at the top of `constants.ts` to the new year. This automatically updates all components (dates, countdown, registration links, structured data, etc.).
+2. **Publish** — Click "Publish" when the edition is ready to go live. The site automatically resolves and displays the current edition based on dates.
 
-3. **Update the Strava route embed** — If the route changed, update `src/components/StravaRouteEmbed.tsx` with the new embed URL/ID.
+3. **Update the Strava route embed** — If the route changed, update `src/components/StravaRouteEmbed.tsx` with the new embed ID.
 
-4. **Update route photos** — If you have new route/course photos, update `src/lib/route-photos.ts` and add image files to `src/public/`.
+4. **Update route photos** — If you have new photos, update `src/lib/route-photos.ts` and add image files to `src/public/`.
 
 5. **Review one-off content** — Check `src/components/AltorpUltra.tsx` for any year-specific copy (e.g. the "New for {year}" kids race banner) and update or remove as needed.
+
+## Architecture
+
+- `src/lib/config.ts` — Stable site-wide constants (name, location, email)
+- `src/lib/race/` — Core race domain logic (types, leaderboard, clock, editions, DB queries)
+- `src/app/api/race/` — API routes for leaderboard, laps, runners, editions, auth
+- `src/components/` — UI components, all accept edition data as props (no hardcoded config)
