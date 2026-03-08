@@ -32,6 +32,7 @@ function makeEdition(overrides: Partial<Edition> = {}): Edition {
       routeViewer: "",
     },
     publishedAt: "2026-01-01T00:00:00Z",
+    kidsRaceStartedAt: null,
     ...overrides,
   };
 }
@@ -320,6 +321,7 @@ describe("mapEditionToDbRow", () => {
         routeViewer: "https://maps/viewer",
       },
       publishedAt: "2026-01-01T00:00:00Z",
+      kidsRaceStartedAt: null,
     };
 
     const row = mapEditionToDbRow(edition);

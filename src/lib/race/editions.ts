@@ -60,6 +60,7 @@ export interface Edition {
     routeViewer: string;
   };
   publishedAt: string | null;
+  kidsRaceStartedAt: string | null;
 }
 
 export type EditionStatus = "draft" | "published" | "completed";
@@ -146,6 +147,7 @@ export function mapDbRowToEdition(row: any): Edition {
       routeViewer: row.google_maps_route_viewer,
     },
     publishedAt: row.published_at,
+    kidsRaceStartedAt: row.kids_race_started_at ?? null,
   };
 }
 
@@ -173,5 +175,6 @@ export function mapEditionToDbRow(edition: Edition) {
     google_maps_route_embed: edition.googleMaps.routeEmbed,
     google_maps_route_viewer: edition.googleMaps.routeViewer,
     published_at: edition.publishedAt,
+    kids_race_started_at: edition.kidsRaceStartedAt,
   };
 }

@@ -21,6 +21,7 @@ interface Edition {
     routeViewer: string;
   };
   publishedAt: string | null;
+  kidsRaceStartedAt: string | null;
 }
 
 const emptyEdition: Edition = {
@@ -40,6 +41,7 @@ const emptyEdition: Edition = {
     routeViewer: "",
   },
   publishedAt: null,
+  kidsRaceStartedAt: null,
 };
 
 export default function EditionsPage() {
