@@ -8,6 +8,7 @@ import { site, currentYear, event } from "@/lib/constants";
 import { supabase } from "@/lib/race/supabase";
 import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
 import { Search } from "lucide-react";
+import Link from "next/link";
 
 interface LeaderboardData {
   leaderboard: LeaderboardEntry[];
@@ -154,7 +155,11 @@ function LeaderboardTable({
                       <GenderIcon gender={e.runner.gender} />
                     </td>
                   )}
-                  <td className="px-3 py-2 font-medium">{e.runner.name}</td>
+                  <td className="px-3 py-2 font-medium">
+                    <Link href={`/race/${e.runner.bib}`} className="hover:underline" onClick={(ev) => ev.stopPropagation()}>
+                      {e.runner.name}
+                    </Link>
+                  </td>
                   <td className="px-3 py-2 text-right font-bold">
                     {e.totalLaps}
                   </td>
