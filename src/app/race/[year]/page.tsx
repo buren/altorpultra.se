@@ -12,6 +12,7 @@ import {
 import { site } from "@/lib/config";
 import { supabase } from "@/lib/race/supabase";
 import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
+import { NextLapEstimate } from "@/lib/race/eta";
 import { Search, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -40,6 +41,7 @@ interface LeaderboardData {
   topWomen: LeaderboardEntry[];
   courseRecords: { male: CourseRecord | null; female: CourseRecord | null };
   courseRecordHolderIds: string[];
+  nextRunners: NextLapEstimate[];
 }
 
 function GenderIcon({ gender }: { gender: Gender }) {
@@ -57,6 +59,70 @@ function formatPace(
   const mins = Math.floor(paceSeconds / 60);
   const secs = Math.round(paceSeconds % 60);
   return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+function formatEta(estimatedTimestamp: string, now: Date): string {
+  const diffMs = new Date(estimatedTimestamp).getTime() - now.getTime();
+  const secs = Math.floor(diffMs / 1000);
+  if (secs <= 0) return "any moment";
+  if (secs < 60) return "< 1 min";
+  const mins = Math.round(secs / 60);
+  if (mins < 60) return `~${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `~${h}h ${m}m`;
+}
+
+function NextRunnersCard({
+  nextRunners,
+  now,
+  year,
+}: {
+  nextRunners: NextLapEstimate[];
+  now: Date;
+  year: number;
+}) {
+  if (nextRunners.length === 0) return null;
+
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <h2 className="text-lg font-bold mb-3">Coming Through Next</h2>
+        <div className="divide-y divide-gray-100">
+          {nextRunners.map((est) => (
+            <div
+              key={est.runner.id}
+              className="flex items-center justify-between py-2"
+            >
+              <div className="flex items-center gap-3">
+                <span className="font-mono font-bold text-gray-500 w-8 text-right">
+                  {est.runner.bib}
+                </span>
+                <Link
+                  href={`/race/${year}/runner/${est.runner.bib}`}
+                  className="font-medium hover:underline"
+                >
+                  {est.runner.name}
+                </Link>
+                <span className="text-xs text-gray-400">
+                  Lap {est.nextLapNumber}
+                </span>
+              </div>
+              <span
+                className={`text-sm font-medium ${
+                  formatEta(est.estimatedTimestamp, now) === "any moment"
+                    ? "text-green-600"
+                    : "text-gray-600"
+                }`}
+              >
+                {formatEta(est.estimatedTimestamp, now)}
+              </span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 const PAGE_SIZES = [10, 20, 50, 100] as const;
@@ -606,6 +672,10 @@ export default function RaceYearPage() {
             </CardContent>
           </Card>
         </div>
+
+        {getRacePhase(edition.startDateTime, edition.endDateTime, now) === "during" && (
+          <NextRunnersCard nextRunners={data.nextRunners} now={now} year={year} />
+        )}
 
         <LeaderboardTable
           entries={data.leaderboard}

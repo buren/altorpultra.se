@@ -3,6 +3,7 @@ import { getRunners, getAllLaps, getEdition, getPublishedEditions, resolveCurren
 import { buildLeaderboard, filterByGender } from "@/lib/race/leaderboard";
 import { createServerClient } from "@/lib/race/supabase-server";
 import { computeCourseRecords, findCourseRecordHolderIds, EditionLeaderboard } from "@/lib/race/course-records";
+import { buildNextRunnersList } from "@/lib/race/eta";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +48,13 @@ export async function GET(req: NextRequest) {
     const courseRecords = computeCourseRecords(editionLeaderboards);
     const courseRecordHolderIds = Array.from(findCourseRecordHolderIds(leaderboard, courseRecords));
 
+    const nextRunners = buildNextRunnersList(
+      leaderboard,
+      edition.startDateTime,
+      new Date(),
+      edition.endDateTime
+    ).slice(0, 10);
+
     return NextResponse.json({
       ok: true,
       data: {
@@ -63,6 +71,7 @@ export async function GET(req: NextRequest) {
         topWomen: filterByGender(leaderboard, "female").slice(0, 10),
         courseRecords,
         courseRecordHolderIds,
+        nextRunners,
       },
     });
   } catch (err: any) {
