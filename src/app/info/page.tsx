@@ -16,8 +16,7 @@ export default async function Info() {
           <section className="mb-12">
             <div className="mx-auto max-w-lg">
               <SectionTitle title="Information om loppet" />
-              {/* TODO */}
-              {/* <p>Inte registrerad än? <a href={edition.raceIdUrl} className="underline text-blue-600">Registrera dig här</a>.</p> */}
+              <p>Inte registrerad än? <a href={edition.raceIdUrl} className="underline text-blue-600">Registrera dig här</a>.</p>
               <br />
               <p>Det finns absolut inget krav på hur många varv man springer, om det är att promenera ett varv med barnvagn, springa ett eller tio varv är helt upp till er! Alla är välkomna och det kommer vara en salig blandning. Det går alldeles utmärkt att ta sig an ett varv och sedan vila i 1, 2, 3 eller 4 timmar och sedan ta sig an ett till, alla gör som man vill.</p>
               <p>Vi kommer se till att det blir bra häng i start/mål området med nice musik, snacks och grill!</p>
@@ -29,8 +28,7 @@ export default async function Info() {
               <p>Åker ni kommunalt så kan ni ta er hit med Roslagsbanan mot Näsbypark från Tekniska Högskolan på under 15 minuter. Det är knappt 200 meter till starten från stationen.</p>
               <p>Tar ni bilen finns det parkering precis vid stationen (<a className="underline text-blue-600" href={edition.googleMaps.parkingPin}>Google Maps pin</a>).</p>
               <br />
-              {/* TODO */}
-              {/* <p><strong>Betalning:</strong> TBD.</p> */}
+              <p><strong>Betalning:</strong> Anmälningsavgiften är {edition.priceSEK} SEK. Registrera dig och betala direkt via <a className="underline text-blue-600" href={edition.raceIdUrl}>RaceID</a>.</p>
               <br />
               <p><strong>Format:</strong> Så många varv som möjligt. Det finns ingen maxtid på varje varv ta den tid ni behöver (det är INTE ett backyard format). </p>
               <br />
@@ -42,8 +40,7 @@ export default async function Info() {
               <br />
               <p><strong>Information om banan</strong>: Varje varv är {edition.lapDistanceKm} km och drygt {edition.lapElevationM} höjdmeter. <a className="underline text-blue-600" href={edition.stravaRoute}>Här finns rutten på Strava</a> och <a className="underline text-blue-600" href={edition.googleMaps.routeViewer}>här på Google Maps</a>.</p>
               <br />
-              {/* TODO */}
-              <p><strong>Bib/nummerlapp:</strong> TBD.</p>
+              <p><strong>Bib/nummerlapp:</strong> Nummerlappar delas ut från kl 09:00 på tävlingsdagen.</p>
               <br />
               <p><strong>Vad behöver jag för utrustning?:</strong> Precis det du vill! Det finns inga specifika krav på utrustning.</p>
               <br />
@@ -51,8 +48,7 @@ export default async function Info() {
               <br />
               <p><strong>Väskor:</strong> Väskor med tröjor, extra skor, energi etc kommer ni kunna lämna på området och vi kommer generellt ha lite koll, dock kan vi ej ansvara för värdesaker i väskorna.</p>
               <br />
-              {/* TODO */}
-              <p><strong>Betalning:</strong> TBD.</p>
+              <p><strong>Betalning:</strong> Anmälningsavgiften är {edition.priceSEK} SEK. Registrera dig och betala direkt via <a className="underline text-blue-600" href={edition.raceIdUrl}>RaceID</a>.</p>
               <br />
               <p>Har ni frågor är det bara att höra av er till <a className="underline" href={`mailto:${site.email}`}>{site.email}</a>.</p>
 
