@@ -538,7 +538,11 @@ export default function RaceYearPage() {
                 <span className="text-2xl font-bold">{edition.year}</span>
               )}
             </div>
-            <p className="text-gray-400 text-sm">Live Results</p>
+            <p className="text-gray-400 text-sm">
+              {getRacePhase(edition.startDateTime, edition.endDateTime, now) === "during"
+                ? "Live Results"
+                : "Results"}
+            </p>
           </div>
           <div className="text-right">
             {(() => {
