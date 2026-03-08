@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { LeaderboardEntry } from "@/lib/race/types";
 import { formatLapTime, formatTimestamp } from "@/lib/race/format";
-import { site, currentYear, event } from "@/lib/constants";
+import { site, currentYear, event } from "@/lib/config";
 import { supabase } from "@/lib/race/supabase";
 import { ArrowLeft } from "lucide-react";
 

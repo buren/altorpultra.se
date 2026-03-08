@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { handleAddRunner } from "@/lib/race/api-handlers";
 import { getRunners, updateRunner, deleteRunner } from "@/lib/race/db";
 import { createServerClient } from "@/lib/race/supabase-server";
-import { currentYear } from "@/lib/constants";
+import { currentYear } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 

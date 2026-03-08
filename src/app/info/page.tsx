@@ -1,5 +1,5 @@
 import SectionTitle from "@/components/SectionTitle"
-import { currentYear, event, googleMaps, site } from "@/lib/constants"
+import { currentYear, event, googleMaps, site } from "@/lib/config"
 
 export default function Info() {
   return (

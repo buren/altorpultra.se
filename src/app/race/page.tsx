@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { LeaderboardEntry, Gender } from "@/lib/race/types";
 import { formatLapTime, formatTimestamp, formatLastCompleted } from "@/lib/race/format";
-import { site, currentYear, event } from "@/lib/constants";
+import { site, currentYear, event } from "@/lib/config";
 import { supabase } from "@/lib/race/supabase";
 import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
 import { Search } from "lucide-react";

@@ -1,5 +1,14 @@
-// ── Year-over-year config ──
-// Add a new entry to `editions` each year, then update `currentYear`.
+// ── App Config ──
+// This file contains stable site-wide configuration and app-level constants
+// that do NOT vary per edition. Per-edition data (dates, distances, prices,
+// map links, etc.) lives in the Supabase `editions` table.
+//
+// NOTE: The `editions` record, `currentYear`, and `event` export below are
+// TEMPORARY — they will be removed once all consumers fetch from the DB.
+
+// How many days before the next edition's start date we switch the default
+// leaderboard to show the upcoming edition instead of the previous one.
+export const DAYS_BEFORE_SWITCH = 7;
 
 export const currentYear = 2026;
 

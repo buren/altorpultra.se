@@ -1,4 +1,4 @@
-import { event, googleMaps, raceIdUrl, site } from "@/lib/constants";
+import { event, googleMaps, raceIdUrl, site } from "@/lib/config";
 import { MapPin } from "lucide-react";
 
 export default function Footer() {

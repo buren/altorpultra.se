@@ -3,7 +3,7 @@ import Script from 'next/script'
 import "./globals.css";
 
 import { Manrope } from 'next/font/google'
-import { event, site } from "@/lib/constants";
+import { event, site } from "@/lib/config";
 
 const manrope = Manrope({ subsets: ['latin'] });
 

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
-import { site, currentYear, event } from "@/lib/constants";
+import { site, currentYear, event } from "@/lib/config";
 
 export default function AdminLayout({
   children,

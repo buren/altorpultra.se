@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { event } from "@/lib/constants";
+import { event } from "@/lib/config";
 
 const EVENT_DATE = new Date(event.startDateTime);
 

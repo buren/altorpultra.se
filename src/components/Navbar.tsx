@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { raceIdUrl } from "@/lib/constants";
+import { raceIdUrl } from "@/lib/config";
 
 const navLinks = [
   { href: "#about", label: "About" },

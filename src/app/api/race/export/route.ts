@@ -3,7 +3,7 @@ import { getRunners, getAllLaps } from "@/lib/race/db";
 import { buildLeaderboard } from "@/lib/race/leaderboard";
 import { buildCsvExport } from "@/lib/race/services";
 import { createServerClient } from "@/lib/race/supabase-server";
-import { currentYear, event } from "@/lib/constants";
+import { currentYear, event } from "@/lib/config";
 
 export async function GET(req: NextRequest) {
   const password = req.cookies.get("race_admin")?.value ?? "";

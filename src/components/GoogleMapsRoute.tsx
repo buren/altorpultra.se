@@ -1,4 +1,4 @@
-import { googleMaps } from "@/lib/constants";
+import { googleMaps } from "@/lib/config";
 
 export default function GoogleMapsRoute() {
   return (

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getRunners, getAllLaps } from "@/lib/race/db";
 import { buildLeaderboard, filterByGender } from "@/lib/race/leaderboard";
 import { createServerClient } from "@/lib/race/supabase-server";
-import { currentYear, event } from "@/lib/constants";
+import { currentYear, event } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 

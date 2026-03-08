@@ -4,7 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { event } from "@/lib/constants";
+import { event } from "@/lib/config";
 import SectionTitle from "./SectionTitle";
 
 export default function FAQ() {

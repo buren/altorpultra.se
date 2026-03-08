@@ -26,7 +26,7 @@ import React from "react"
 import Navbar from "./Navbar"
 import Countdown from "./Countdown"
 import Footer from "./Footer"
-import { currentYear, event, googleMaps, raceIdUrl, site } from "@/lib/constants"
+import { currentYear, event, googleMaps, raceIdUrl, site } from "@/lib/config"
 
 function eventStructuredData() {
   return {
