@@ -1,14 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleRegisterLap, handleDeleteLap } from "@/lib/race/api-handlers";
-import { getRecentLaps } from "@/lib/race/db";
+import { getRecentLaps, resolveCurrentEditionFromDb, getEdition } from "@/lib/race/db";
 import { createServerClient } from "@/lib/race/supabase-server";
-import { currentYear } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+async function resolveYear(req: NextRequest) {
+  const supabase = createServerClient();
+  const yearParam = new URL(req.url).searchParams.get("year");
+  const edition = yearParam
+    ? await getEdition(supabase, Number(yearParam))
+    : await resolveCurrentEditionFromDb(supabase);
+  return edition;
+}
+
+export async function GET(req: NextRequest) {
   try {
-    const laps = await getRecentLaps(createServerClient(), currentYear, 20);
+    const edition = await resolveYear(req);
+    if (!edition) {
+      return NextResponse.json({ ok: false, error: "No edition found" }, { status: 404 });
+    }
+    const laps = await getRecentLaps(createServerClient(), edition.year, 20);
     return NextResponse.json({ ok: true, data: laps });
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
@@ -16,10 +28,15 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const edition = await resolveYear(req);
+  if (!edition) {
+    return NextResponse.json({ ok: false, error: "No edition found" }, { status: 404 });
+  }
+
   const body = await req.json();
   const password = req.cookies.get("race_admin")?.value ?? "";
   const serverPassword = process.env.RACE_ADMIN_PASSWORD ?? "";
-  const result = await handleRegisterLap(body, currentYear, password, serverPassword);
+  const result = await handleRegisterLap(body, edition.year, password, serverPassword);
 
   if (!result.ok) {
     const status = result.error === "Unauthorized" ? 401 : 400;

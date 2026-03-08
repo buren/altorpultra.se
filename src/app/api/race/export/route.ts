@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getRunners, getAllLaps } from "@/lib/race/db";
+import { getRunners, getAllLaps, resolveCurrentEditionFromDb, getEdition } from "@/lib/race/db";
 import { buildLeaderboard } from "@/lib/race/leaderboard";
 import { buildCsvExport } from "@/lib/race/services";
 import { createServerClient } from "@/lib/race/supabase-server";
-import { currentYear, event } from "@/lib/config";
 
 export async function GET(req: NextRequest) {
   const password = req.cookies.get("race_admin")?.value ?? "";
@@ -15,14 +14,24 @@ export async function GET(req: NextRequest) {
 
   try {
     const supabase = createServerClient();
-    const runners = await getRunners(supabase, currentYear);
-    const laps = await getAllLaps(supabase);
+
+    const yearParam = new URL(req.url).searchParams.get("year");
+    const edition = yearParam
+      ? await getEdition(supabase, Number(yearParam))
+      : await resolveCurrentEditionFromDb(supabase);
+
+    if (!edition) {
+      return NextResponse.json({ ok: false, error: "No edition found" }, { status: 404 });
+    }
+
+    const runners = await getRunners(supabase, edition.year);
+    const laps = await getAllLaps(supabase, edition.year);
 
     const leaderboard = buildLeaderboard(
       runners,
       laps,
-      event.lapDistanceKm,
-      event.lapElevationM
+      edition.lapDistanceKm,
+      edition.lapElevationM
     );
 
     const csv = buildCsvExport(leaderboard);
@@ -30,7 +39,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse(csv, {
       headers: {
         "Content-Type": "text/csv",
-        "Content-Disposition": `attachment; filename="altorp-ultra-${currentYear}-results.csv"`,
+        "Content-Disposition": `attachment; filename="altorp-ultra-${edition.year}-results.csv"`,
       },
     });
   } catch (err: any) {
