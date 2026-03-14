@@ -14,6 +14,7 @@ import { supabase } from "@/lib/race/supabase";
 import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
 import { NextLapEstimate } from "@/lib/race/eta";
 import { Search, ChevronDown } from "lucide-react";
+import { LapDistributionChart } from "@/components/race/LapDistributionChart";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -726,6 +727,13 @@ export default function RaceYearClient() {
             />
           </div>
         )}
+
+        <LapDistributionChart
+          entries={data.leaderboard}
+          title={t('lapDistribution')}
+          runnersLabel={t('runners')}
+          lapsLabel={t('laps')}
+        />
 
         {(data.courseRecords.male || data.courseRecords.female) && (
           <Card>
