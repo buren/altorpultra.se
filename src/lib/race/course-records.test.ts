@@ -163,7 +163,7 @@ describe("findCourseRecordHolderIds", () => {
 
   it("tags runner who beats the record (more laps)", () => {
     const records: CourseRecords = {
-      male: { name: "Old Champ", year: 2025, totalLaps: 10, totalDistanceKm: 70 },
+      male: { name: "Old Champ", bib: 1, year: 2025, totalLaps: 10, totalDistanceKm: 70 },
       female: null,
     };
     const leaderboard = [
@@ -177,7 +177,7 @@ describe("findCourseRecordHolderIds", () => {
 
   it("tags runner who ties the record (same laps)", () => {
     const records: CourseRecords = {
-      male: { name: "Old Champ", year: 2025, totalLaps: 10, totalDistanceKm: 70 },
+      male: { name: "Old Champ", bib: 1, year: 2025, totalLaps: 10, totalDistanceKm: 70 },
       female: null,
     };
     const leaderboard = [
@@ -191,7 +191,7 @@ describe("findCourseRecordHolderIds", () => {
 
   it("does not tag anyone when top performer is below the record", () => {
     const records: CourseRecords = {
-      male: { name: "Old Champ", year: 2025, totalLaps: 12, totalDistanceKm: 84 },
+      male: { name: "Old Champ", bib: 1, year: 2025, totalLaps: 12, totalDistanceKm: 84 },
       female: null,
     };
     const leaderboard = [
@@ -204,8 +204,8 @@ describe("findCourseRecordHolderIds", () => {
 
   it("tags both genders independently", () => {
     const records: CourseRecords = {
-      male: { name: "Prev Male", year: 2025, totalLaps: 10, totalDistanceKm: 70 },
-      female: { name: "Prev Female", year: 2025, totalLaps: 8, totalDistanceKm: 56 },
+      male: { name: "Prev Male", bib: 1, year: 2025, totalLaps: 10, totalDistanceKm: 70 },
+      female: { name: "Prev Female", bib: 2, year: 2025, totalLaps: 8, totalDistanceKm: 56 },
     };
     const leaderboard = [
       makeEntry(makeRunner({ id: "m1", name: "Male CR", gender: "male" }), 11, "2026-05-09T16:00:00Z"),
@@ -222,7 +222,7 @@ describe("findCourseRecordHolderIds", () => {
 
   it("only tags the #1 runner even when multiple beat the record", () => {
     const records: CourseRecords = {
-      male: { name: "Prev", year: 2025, totalLaps: 8, totalDistanceKm: 56 },
+      male: { name: "Prev", bib: 1, year: 2025, totalLaps: 8, totalDistanceKm: 56 },
       female: null,
     };
     const leaderboard = [
@@ -239,7 +239,7 @@ describe("findCourseRecordHolderIds", () => {
 
   it("only tags #1 even when others also exceed the record", () => {
     const records: CourseRecords = {
-      male: { name: "Prev", year: 2025, totalLaps: 10, totalDistanceKm: 70 },
+      male: { name: "Prev", bib: 1, year: 2025, totalLaps: 10, totalDistanceKm: 70 },
       female: null,
     };
     const leaderboard = [
@@ -255,7 +255,7 @@ describe("findCourseRecordHolderIds", () => {
 
   it("does not tag 'other' gender runners", () => {
     const records: CourseRecords = {
-      male: { name: "Champ", year: 2025, totalLaps: 5, totalDistanceKm: 35 },
+      male: { name: "Champ", bib: 1, year: 2025, totalLaps: 5, totalDistanceKm: 35 },
       female: null,
     };
     const leaderboard = [
@@ -267,7 +267,7 @@ describe("findCourseRecordHolderIds", () => {
 
   it("handles empty leaderboard", () => {
     const records: CourseRecords = {
-      male: { name: "Champ", year: 2025, totalLaps: 10, totalDistanceKm: 70 },
+      male: { name: "Champ", bib: 1, year: 2025, totalLaps: 10, totalDistanceKm: 70 },
       female: null,
     };
     const result = findCourseRecordHolderIds([], records);
@@ -276,7 +276,7 @@ describe("findCourseRecordHolderIds", () => {
 
   it("skips runners with zero laps", () => {
     const records: CourseRecords = {
-      male: { name: "Prev", year: 2025, totalLaps: 1, totalDistanceKm: 7 },
+      male: { name: "Prev", bib: 1, year: 2025, totalLaps: 1, totalDistanceKm: 7 },
       female: null,
     };
     const leaderboard = [
