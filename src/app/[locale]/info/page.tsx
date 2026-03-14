@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import SectionTitle from "@/components/SectionTitle"
+import LanguageSwitcher from "@/components/LanguageSwitcher"
 import { site } from "@/lib/config"
 import { getCurrentEdition } from "@/lib/race/get-edition"
 import { getTranslations, setRequestLocale } from "next-intl/server"
@@ -33,6 +34,9 @@ export default async function Info({ params }: { params: Promise<{ locale: strin
           <section className="mb-12">
             <div className="mx-auto max-w-lg">
               <SectionTitle title={t('title')} />
+              <div className="mb-4">
+                <LanguageSwitcher scrolled={true} />
+              </div>
               <p>{t.rich('notRegistered', {
                 link: (chunks) => <a href={edition.raceIdUrl} className="underline text-blue-600">{chunks}</a>,
               })}</p>
