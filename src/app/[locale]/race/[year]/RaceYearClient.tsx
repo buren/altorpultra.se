@@ -609,9 +609,12 @@ export default function RaceYearClient() {
         <div className="container mx-auto flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold">
-                {site.name}
-              </h1>
+              <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <img src="/logo.png" alt="Altorp Ultra logo" width={32} height={32} className="rounded-full invert" />
+                <h1 className="text-2xl font-bold">
+                  {site.name}
+                </h1>
+              </Link>
               {availableYears.length > 1 ? (
                 <div className="relative">
                   <select

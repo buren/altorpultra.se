@@ -101,7 +101,10 @@ export default function RunnerPage() {
       <header className="bg-gray-900 text-white px-4 py-4">
         <div className="container mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">{site.name} {edition.year}</h1>
+            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <img src="/logo.png" alt="Altorp Ultra logo" width={32} height={32} className="rounded-full invert" />
+              <h1 className="text-2xl font-bold">{site.name} {edition.year}</h1>
+            </Link>
             <p className="text-gray-400 text-sm">{t('liveResults')}</p>
           </div>
           <div className="flex items-center gap-4">
