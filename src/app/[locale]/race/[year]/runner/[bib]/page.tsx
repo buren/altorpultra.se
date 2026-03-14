@@ -8,6 +8,7 @@ import { formatLapTime, formatTimestamp } from "@/lib/race/format";
 import { site } from "@/lib/config";
 import { supabase } from "@/lib/race/supabase";
 import { ArrowLeft } from "lucide-react";
+import { LapTimeChart } from "@/components/race/LapTimeChart";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
@@ -172,6 +173,16 @@ export default function RunnerPage() {
             </CardContent>
           </Card>
         </div>
+
+        <LapTimeChart
+          laps={e.laps}
+          startDateTime={edition.startDateTime}
+          avgLapSeconds={e.avgLapSeconds}
+          title={t('lapTimeProgression')}
+          avgLabel={t('avg')}
+          lapLabel={t('lapHeader')}
+          lapDistanceKm={edition.lapDistanceKm}
+        />
 
         {e.laps.length > 0 && (
           <div>

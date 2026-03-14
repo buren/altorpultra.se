@@ -147,7 +147,9 @@
     "loading": "Loading...",
     "noEditionFound": "No edition found",
     "lapDistribution": "Lap Distribution",
-    "runners": "Runners"
+    "runners": "Runners",
+    "lapTimeProgression": "Lap Time Progression",
+    "avg": "Avg"
   },
   "runner": {
     "liveResults": "Live Results",
@@ -170,6 +172,8 @@
     "pace": "Pace",
     "notFound": "Runner with bib #{bib} not found",
     "backToLeaderboard": "Back to leaderboard",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "lapTimeProgression": "Lap Time Progression",
+    "avg": "Avg"
   }
 }

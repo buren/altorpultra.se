@@ -15,6 +15,7 @@ import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
 import { NextLapEstimate } from "@/lib/race/eta";
 import { Search, ChevronDown } from "lucide-react";
 import { LapDistributionChart } from "@/components/race/LapDistributionChart";
+import { LapTimeChart } from "@/components/race/LapTimeChart";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -396,49 +397,60 @@ function LeaderboardTable({
                         )}
                       </div>
                       {e.laps.length > 0 && (
-                        <>
-                          <p className="text-xs font-semibold text-gray-400 mb-1">
-                            {t('lapSplits')}
-                          </p>
-                          <div className="flex flex-wrap gap-2">
-                            {e.laps.map((lap, li) => {
-                              const prevTs =
-                                li > 0
-                                  ? e.laps[li - 1].timestamp
-                                  : startDateTime;
-                              const dur =
-                                (new Date(lap.timestamp).getTime() -
-                                  new Date(prevTs).getTime()) /
-                                1000;
-                              const showDur = dur > 0;
-                              return (
-                                <div
-                                  key={lap.id}
-                                  className="bg-white border rounded px-2 py-1 text-sm"
-                                >
-                                  <span className="text-gray-400">
-                                    L{lap.lap_number}
-                                  </span>{" "}
-                                  <span className="font-mono">
-                                    {formatTimestamp(lap.timestamp)}
-                                  </span>
-                                  {showDur && (
-                                    <>
-                                      <span className="text-gray-500 ml-1">
-                                        {formatLapTime(dur)}
-                                      </span>
-                                      <span className="text-gray-400 text-xs ml-1">
-                                        &middot;{" "}
-                                        {formatPace(dur, lapDistanceKm)}{" "}
-                                        min/km
-                                      </span>
-                                    </>
-                                  )}
-                                </div>
-                              );
-                            })}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                          <LapTimeChart
+                            laps={e.laps}
+                            startDateTime={startDateTime}
+                            avgLapSeconds={e.avgLapSeconds}
+                            title={t('lapTimeProgression')}
+                            avgLabel={t('avg')}
+                            lapLabel={t('laps')}
+                            lapDistanceKm={lapDistanceKm}
+                          />
+                          <div>
+                            <p className="text-xs font-semibold text-gray-400 mb-1">
+                              {t('lapSplits')}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {e.laps.map((lap, li) => {
+                                const prevTs =
+                                  li > 0
+                                    ? e.laps[li - 1].timestamp
+                                    : startDateTime;
+                                const dur =
+                                  (new Date(lap.timestamp).getTime() -
+                                    new Date(prevTs).getTime()) /
+                                  1000;
+                                const showDur = dur > 0;
+                                return (
+                                  <div
+                                    key={lap.id}
+                                    className="bg-white border rounded px-2 py-1 text-sm"
+                                  >
+                                    <span className="text-gray-400">
+                                      L{lap.lap_number}
+                                    </span>{" "}
+                                    <span className="font-mono">
+                                      {formatTimestamp(lap.timestamp)}
+                                    </span>
+                                    {showDur && (
+                                      <>
+                                        <span className="text-gray-500 ml-1">
+                                          {formatLapTime(dur)}
+                                        </span>
+                                        <span className="text-gray-400 text-xs ml-1">
+                                          &middot;{" "}
+                                          {formatPace(dur, lapDistanceKm)}{" "}
+                                          min/km
+                                        </span>
+                                      </>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
-                        </>
+                        </div>
                       )}
                     </td>
                   </tr>

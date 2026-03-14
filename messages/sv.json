@@ -147,7 +147,9 @@
     "loading": "Laddar...",
     "noEditionFound": "Ingen utgåva hittad",
     "lapDistribution": "Varvfördelning",
-    "runners": "Löpare"
+    "runners": "Löpare",
+    "lapTimeProgression": "Varvtidsutveckling",
+    "avg": "Snitt"
   },
   "runner": {
     "liveResults": "Liveresultat",
@@ -170,6 +172,8 @@
     "pace": "Tempo",
     "notFound": "Löpare med bib #{bib} hittades inte",
     "backToLeaderboard": "Tillbaka till resultattavla",
-    "loading": "Laddar..."
+    "loading": "Laddar...",
+    "lapTimeProgression": "Varvtidsutveckling",
+    "avg": "Snitt"
   }
 }
