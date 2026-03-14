@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { getCurrentEdition } from "@/lib/race/get-edition";
 import { site } from "@/lib/config";
+import { defaultLocale, locales } from "@/i18n/config";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -25,9 +26,26 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     ? `Häng med på en episk dag. Altorp ${lapDistanceKm} km-slinga - "Långa gula". ${dateFormatted}, ${startTime}-${endTime}. Så många varv du kan.`
     : `Join us for an epic day. Altorp ${lapDistanceKm} km loop - "Långa gula". ${dateFormatted}, ${startTime}-${endTime}. As many laps as you can.`;
 
+  const canonical = locale === defaultLocale
+    ? site.website
+    : `${site.website}/${locale}`;
+
+  const languages: Record<string, string> = {};
+  for (const l of locales) {
+    languages[l] = l === defaultLocale ? site.website : `${site.website}/${l}`;
+  }
+  languages["x-default"] = site.website;
+
   return {
     title: `${site.name}${dateFormatted ? ` - ${dateFormatted}` : ""}`,
     description,
+    alternates: {
+      canonical,
+      languages,
+    },
+    openGraph: {
+      locale: locale === "sv" ? "sv_SE" : "en_US",
+    },
   };
 }
 

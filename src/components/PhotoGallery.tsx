@@ -16,10 +16,19 @@ import "yet-another-react-lightbox/plugins/thumbnails.css";
 
 import { useState } from "react";
 
-export default function PhotoGallery({ images }: { images: StaticImageData[] }) {
+export type GalleryImage = {
+  image: StaticImageData;
+  alt: string;
+};
+
+export default function PhotoGallery({ images }: { images: (StaticImageData | GalleryImage)[] }) {
   const [index, setIndex] = useState(-1);
 
-  const photos = images.map(({ src, width, height, }) => ({ src, width, height, }));
+  const photos = images.map((img) => {
+    const data = "image" in img ? img.image : img;
+    const alt = "alt" in img ? img.alt : "";
+    return { src: data.src, width: data.width, height: data.height, alt };
+  });
   return (
     <>
       <ColumnsPhotoAlbum

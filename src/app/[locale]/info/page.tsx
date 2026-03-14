@@ -1,7 +1,20 @@
+import type { Metadata } from "next"
 import SectionTitle from "@/components/SectionTitle"
 import { site } from "@/lib/config"
 import { getCurrentEdition } from "@/lib/race/get-edition"
 import { getTranslations, setRequestLocale } from "next-intl/server"
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const title = locale === "sv"
+    ? `Praktisk info – ${site.name}`
+    : `Practical info – ${site.name}`;
+  const description = locale === "sv"
+    ? `Allt du behöver veta inför ${site.name}: start- och sluttid, vägbeskrivning, betalning, utrustning och baninfo.`
+    : `Everything you need to know for ${site.name}: start time, directions, payment, equipment and course info.`;
+
+  return { title, description };
+}
 
 export default async function Info({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
