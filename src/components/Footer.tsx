@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { site } from "@/lib/config";
 import { MapPin } from "lucide-react";
 
@@ -16,7 +17,16 @@ export default function Footer({ durationHours, stravaRoute, raceIdUrl, googleMa
         <div className={`grid grid-cols-1 gap-8 ${publishedYears.length > 0 ? "md:grid-cols-4" : "md:grid-cols-3"}`}>
           {/* Brand */}
           <div>
-            <h3 className="text-xl font-bold mb-2">{site.name}</h3>
+            <div className="flex items-center gap-2 mb-2">
+              <Image
+                src="/logo.png"
+                alt="Altorp Ultra logo"
+                width={36}
+                height={36}
+                className="rounded-full invert"
+              />
+              <h3 className="text-xl font-bold">{site.name}</h3>
+            </div>
             <p className="text-gray-400 text-sm leading-relaxed">
               A trail running event in the beautiful Altorp forest, Djursholm.
               Run, walk, or rest &mdash; see how far you can go in {durationHours} hours.

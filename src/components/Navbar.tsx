@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { site } from "@/lib/config";
 
 const navLinks = [
@@ -30,7 +31,14 @@ export default function Navbar({ raceIdUrl }: { raceIdUrl: string }) {
       }`}
     >
       <div className="container mx-auto px-4 flex items-center justify-between h-14">
-        <a href="#" className="font-bold text-lg tracking-tight">
+        <a href="#" className="font-bold text-lg tracking-tight flex items-center gap-2">
+          <Image
+            src="/logo.png"
+            alt="Altorp Ultra logo"
+            width={32}
+            height={32}
+            className={`rounded-full ${scrolled ? "" : "invert"}`}
+          />
           Altorp Ultra
         </a>
 
