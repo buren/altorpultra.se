@@ -189,6 +189,7 @@ export default function RunnersPage() {
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold">Runners ({runners.length})</h2>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/api/race/export"
               className="bg-gray-900 text-white px-4 py-1.5 rounded-md text-sm font-semibold hover:bg-gray-800"
