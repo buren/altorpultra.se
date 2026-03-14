@@ -1,9 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Pencil } from "lucide-react";
+import { Pencil, Upload } from "lucide-react";
 import { Runner, Gender } from "@/lib/race/types";
+import {
+  parseStartlistBuffer,
+  validateStartlistRows,
+  StartlistRow,
+} from "@/lib/race/import-startlist";
 
 export default function RunnersPage() {
   const [runners, setRunners] = useState<Runner[]>([]);
@@ -20,6 +25,13 @@ export default function RunnersPage() {
     text: string;
     type: "success" | "error";
   } | null>(null);
+
+  // Import state
+  const [importRows, setImportRows] = useState<StartlistRow[] | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchRunners = useCallback(async () => {
     const res = await fetch("/api/race/runners");
@@ -91,6 +103,66 @@ export default function RunnersPage() {
       setEditingRunner(null);
       fetchRunners();
     }
+  }
+
+  async function handleImportFile(file: File) {
+    setImportError(null);
+    setImportRows(null);
+
+    if (!file.name.endsWith(".xlsx")) {
+      setImportError("Only .xlsx files are supported");
+      return;
+    }
+
+    try {
+      const buffer = await file.arrayBuffer();
+      const rows = await parseStartlistBuffer(buffer);
+      const err = validateStartlistRows(rows, runners);
+      if (err) {
+        setImportError(err);
+        return;
+      }
+      setImportRows(rows);
+    } catch (e: any) {
+      setImportError(e.message || "Failed to parse file");
+    }
+  }
+
+  async function handleImportConfirm() {
+    if (!importRows) return;
+    setImporting(true);
+    setImportError(null);
+
+    try {
+      const res = await fetch("/api/race/runners/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ runners: importRows }),
+      });
+      const data = await res.json();
+
+      if (data.ok) {
+        setRunnerMessage({
+          text: `Imported ${data.count} runners`,
+          type: "success",
+        });
+        setImportRows(null);
+        fetchRunners();
+      } else {
+        setImportError(data.error);
+      }
+    } catch {
+      setImportError("Network error during import");
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleImportFile(file);
   }
 
   return (
@@ -181,6 +253,93 @@ export default function RunnersPage() {
             >
               {runnerMessage.text}
             </p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-6">
+          <h2 className="text-lg font-bold mb-3">Import from Race ID</h2>
+          <div
+            onDrop={handleDrop}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onClick={() => fileInputRef.current?.click()}
+            className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+              dragOver
+                ? "border-blue-400 bg-blue-50"
+                : "border-gray-300 hover:border-gray-400"
+            }`}
+          >
+            <Upload className="h-6 w-6 mx-auto mb-2 text-gray-400" />
+            <p className="text-sm text-gray-600">
+              Drop .xlsx startlist here or click to browse
+            </p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleImportFile(file);
+                e.target.value = "";
+              }}
+            />
+          </div>
+
+          {importError && (
+            <p className="mt-3 text-sm font-medium text-red-600">
+              {importError}
+            </p>
+          )}
+
+          {importRows && (
+            <div className="mt-3 space-y-3">
+              <p className="text-sm text-gray-700">
+                <span className="font-semibold">{importRows.length}</span>{" "}
+                runners found
+              </p>
+              <div className="max-h-40 overflow-y-auto space-y-1">
+                {importRows.map((r) => (
+                  <div
+                    key={r.bib}
+                    className="flex items-center justify-between px-3 py-1.5 bg-gray-50 rounded text-sm"
+                  >
+                    <span>
+                      <span className="font-mono font-bold text-gray-600">
+                        #{r.bib}
+                      </span>{" "}
+                      {r.name}
+                    </span>
+                    <span className="text-gray-400 capitalize">{r.gender}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleImportConfirm}
+                  disabled={importing}
+                  className="flex-1 bg-gray-900 text-white rounded-md py-2 text-sm font-semibold hover:bg-gray-800 disabled:opacity-50"
+                >
+                  {importing
+                    ? "Importing..."
+                    : `Import ${importRows.length} runners`}
+                </button>
+                <button
+                  onClick={() => {
+                    setImportRows(null);
+                    setImportError(null);
+                  }}
+                  className="border border-gray-300 rounded-md px-4 py-2 text-sm font-medium hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
