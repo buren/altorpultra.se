@@ -26,7 +26,7 @@ export default function PhotoGallery({ images }: { images: StaticImageData[] }) 
         photos={photos}
         spacing={5}
         onClick={({ index }) => setIndex(index)}
-      />;
+      />
 
       <Lightbox
         slides={photos}

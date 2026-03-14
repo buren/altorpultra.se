@@ -21,6 +21,7 @@ import FAQ from "./FAQ"
 import SectionTitle from "./SectionTitle"
 import RegisterButton from "./RegisterButton"
 import { routePhotos } from "@/lib/route-photos"
+import { edition2025Photos } from "@/lib/edition-2025-photos"
 import PhotoGallery from "./PhotoGallery"
 import React from "react"
 import Navbar from "./Navbar"
@@ -298,9 +299,22 @@ export function AltorpUltra({ edition, publishedYears }: { edition: Edition; pub
         </div>
 
         {/* Gallery */}
-        <div id="gallery" className="mt-12 flex justify-center scroll-mt-20">
+        <section id="gallery" className="mt-12 scroll-mt-20">
+          <SectionTitle title="2025 Edition" />
+          <PhotoGallery images={edition2025Photos} />
+          <div className="mt-6">
+            <a
+              href="/race/2025"
+              className="inline-block bg-gray-900 text-white font-semibold px-6 py-2.5 rounded-md hover:bg-gray-800 transition-colors"
+            >
+              View 2025 Results &rarr;
+            </a>
+          </div>
+          <div className="mt-16">
+            <SectionTitle title="The Route" />
+          </div>
           <PhotoGallery images={routePhotos} />
-        </div>
+        </section>
 
         <div className="mt-12 w-full">
           <StravaRouteEmbed />

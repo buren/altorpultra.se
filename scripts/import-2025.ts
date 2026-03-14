@@ -92,7 +92,7 @@ for (const row of rows) {
 }
 
 // Sort runners by lap count desc (leaderboard order), assign bib numbers
-const runners = [...byRunner.entries()]
+const runners = Array.from(byRunner.entries())
   .map(([id, data]) => ({ memberCardId: id, ...data }))
   .sort((a, b) => b.laps.length - a.laps.length);
 
