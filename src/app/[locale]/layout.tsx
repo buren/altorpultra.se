@@ -1,11 +1,15 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import Script from 'next/script';
+import { Manrope } from 'next/font/google';
 import { routing } from '@/i18n/routing';
 import { getCurrentEdition } from "@/lib/race/get-edition";
 import { site } from "@/lib/config";
 import { defaultLocale, locales } from "@/i18n/config";
 import type { Metadata } from "next";
+
+const manrope = Manrope({ subsets: ['latin'] });
 
 export const dynamic = "force-dynamic";
 
@@ -60,11 +64,13 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <>
-      <script dangerouslySetInnerHTML={{ __html: `document.documentElement.lang="${locale}"` }} />
-      <NextIntlClientProvider messages={messages}>
-        {children}
-      </NextIntlClientProvider>
-    </>
+    <html lang={locale} className="scroll-smooth">
+      <body className={`${manrope.className} antialiased`}>
+        <NextIntlClientProvider messages={messages}>
+          {children}
+        </NextIntlClientProvider>
+        <Script src="https://scripts.simpleanalyticscdn.com/latest.js" />
+      </body>
+    </html>
   );
 }
