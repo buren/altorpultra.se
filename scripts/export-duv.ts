@@ -165,7 +165,10 @@ async function main() {
   }
 
   // Write output
-  const outputPath = resolve(__dirname, `../duv-results-${year}.xlsx`);
+  const tmpDir = resolve(__dirname, "../tmp");
+  const { mkdirSync } = await import("fs");
+  mkdirSync(tmpDir, { recursive: true });
+  const outputPath = resolve(tmpDir, `duv-results-${year}.xlsx`);
   await workbook.xlsx.writeFile(outputPath);
   console.log(`\nWritten to ${outputPath}`);
 }
