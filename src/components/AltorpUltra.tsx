@@ -261,7 +261,7 @@ export async function AltorpUltra({ edition, publishedYears }: { edition: Editio
         </section>
 
         {/* More Than a Race */}
-        <section className="mb-16 bg-white rounded-lg shadow-sm p-8 md:p-12 text-center">
+        <section id="expect" className="mb-16 bg-white rounded-lg shadow-sm p-8 md:p-12 text-center scroll-mt-20">
           <h2 className="text-3xl font-bold mb-4">{t('moreThanRace.title')}</h2>
           <p className="text-xl text-gray-700 leading-relaxed max-w-2xl mx-auto mb-8">
             {t('moreThanRace.subtitle')}
