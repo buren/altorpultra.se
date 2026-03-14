@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { LeaderboardEntry } from "@/lib/race/types";
 import { formatLapTime, formatTimestamp } from "@/lib/race/format";
 import { site } from "@/lib/config";
 import { supabase } from "@/lib/race/supabase";
 import { ArrowLeft } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 interface EditionInfo {
   year: number;
@@ -28,6 +29,7 @@ function formatPace(seconds: number | null, lapDistanceKm: number): string {
 }
 
 export default function RunnerPage() {
+  const t = useTranslations('runner');
   const params = useParams();
   const year = Number(params.year);
   const bib = Number(params.bib);
@@ -73,9 +75,9 @@ export default function RunnerPage() {
   if (notFound) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-4">
-        <p className="text-gray-500 text-lg">Runner with bib #{bib} not found</p>
+        <p className="text-gray-500 text-lg">{t('notFound', { bib })}</p>
         <Link href={`/race/${year}`} className="text-blue-600 hover:underline flex items-center gap-1">
-          <ArrowLeft className="h-4 w-4" /> Back to leaderboard
+          <ArrowLeft className="h-4 w-4" /> {t('backToLeaderboard')}
         </Link>
       </div>
     );
@@ -84,7 +86,7 @@ export default function RunnerPage() {
   if (!entry || !edition) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-400">Loading...</p>
+        <p className="text-gray-400">{t('loading')}</p>
       </div>
     );
   }
@@ -98,10 +100,10 @@ export default function RunnerPage() {
         <div className="container mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">{site.name} {edition.year}</h1>
-            <p className="text-gray-400 text-sm">Live Results</p>
+            <p className="text-gray-400 text-sm">{t('liveResults')}</p>
           </div>
           <Link href={leaderboardHref} className="bg-gray-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600">
-            View Leaderboard
+            {t('viewLeaderboard')}
           </Link>
         </div>
       </header>
@@ -114,8 +116,8 @@ export default function RunnerPage() {
           <div>
             <h2 className="text-2xl font-bold">{e.runner.name}</h2>
             <p className="text-gray-500 text-sm">
-              {e.runner.gender === "male" ? "♂ Male" : e.runner.gender === "female" ? "♀ Female" : "Other"}
-              {rank != null && <span className="ml-2">&middot; Rank #{rank}</span>}
+              {e.runner.gender === "male" ? `♂ ${t('male')}` : e.runner.gender === "female" ? `♀ ${t('female')}` : t('other')}
+              {rank != null && <span className="ml-2">&middot; {t('rank', { rank })}</span>}
             </p>
           </div>
         </div>
@@ -124,25 +126,25 @@ export default function RunnerPage() {
           <Card>
             <CardContent className="p-4">
               <p className="text-2xl font-bold">{e.totalLaps}</p>
-              <p className="text-sm text-gray-500">Laps</p>
+              <p className="text-sm text-gray-500">{t('laps')}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <p className="text-2xl font-bold">{e.totalDistanceKm} <span className="text-base font-normal text-gray-500">km</span></p>
-              <p className="text-sm text-gray-500">Distance</p>
+              <p className="text-sm text-gray-500">{t('distance')}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <p className="text-2xl font-bold">{e.totalElevationM} <span className="text-base font-normal text-gray-500">m</span></p>
-              <p className="text-sm text-gray-500">Elevation</p>
+              <p className="text-sm text-gray-500">{t('elevation')}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <p className="text-2xl font-bold font-mono">{formatPace(e.avgLapSeconds, edition.lapDistanceKm)}</p>
-              <p className="text-sm text-gray-500">Avg Pace (min/km)</p>
+              <p className="text-sm text-gray-500">{t('avgPace')}</p>
             </CardContent>
           </Card>
         </div>
@@ -151,21 +153,21 @@ export default function RunnerPage() {
           <Card>
             <CardContent className="p-4">
               <p className="text-xl font-bold font-mono">{formatLapTime(e.avgLapSeconds)}</p>
-              <p className="text-sm text-gray-500">Avg Lap</p>
+              <p className="text-sm text-gray-500">{t('avgLap')}</p>
               {e.avgLapSeconds != null && <p className="text-xs text-gray-400">{formatPace(e.avgLapSeconds, edition.lapDistanceKm)} min/km</p>}
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <p className="text-xl font-bold font-mono text-green-600">{formatLapTime(e.fastestLapSeconds)}</p>
-              <p className="text-sm text-gray-500">Fastest Lap</p>
+              <p className="text-sm text-gray-500">{t('fastestLap')}</p>
               {e.fastestLapSeconds != null && <p className="text-xs text-gray-400">{formatPace(e.fastestLapSeconds, edition.lapDistanceKm)} min/km</p>}
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <p className="text-xl font-bold font-mono text-red-500">{formatLapTime(e.slowestLapSeconds)}</p>
-              <p className="text-sm text-gray-500">Slowest Lap</p>
+              <p className="text-sm text-gray-500">{t('slowestLap')}</p>
               {e.slowestLapSeconds != null && <p className="text-xs text-gray-400">{formatPace(e.slowestLapSeconds, edition.lapDistanceKm)} min/km</p>}
             </CardContent>
           </Card>
@@ -173,15 +175,15 @@ export default function RunnerPage() {
 
         {e.laps.length > 0 && (
           <div>
-            <h3 className="text-lg font-bold mb-3">Lap Splits</h3>
+            <h3 className="text-lg font-bold mb-3">{t('lapSplits')}</h3>
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               <table className="w-full text-left">
                 <thead className="bg-gray-50 text-sm text-gray-500">
                   <tr>
-                    <th className="px-4 py-2">Lap</th>
-                    <th className="px-4 py-2">Time</th>
-                    <th className="px-4 py-2 text-right">Duration</th>
-                    <th className="px-4 py-2 text-right">Pace</th>
+                    <th className="px-4 py-2">{t('lapHeader')}</th>
+                    <th className="px-4 py-2">{t('time')}</th>
+                    <th className="px-4 py-2 text-right">{t('duration')}</th>
+                    <th className="px-4 py-2 text-right">{t('pace')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -211,7 +213,7 @@ export default function RunnerPage() {
         )}
         <div className="pt-2">
           <Link href={leaderboardHref} className="bg-gray-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600 inline-flex items-center gap-1">
-            <ArrowLeft className="h-4 w-4" /> View Leaderboard
+            <ArrowLeft className="h-4 w-4" /> {t('viewLeaderboard')}
           </Link>
         </div>
       </main>

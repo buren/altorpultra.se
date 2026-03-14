@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 export default function RacePage() {
   const router = useRouter();
+  const t = useTranslations('race');
   const [error, setError] = useState(false);
 
   useEffect(() => {
@@ -23,14 +25,14 @@ export default function RacePage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">No edition found</p>
+        <p className="text-gray-500">{t('noEditionFound')}</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <p className="text-gray-400">Loading...</p>
+      <p className="text-gray-400">{t('loading')}</p>
     </div>
   );
 }

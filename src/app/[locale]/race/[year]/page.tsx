@@ -14,8 +14,9 @@ import { supabase } from "@/lib/race/supabase";
 import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
 import { NextLapEstimate } from "@/lib/race/eta";
 import { Search, ChevronDown } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link } from "@/i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 interface EditionInfo {
   year: number;
@@ -61,11 +62,11 @@ function formatPace(
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
-function formatEta(estimatedTimestamp: string, now: Date): string {
+function formatEta(estimatedTimestamp: string, now: Date, t: ReturnType<typeof useTranslations<'race'>>): string {
   const diffMs = new Date(estimatedTimestamp).getTime() - now.getTime();
   const secs = Math.floor(diffMs / 1000);
-  if (secs <= 0) return "any moment";
-  if (secs < 60) return "< 1 min";
+  if (secs <= 0) return t('anyMoment');
+  if (secs < 60) return t('lessThanOneMin');
   const mins = Math.round(secs / 60);
   if (mins < 60) return `~${mins} min`;
   const h = Math.floor(mins / 60);
@@ -77,17 +78,19 @@ function NextRunnersCard({
   nextRunners,
   now,
   year,
+  t,
 }: {
   nextRunners: NextLapEstimate[];
   now: Date;
   year: number;
+  t: ReturnType<typeof useTranslations<'race'>>;
 }) {
   if (nextRunners.length === 0) return null;
 
   return (
     <Card>
       <CardContent className="p-4">
-        <h2 className="text-lg font-bold mb-3">Coming Through Next</h2>
+        <h2 className="text-lg font-bold mb-3">{t('comingThroughNext')}</h2>
         <div className="divide-y divide-gray-100">
           {nextRunners.map((est) => (
             <div
@@ -105,17 +108,17 @@ function NextRunnersCard({
                   {est.runner.name}
                 </Link>
                 <span className="text-xs text-gray-400">
-                  Lap {est.nextLapNumber}
+                  {t('lap', { number: est.nextLapNumber })}
                 </span>
               </div>
               <span
                 className={`text-sm font-medium ${
-                  formatEta(est.estimatedTimestamp, now) === "any moment"
+                  formatEta(est.estimatedTimestamp, now, t) === t('anyMoment')
                     ? "text-green-600"
                     : "text-gray-600"
                 }`}
               >
-                {formatEta(est.estimatedTimestamp, now)}
+                {formatEta(est.estimatedTimestamp, now, t)}
               </span>
             </div>
           ))}
@@ -146,6 +149,7 @@ function LeaderboardTable({
   startDateTime,
   year,
   courseRecordHolderIds,
+  t,
 }: {
   entries: LeaderboardEntry[];
   title: string;
@@ -157,6 +161,7 @@ function LeaderboardTable({
   startDateTime: string;
   year: number;
   courseRecordHolderIds?: Set<string>;
+  t: ReturnType<typeof useTranslations<'race'>>;
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [page, setPage] = useState(0);
@@ -219,7 +224,7 @@ function LeaderboardTable({
               type="text"
               value={nameFilter}
               onChange={(e) => setNameFilter(e.target.value)}
-              placeholder="Filter by name…"
+              placeholder={t('filterByName')}
               className={`border rounded-md px-3 py-1.5 text-sm w-full sm:w-48 sm:pl-8 transition-all duration-500 ${filterFlash ? "bg-blue-100 ring-2 ring-blue-300 border-blue-300" : ""}`}
             />
           </div>
@@ -232,20 +237,20 @@ function LeaderboardTable({
               <th className="px-3 py-2 w-10">#</th>
               <th className="px-3 py-2 w-14">Bib</th>
               {showGender && <th className="px-3 py-2 w-10"></th>}
-              <th className="px-3 py-2">Name</th>
-              <th className="px-3 py-2 text-right">Laps</th>
+              <th className="px-3 py-2">{t('name')}</th>
+              <th className="px-3 py-2 text-right">{t('laps')}</th>
               <th className="px-3 py-2 text-right hidden sm:table-cell">
-                Distance
+                {t('distance')}
               </th>
               <th className="px-3 py-2 text-right hidden md:table-cell">
-                Avg Lap
+                {t('avgLap')}
               </th>
               <th className="px-3 py-2 text-right hidden md:table-cell">
-                Fastest
+                {t('fastest')}
               </th>
               {now && (
                 <th className="px-3 py-2 text-right hidden sm:table-cell">
-                  Last Lap
+                  {t('lastLap')}
                 </th>
               )}
             </tr>
@@ -333,13 +338,13 @@ function LeaderboardTable({
                           href={`/race/${year}/runner/${e.runner.bib}`}
                           className="ml-2 text-xs font-normal text-blue-500 hover:underline"
                         >
-                          View profile &rarr;
+                          {t('viewProfile')} &rarr;
                         </Link>
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                         <div className="bg-white border rounded px-3 py-2 text-sm">
                           <span className="text-gray-400 block text-xs">
-                            Distance
+                            {t('distance')}
                           </span>
                           <span className="font-semibold">
                             {e.totalDistanceKm} km
@@ -347,7 +352,7 @@ function LeaderboardTable({
                         </div>
                         <div className="bg-white border rounded px-3 py-2 text-sm">
                           <span className="text-gray-400 block text-xs">
-                            Avg Lap
+                            {t('avgLap')}
                           </span>
                           <span className="font-semibold font-mono">
                             {formatLapTime(e.avgLapSeconds)}
@@ -362,7 +367,7 @@ function LeaderboardTable({
                         </div>
                         <div className="bg-white border rounded px-3 py-2 text-sm">
                           <span className="text-gray-400 block text-xs">
-                            Fastest
+                            {t('fastest')}
                           </span>
                           <span className="font-semibold font-mono">
                             {formatLapTime(e.fastestLapSeconds)}
@@ -381,7 +386,7 @@ function LeaderboardTable({
                         {now && e.lastLapTimestamp && (
                           <div className="bg-white border rounded px-3 py-2 text-sm">
                             <span className="text-gray-400 block text-xs">
-                              Last Lap
+                              {t('lastLap')}
                             </span>
                             <span className="font-semibold">
                               {formatLastCompleted(e.lastLapTimestamp, now)}
@@ -392,7 +397,7 @@ function LeaderboardTable({
                       {e.laps.length > 0 && (
                         <>
                           <p className="text-xs font-semibold text-gray-400 mb-1">
-                            Lap splits
+                            {t('lapSplits')}
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {e.laps.map((lap, li) => {
@@ -445,7 +450,7 @@ function LeaderboardTable({
       {paginate && totalPages > 1 && (
         <div className="flex items-center justify-between mt-3 text-sm">
           <div className="flex items-center gap-2 text-gray-500">
-            <span>Show</span>
+            <span>{t('show')}</span>
             <select
               value={pageSize}
               onChange={(e) => {
@@ -464,7 +469,7 @@ function LeaderboardTable({
           <div className="flex items-center gap-3">
             <span className="text-gray-500">
               {offset + 1}–
-              {Math.min(offset + pageSize, filteredEntries.length)} of{" "}
+              {Math.min(offset + pageSize, filteredEntries.length)} {t('of')}{" "}
               {filteredEntries.length}
             </span>
             <button
@@ -472,14 +477,14 @@ function LeaderboardTable({
               disabled={page === 0}
               className="px-3 py-1 border rounded bg-white hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              Prev
+              {t('prev')}
             </button>
             <button
               onClick={() => setPage(page + 1)}
               disabled={page >= totalPages - 1}
               className="px-3 py-1 border rounded bg-white hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              Next
+              {t('next')}
             </button>
           </div>
         </div>
@@ -489,6 +494,7 @@ function LeaderboardTable({
 }
 
 export default function RaceYearPage() {
+  const t = useTranslations('race');
   const params = useParams();
   const router = useRouter();
   const year = Number(params.year);
@@ -555,7 +561,7 @@ export default function RaceYearPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">Edition {year} not found</p>
+        <p className="text-gray-500">{t('editionNotFound', { year })}</p>
       </div>
     );
   }
@@ -563,7 +569,7 @@ export default function RaceYearPage() {
   if (!data) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-400">Loading...</p>
+        <p className="text-gray-400">{t('loading')}</p>
       </div>
     );
   }
@@ -611,8 +617,8 @@ export default function RaceYearPage() {
             </div>
             <p className="text-gray-400 text-sm">
               {getRacePhase(edition.startDateTime, edition.endDateTime, now) === "during"
-                ? "Live Results"
-                : "Results"}
+                ? t('liveResults')
+                : t('results')}
             </p>
           </div>
           <div className="text-right">
@@ -630,7 +636,7 @@ export default function RaceYearPage() {
                       {formatDuration(secs)}
                     </div>
                     <div className="text-xs text-gray-400">
-                      until race starts
+                      {t('untilRaceStarts')}
                     </div>
                   </div>
                 );
@@ -642,13 +648,13 @@ export default function RaceYearPage() {
                     <div className="text-2xl font-mono font-bold text-green-400">
                       {formatDuration(secs)}
                     </div>
-                    <div className="text-xs text-gray-400">remaining</div>
+                    <div className="text-xs text-gray-400">{t('remaining')}</div>
                   </div>
                 );
               }
               return (
                 <span className="text-gray-400 font-semibold">
-                  Race completed
+                  {t('raceCompleted')}
                 </span>
               );
             })()}
@@ -661,30 +667,30 @@ export default function RaceYearPage() {
           <Card>
             <CardContent className="p-4">
               <p className="text-2xl font-bold">{totalLaps}</p>
-              <p className="text-sm text-gray-500">Total Laps</p>
+              <p className="text-sm text-gray-500">{t('totalLaps')}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <p className="text-2xl font-bold">{totalDistanceKm.toLocaleString()} km</p>
-              <p className="text-sm text-gray-500">Total Distance</p>
+              <p className="text-sm text-gray-500">{t('totalDistance')}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <p className="text-2xl font-bold">{totalElevationM.toLocaleString()} m</p>
-              <p className="text-sm text-gray-500">Total Elevation</p>
+              <p className="text-sm text-gray-500">{t('totalElevation')}</p>
             </CardContent>
           </Card>
         </div>
 
         {getRacePhase(edition.startDateTime, edition.endDateTime, now) === "during" && (
-          <NextRunnersCard nextRunners={data.nextRunners} now={now} year={year} />
+          <NextRunnersCard nextRunners={data.nextRunners} now={now} year={year} t={t} />
         )}
 
         <LeaderboardTable
           entries={data.leaderboard}
-          title="Overall Leaderboard"
+          title={t('overallLeaderboard')}
           showGender
           showMedals
           now={now}
@@ -693,27 +699,30 @@ export default function RaceYearPage() {
           startDateTime={edition.startDateTime}
           year={year}
           courseRecordHolderIds={courseRecordHolderIds}
+          t={t}
         />
 
         {(data.topMen.length > 0 || data.topWomen.length > 0) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <LeaderboardTable
               entries={data.topMen}
-              title="Top Men"
+              title={t('topMen')}
               showMedals
               lapDistanceKm={edition.lapDistanceKm}
               startDateTime={edition.startDateTime}
               year={year}
               courseRecordHolderIds={courseRecordHolderIds}
+              t={t}
             />
             <LeaderboardTable
               entries={data.topWomen}
-              title="Top Women"
+              title={t('topWomen')}
               showMedals
               lapDistanceKm={edition.lapDistanceKm}
               startDateTime={edition.startDateTime}
               year={year}
               courseRecordHolderIds={courseRecordHolderIds}
+              t={t}
             />
           </div>
         )}
@@ -721,24 +730,24 @@ export default function RaceYearPage() {
         {(data.courseRecords.male || data.courseRecords.female) && (
           <Card>
             <CardContent className="p-6">
-              <h2 className="text-xl font-bold mb-4">Course Records</h2>
+              <h2 className="text-xl font-bold mb-4">{t('courseRecords')}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {data.courseRecords.male && (
                   <Link href={`/race/${data.courseRecords.male.year}/runner/${data.courseRecords.male.bib}`} className="block bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
-                    <p className="text-sm text-gray-500 mb-1">Men</p>
+                    <p className="text-sm text-gray-500 mb-1">{t('men')}</p>
                     <p className="text-lg font-bold">{data.courseRecords.male.name}</p>
                     <p className="text-gray-700">
-                      {data.courseRecords.male.totalLaps} laps ({data.courseRecords.male.totalDistanceKm} km)
+                      {data.courseRecords.male.totalLaps} {t('laps')} ({data.courseRecords.male.totalDistanceKm} km)
                     </p>
                     <p className="text-sm text-gray-500">{data.courseRecords.male.year}</p>
                   </Link>
                 )}
                 {data.courseRecords.female && (
                   <Link href={`/race/${data.courseRecords.female.year}/runner/${data.courseRecords.female.bib}`} className="block bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
-                    <p className="text-sm text-gray-500 mb-1">Women</p>
+                    <p className="text-sm text-gray-500 mb-1">{t('women')}</p>
                     <p className="text-lg font-bold">{data.courseRecords.female.name}</p>
                     <p className="text-gray-700">
-                      {data.courseRecords.female.totalLaps} laps ({data.courseRecords.female.totalDistanceKm} km)
+                      {data.courseRecords.female.totalLaps} {t('laps')} ({data.courseRecords.female.totalDistanceKm} km)
                     </p>
                     <p className="text-sm text-gray-500">{data.courseRecords.female.year}</p>
                   </Link>

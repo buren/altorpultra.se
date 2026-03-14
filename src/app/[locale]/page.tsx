@@ -1,7 +1,11 @@
 import { AltorpUltra } from "@/components/AltorpUltra";
 import { getCurrentEdition, getPublishedYears } from "@/lib/race/get-edition";
+import { setRequestLocale } from "next-intl/server";
 
-export default async function Home() {
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   const [edition, publishedYears] = await Promise.all([
     getCurrentEdition(),
     getPublishedYears(),

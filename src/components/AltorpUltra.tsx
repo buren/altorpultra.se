@@ -29,6 +29,8 @@ import Countdown from "./Countdown"
 import Footer from "./Footer"
 import { site, DAYS_SHOW_RESULTS_LINK } from "@/lib/config"
 import { Edition } from "@/lib/race/editions"
+import { getTranslations } from "next-intl/server"
+import { Link } from "@/i18n/navigation"
 
 interface InfoCardProps {
   icon: React.ReactNode;
@@ -60,27 +62,28 @@ function InfoCard({ icon, title, children, href }: InfoCardProps) {
   return content;
 }
 
-function getResultsLink(edition: Edition): { label: string; href: string } | null {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getResultsLink(edition: Edition, t: any): { label: string; href: string } | null {
   const now = new Date();
   const endMs = new Date(edition.endDateTime).getTime();
   const startMs = new Date(edition.startDateTime).getTime();
   const nowMs = now.getTime();
 
-  // During the race
   if (nowMs >= startMs && nowMs < endMs) {
-    return { label: "View Leaderboard", href: `/race/${edition.year}` };
+    return { label: t('hero.viewLeaderboard'), href: `/race/${edition.year}` };
   }
 
-  // After the race, within the results window
   const daysSinceEnd = (nowMs - endMs) / (1000 * 60 * 60 * 24);
   if (daysSinceEnd >= 0 && daysSinceEnd <= DAYS_SHOW_RESULTS_LINK) {
-    return { label: `View ${edition.year} Results`, href: `/race/${edition.year}` };
+    return { label: t('hero.viewResults', { year: edition.year }), href: `/race/${edition.year}` };
   }
 
   return null;
 }
 
-export function AltorpUltra({ edition, publishedYears }: { edition: Edition; publishedYears: number[] }) {
+export async function AltorpUltra({ edition, publishedYears }: { edition: Edition; publishedYears: number[] }) {
+  const t = await getTranslations();
+
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Event",
@@ -115,34 +118,34 @@ export function AltorpUltra({ edition, publishedYears }: { edition: Edition; pub
   const infoItems = [
     {
       icon: <CalendarDays className="h-8 w-8" />,
-      title: "Date",
+      title: t('infoCards.date'),
       description: edition.dateFormatted,
     },
     {
       icon: <Clock className="h-8 w-8" />,
-      title: "Duration",
+      title: t('infoCards.duration'),
       description: `${edition.startTime}-${edition.endTime} (${edition.durationHours}h)`,
     },
     {
       icon: <HandCoins className="h-8 w-8" />,
-      title: "Price",
+      title: t('infoCards.price'),
       description: `${edition.priceSEK} SEK`,
     },
     {
       icon: <MapPin className="h-8 w-8" />,
-      title: "Location",
+      title: t('infoCards.location'),
       description: site.location,
       href: edition.googleMaps.startPin,
     },
     {
       icon: <Route className="h-8 w-8" />,
-      title: "Strava route",
+      title: t('infoCards.stravaRoute'),
       description: `"Långa gula" ${edition.lapDistanceKm}km`,
       href: edition.stravaRoute,
     },
     {
       icon: <QuestionMarkIcon className="h-8 w-8" />,
-      title: "Questions",
+      title: t('infoCards.questions'),
       description: site.email,
       href: `mailto:${site.email}`,
     },
@@ -151,23 +154,23 @@ export function AltorpUltra({ edition, publishedYears }: { edition: Edition; pub
   const featureItems = [
     {
       icon: <Trees className="h-10 w-10 text-primary" />,
-      title: "Beautiful Scenery",
-      description: `Run on a stunning ${edition.lapDistanceKm}km trail loop through the Altorp forest.`,
+      title: t('moreThanRace.beautifulScenery'),
+      description: t('moreThanRace.beautifulSceneryDesc', { lapDistanceKm: edition.lapDistanceKm }),
     },
     {
       icon: <Users className="h-10 w-10 text-primary" />,
-      title: "Great Community",
-      description: "Enjoy a friendly, supportive atmosphere with fellow runners.",
+      title: t('moreThanRace.greatCommunity'),
+      description: t('moreThanRace.greatCommunityDesc'),
     },
     {
       icon: <Award className="h-10 w-10 text-primary" />,
-      title: "Personal Challenge",
-      description: `Run, walk, or rest. See how far you can go in ${edition.durationHours} hours.`,
+      title: t('moreThanRace.personalChallenge'),
+      description: t('moreThanRace.personalChallengeDesc', { durationHours: edition.durationHours }),
     },
   ];
 
-  const resultsLink = getResultsLink(edition);
-  const raceIsLive = resultsLink?.label === "View Leaderboard";
+  const resultsLink = getResultsLink(edition, t);
+  const raceIsLive = resultsLink?.label === t('hero.viewLeaderboard');
 
   return <>
     <script
@@ -203,16 +206,16 @@ export function AltorpUltra({ edition, publishedYears }: { edition: Edition; pub
                 href={edition.raceIdUrl}
                 className="inline-block bg-white text-gray-900 font-semibold text-lg px-8 py-3 rounded-md hover:bg-white/90 transition-colors shadow-lg"
               >
-                Register Now
+                {t('hero.registerNow')}
               </a>
             )}
             {resultsLink && (
-              <a
+              <Link
                 href={resultsLink.href}
                 className="inline-block border-2 border-white text-white font-semibold text-lg px-8 py-3 rounded-md hover:bg-white/10 transition-colors"
               >
                 {resultsLink.label}
-              </a>
+              </Link>
             )}
           </div>
         </div>
@@ -221,13 +224,20 @@ export function AltorpUltra({ edition, publishedYears }: { edition: Edition; pub
       <main className="container mx-auto px-4 py-12">
         {/* About */}
         <section id="about" className="mb-16 text-center scroll-mt-20">
-          <SectionTitle title="How many laps can you do?" />
+          <SectionTitle title={t('about.title')} />
           <div className="max-w-3xl mx-auto">
             <p className="text-xl text-gray-700 leading-relaxed">
-              Join us for an epic day of pushing your limits on the beautiful <strong>&lsquo;Långa gula&rsquo; {edition.lapDistanceKm} km loop</strong> in Altorp. With ~{edition.lapElevationM}m of elevation per lap, it&rsquo;s a fun challenge.
+              {t.rich('about.text1', {
+                strong: (chunks) => <strong>{chunks}</strong>,
+                lapDistanceKm: edition.lapDistanceKm,
+                lapElevationM: edition.lapElevationM,
+              })}
             </p>
             <p className="text-xl text-gray-700 leading-relaxed mt-4">
-              This isn&rsquo;t just for serious runners. <strong>Everyone is welcome.</strong> Whether you walk one lap or run twelve, the goal is to challenge yourself, enjoy the forest, and be part of an amazing community. Run, walk, rest, and see what you&rsquo;re capable of in {edition.durationHours} hours.
+              {t.rich('about.text2', {
+                strong: (chunks) => <strong>{chunks}</strong>,
+                durationHours: edition.durationHours,
+              })}
             </p>
           </div>
           <div className="text-center mt-8">
@@ -238,19 +248,23 @@ export function AltorpUltra({ edition, publishedYears }: { edition: Edition; pub
         {/* Kids Race */}
         <section className="mb-16 bg-primary/10 border border-primary/20 rounded-lg p-8 md:p-12 text-center">
           <span className="inline-block bg-primary text-white text-sm font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wide">
-            New for {edition.year}
+            {t('kidsRace.badge', { year: edition.year })}
           </span>
-          <h2 className="text-3xl font-bold mb-4">Kids Race</h2>
+          <h2 className="text-3xl font-bold mb-4">{t('kidsRace.title')}</h2>
           <p className="text-xl text-gray-700 leading-relaxed max-w-2xl mx-auto">
-            This year we&rsquo;re introducing a <strong>kids race</strong>! A fun ~400m run, starting at <strong>09:30</strong> before the main event. It&rsquo;s <strong>free for everyone</strong> &mdash; just show up and run!
+            {t.rich('kidsRace.text', {
+              strong: (chunks) => <strong>{chunks}</strong>,
+              strong2: (chunks) => <strong>{chunks}</strong>,
+              strong3: (chunks) => <strong>{chunks}</strong>,
+            })}
           </p>
         </section>
 
         {/* More Than a Race */}
         <section className="mb-16 bg-white rounded-lg shadow-sm p-8 md:p-12 text-center">
-          <h2 className="text-3xl font-bold mb-4">More Than a Race</h2>
+          <h2 className="text-3xl font-bold mb-4">{t('moreThanRace.title')}</h2>
           <p className="text-xl text-gray-700 leading-relaxed max-w-2xl mx-auto mb-8">
-            Altorp Ultra is a full day out. Bring your friends and family, hang out, and soak up the atmosphere. Good vibes, good food, and good music.
+            {t('moreThanRace.subtitle')}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {featureItems.map((feature) => (
@@ -262,18 +276,22 @@ export function AltorpUltra({ edition, publishedYears }: { edition: Edition; pub
             ))}
             <div className="flex flex-col items-center">
               <UtensilsCrossed className="h-10 w-10 text-primary" />
-              <h3 className="text-2xl font-semibold mt-4 mb-2">Food & Drinks</h3>
-              <p className="text-gray-600"><strong>Burgers, hot dogs, snacks, and drinks.</strong> Free for all runners &mdash; available for everyone else for a small fee.</p>
+              <h3 className="text-2xl font-semibold mt-4 mb-2">{t('moreThanRace.foodDrinks')}</h3>
+              <p className="text-gray-600">
+                {t.rich('moreThanRace.foodDrinksDesc', {
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
+              </p>
             </div>
             <div className="flex flex-col items-center">
               <Music className="h-10 w-10 text-primary" />
-              <h3 className="text-2xl font-semibold mt-4 mb-2">Music</h3>
-              <p className="text-gray-600">Tunes all day long to keep the energy up &mdash; whether you&rsquo;re running, cheering, or just chilling.</p>
+              <h3 className="text-2xl font-semibold mt-4 mb-2">{t('moreThanRace.music')}</h3>
+              <p className="text-gray-600">{t('moreThanRace.musicDesc')}</p>
             </div>
             <div className="flex flex-col items-center">
               <PartyPopper className="h-10 w-10 text-primary" />
-              <h3 className="text-2xl font-semibold mt-4 mb-2">Hang Out</h3>
-              <p className="text-gray-600">Come for the race, stay for the atmosphere. Everyone is welcome &mdash; runners, spectators, and families alike.</p>
+              <h3 className="text-2xl font-semibold mt-4 mb-2">{t('moreThanRace.hangOut')}</h3>
+              <p className="text-gray-600">{t('moreThanRace.hangOutDesc')}</p>
             </div>
           </div>
         </section>
@@ -303,12 +321,12 @@ export function AltorpUltra({ edition, publishedYears }: { edition: Edition; pub
           <SectionTitle title="2025 Edition" />
           <PhotoGallery images={edition2025Photos} />
           <div className="mt-6">
-            <a
+            <Link
               href="/race/2025"
               className="inline-block bg-gray-900 text-white font-semibold px-6 py-2.5 rounded-md hover:bg-gray-800 transition-colors"
             >
-              View 2025 Results &rarr;
-            </a>
+              {t('hero.viewResults', { year: 2025 })} &rarr;
+            </Link>
           </div>
           <div className="mt-16">
             <SectionTitle title="The Route" />

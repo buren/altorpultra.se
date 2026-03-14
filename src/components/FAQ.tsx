@@ -1,53 +1,41 @@
+"use client";
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { useTranslations } from "next-intl";
 import SectionTitle from "./SectionTitle";
 
 export default function FAQ({ priceSEK }: { priceSEK: number }) {
+  const t = useTranslations('faq');
+
+  const items = [
+    { q: t('q1'), a: t('a1') },
+    { q: t('q2'), a: t('a2') },
+    { q: t('q3'), a: t('a3') },
+    {
+      q: t('q4'),
+      a: t.rich('a4', {
+        link: (chunks) => <a href="https://maps.app.goo.gl/EEgT5kJ7bdHEE1Rz5">{chunks}</a>,
+      }),
+    },
+    { q: t('q5'), a: t('a5', { priceSEK }) },
+  ];
+
   return (
     <div className="md:w-2/3 md:max-w-[600px]">
-      <SectionTitle title="FAQ" />
+      <SectionTitle title={t('title')} />
       <Accordion type="multiple" defaultValue={["item-0", "item-1"]}>
-        <AccordionItem value="item-0">
-          <AccordionTrigger className="text-xl font-bold">Can I run only one or two laps?</AccordionTrigger>
-          <AccordionContent className="text-lg">
-            Yes! It is all about challenging yourself. You can walk or run for as long, or short, as you want.
-          </AccordionContent>
-        </AccordionItem>
-       
-        <AccordionItem value="item-1">
-          <AccordionTrigger className="text-xl font-bold">Do I have to run?</AccordionTrigger>
-          <AccordionContent className="text-lg">
-            No, you can walk and rest as much as you like.
-          </AccordionContent>
-        </AccordionItem>
-        
-        <AccordionItem value="item-2">
-          <AccordionTrigger className="text-xl font-bold">Will there be food?</AccordionTrigger>
-          <AccordionContent className="text-lg">
-            Yes, there will be food! For all runners snacks are included and you will be able to buy hot food (hotdogs and burgers) at a discounted price (at cost).
-            Non-runners will be able to buy as much snacks and food as they like as well!
-          </AccordionContent>
-        </AccordionItem>
-       
-        <AccordionItem value="item-3">
-          <AccordionTrigger className="text-xl font-bold">How do I get there?</AccordionTrigger>
-          <AccordionContent className="text-lg">
-            It is really easy to get here using public transport, only 12 minutes by train for Tekniska Högskolan. You can of course take your car as well, there is parking within 200m from the starting line.
-            You can find it <a href="https://maps.app.goo.gl/EEgT5kJ7bdHEE1Rz5">here on Google Maps</a>.
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="item-4">
-          <AccordionTrigger className="text-xl font-bold">How do I pay?</AccordionTrigger>
-          <AccordionContent className="text-lg">
-            The entry fee is {priceSEK} SEK. You can register and pay directly through our registration page on RaceID.
-          </AccordionContent>
-        </AccordionItem>
+        {items.map((item, i) => (
+          <AccordionItem key={i} value={`item-${i}`}>
+            <AccordionTrigger className="text-xl font-bold">{item.q}</AccordionTrigger>
+            <AccordionContent className="text-lg">{item.a}</AccordionContent>
+          </AccordionItem>
+        ))}
       </Accordion>
     </div>
   );
-};
+}

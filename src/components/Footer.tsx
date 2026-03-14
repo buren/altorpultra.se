@@ -1,4 +1,8 @@
+"use client";
+
 import Image from "next/image";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { site } from "@/lib/config";
 import { MapPin } from "lucide-react";
 
@@ -11,6 +15,8 @@ interface FooterProps {
 }
 
 export default function Footer({ durationHours, stravaRoute, raceIdUrl, googleMapsStartPin, publishedYears }: FooterProps) {
+  const t = useTranslations('footer');
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
@@ -28,23 +34,22 @@ export default function Footer({ durationHours, stravaRoute, raceIdUrl, googleMa
               <h3 className="text-xl font-bold">{site.name}</h3>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              A trail running event in the beautiful Altorp forest, Djursholm.
-              Run, walk, or rest &mdash; see how far you can go in {durationHours} hours.
+              {t('description', { durationHours })}
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <h4 className="font-semibold mb-3 text-gray-300">Links</h4>
+            <h4 className="font-semibold mb-3 text-gray-300">{t('links')}</h4>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>
                 <a href={raceIdUrl} className="hover:text-white transition-colors">
-                  Register on RaceID
+                  {t('registerOnRaceID')}
                 </a>
               </li>
               <li>
                 <a href={stravaRoute} className="hover:text-white transition-colors">
-                  Route on Strava
+                  {t('routeOnStrava')}
                 </a>
               </li>
               <li>
@@ -58,13 +63,13 @@ export default function Footer({ durationHours, stravaRoute, raceIdUrl, googleMa
           {/* Editions */}
           {publishedYears.length > 0 && (
             <div>
-              <h4 className="font-semibold mb-3 text-gray-300">Editions</h4>
+              <h4 className="font-semibold mb-3 text-gray-300">{t('editions')}</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 {publishedYears.map((year) => (
                   <li key={year}>
-                    <a href={`/race/${year}`} className="hover:text-white transition-colors">
+                    <Link href={`/race/${year}`} className="hover:text-white transition-colors">
                       {site.name} {year}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -73,7 +78,7 @@ export default function Footer({ durationHours, stravaRoute, raceIdUrl, googleMa
 
           {/* Contact */}
           <div>
-            <h4 className="font-semibold mb-3 text-gray-300">Contact</h4>
+            <h4 className="font-semibold mb-3 text-gray-300">{t('contact')}</h4>
             <p className="text-sm text-gray-400 mb-2">Jacob Burenstam Linder</p>
             <ul className="space-y-2 text-sm text-gray-400">
               <li>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 
 function diffToUnits(diff: number) {
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -42,6 +43,7 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
 }
 
 export default function Countdown({ startDateTime, endDateTime }: { startDateTime: string; endDateTime?: string }) {
+  const t = useTranslations('countdown');
   const [state, setState] = useState<ReturnType<typeof getCountdownState>>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -58,21 +60,21 @@ export default function Countdown({ startDateTime, endDateTime }: { startDateTim
     <div className="flex flex-col items-center gap-2 text-white">
       {state.phase === "during" && (
         <span className="text-sm md:text-base uppercase tracking-widest text-green-400 font-semibold">
-          Race in progress — time remaining
+          {t('raceInProgress')}
         </span>
       )}
       <div className="flex gap-1 md:gap-2">
         {state.days > 0 && (
           <>
-            <CountdownUnit value={state.days} label="Days" />
+            <CountdownUnit value={state.days} label={t('days')} />
             <span className="text-4xl md:text-6xl font-light text-white/40 self-start">:</span>
           </>
         )}
-        <CountdownUnit value={state.hours} label="Hours" />
+        <CountdownUnit value={state.hours} label={t('hours')} />
         <span className="text-4xl md:text-6xl font-light text-white/40 self-start">:</span>
-        <CountdownUnit value={state.minutes} label="Min" />
+        <CountdownUnit value={state.minutes} label={t('min')} />
         <span className="text-4xl md:text-6xl font-light text-white/40 self-start">:</span>
-        <CountdownUnit value={state.seconds} label="Sec" />
+        <CountdownUnit value={state.seconds} label={t('sec')} />
       </div>
     </div>
   );
