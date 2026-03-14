@@ -3,6 +3,8 @@ import {
   handleRegisterLap,
   handleAddRunner,
   handleDeleteLap,
+  handleEditLapTimestamp,
+  handleInsertBackdatedLap,
   handleAuth,
   Result,
 } from "./api-handlers";
@@ -13,6 +15,9 @@ vi.mock("./db", () => ({
   addRunner: vi.fn(),
   deleteLap: vi.fn(),
   getRunners: vi.fn(),
+  updateLapTimestamp: vi.fn(),
+  getLapsForRunner: vi.fn(),
+  insertBackdatedLap: vi.fn(),
 }));
 
 // Mock supabase server module
@@ -236,5 +241,152 @@ describe("handleDeleteLap", () => {
     const result = await handleDeleteLap("lap-1", ADMIN_PASSWORD, ADMIN_PASSWORD);
     expectOk(result);
     expect(db.deleteLap).toHaveBeenCalledWith(expect.anything(), "lap-1");
+  });
+});
+
+describe("handleEditLapTimestamp", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns error when not authenticated", async () => {
+    const result = await handleEditLapTimestamp(
+      { lapId: "lap-1", timestamp: "2026-05-09T10:30:00Z" },
+      "wrong",
+      ADMIN_PASSWORD
+    );
+    expectError(result, "Unauthorized");
+  });
+
+  it("returns error when lapId is missing", async () => {
+    const result = await handleEditLapTimestamp(
+      { lapId: "", timestamp: "2026-05-09T10:30:00Z" },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+    expectError(result, "Lap ID is required");
+  });
+
+  it("returns error when timestamp is invalid", async () => {
+    const result = await handleEditLapTimestamp(
+      { lapId: "lap-1", timestamp: "not-a-date" },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+    expectError(result, "Invalid timestamp");
+  });
+
+  it("calls updateLapTimestamp on success", async () => {
+    const updatedLap = {
+      id: "lap-1",
+      runner_id: "r1",
+      timestamp: "2026-05-09T10:30:00Z",
+      lap_number: 2,
+    };
+    vi.mocked(db.updateLapTimestamp).mockResolvedValue(updatedLap);
+
+    const result = await handleEditLapTimestamp(
+      { lapId: "lap-1", timestamp: "2026-05-09T10:30:00Z" },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+    const data = expectOk(result);
+    expect(data).toEqual(updatedLap);
+    expect(db.updateLapTimestamp).toHaveBeenCalledWith(
+      expect.anything(),
+      "lap-1",
+      "2026-05-09T10:30:00Z"
+    );
+  });
+});
+
+describe("handleInsertBackdatedLap", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns error when not authenticated", async () => {
+    const result = await handleInsertBackdatedLap(
+      { runnerId: "r1", timestamp: "2026-05-09T10:30:00Z" },
+      "wrong",
+      ADMIN_PASSWORD
+    );
+    expectError(result, "Unauthorized");
+  });
+
+  it("returns error when runnerId is missing", async () => {
+    const result = await handleInsertBackdatedLap(
+      { runnerId: "", timestamp: "2026-05-09T10:30:00Z" },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+    expectError(result, "Runner ID is required");
+  });
+
+  it("returns error when timestamp is invalid", async () => {
+    const result = await handleInsertBackdatedLap(
+      { runnerId: "r1", timestamp: "garbage" },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+    expectError(result, "Invalid timestamp");
+  });
+
+  it("inserts a backdated lap with correct renumbering", async () => {
+    const existingLaps = [
+      { id: "l1", runner_id: "r1", timestamp: "2026-05-09T10:00:00Z", lap_number: 1 },
+      { id: "l2", runner_id: "r1", timestamp: "2026-05-09T11:00:00Z", lap_number: 2 },
+    ];
+    vi.mocked(db.getLapsForRunner).mockResolvedValue(existingLaps);
+
+    const newLap = {
+      id: "l3",
+      runner_id: "r1",
+      timestamp: "2026-05-09T10:30:00Z",
+      lap_number: 2,
+    };
+    vi.mocked(db.insertBackdatedLap).mockResolvedValue(newLap);
+
+    const result = await handleInsertBackdatedLap(
+      { runnerId: "r1", timestamp: "2026-05-09T10:30:00Z" },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+
+    const data = expectOk(result);
+    expect(data).toEqual(newLap);
+    expect(db.insertBackdatedLap).toHaveBeenCalledWith(
+      expect.anything(),
+      "r1",
+      "2026-05-09T10:30:00Z",
+      2,
+      [{ lapId: "l2", newLapNumber: 3 }]
+    );
+  });
+
+  it("inserts at end without renumbering", async () => {
+    const existingLaps = [
+      { id: "l1", runner_id: "r1", timestamp: "2026-05-09T10:00:00Z", lap_number: 1 },
+    ];
+    vi.mocked(db.getLapsForRunner).mockResolvedValue(existingLaps);
+
+    const newLap = {
+      id: "l2",
+      runner_id: "r1",
+      timestamp: "2026-05-09T11:00:00Z",
+      lap_number: 2,
+    };
+    vi.mocked(db.insertBackdatedLap).mockResolvedValue(newLap);
+
+    const result = await handleInsertBackdatedLap(
+      { runnerId: "r1", timestamp: "2026-05-09T11:00:00Z" },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+
+    expectOk(result);
+    expect(db.insertBackdatedLap).toHaveBeenCalledWith(
+      expect.anything(),
+      "r1",
+      "2026-05-09T11:00:00Z",
+      2,
+      []
+    );
   });
 });

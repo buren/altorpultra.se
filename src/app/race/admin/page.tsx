@@ -10,11 +10,32 @@ interface RecentLap extends Lap {
   runner_bib: number;
 }
 
+function toLocalDatetimeValue(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function fromLocalDatetimeValue(local: string): string {
+  return new Date(local).toISOString();
+}
+
 export default function LapsPage() {
   const [recentLaps, setRecentLaps] = useState<RecentLap[]>([]);
   const [now, setNow] = useState(new Date());
   const [bibInput, setBibInput] = useState("");
   const [lapMessage, setLapMessage] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
+  const [editingLapId, setEditingLapId] = useState<string | null>(null);
+  const [editTimestamp, setEditTimestamp] = useState("");
+  const [showBackdated, setShowBackdated] = useState(false);
+  const [backdatedBib, setBackdatedBib] = useState("");
+  const [backdatedTimestamp, setBackdatedTimestamp] = useState(() =>
+    toLocalDatetimeValue(new Date().toISOString())
+  );
+  const [backdatedMessage, setBackdatedMessage] = useState<{
     text: string;
     type: "success" | "error";
   } | null>(null);
@@ -78,6 +99,73 @@ export default function LapsPage() {
     if (data.ok) fetchLaps();
   }
 
+  function startEditLap(lap: RecentLap) {
+    setEditingLapId(lap.id);
+    setEditTimestamp(toLocalDatetimeValue(lap.timestamp));
+  }
+
+  async function handleSaveTimestamp(lapId: string) {
+    const res = await fetch("/api/race/laps", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lapId,
+        timestamp: fromLocalDatetimeValue(editTimestamp),
+      }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      setEditingLapId(null);
+      fetchLaps();
+    }
+  }
+
+  async function handleInsertBackdatedLap(e: React.FormEvent) {
+    e.preventDefault();
+    if (!backdatedBib || !backdatedTimestamp) {
+      setBackdatedMessage({ text: "Bib and timestamp are required", type: "error" });
+      return;
+    }
+
+    // First look up the runner by bib from recent laps or fetch runners
+    const res = await fetch("/api/race/runners");
+    const runnersData = await res.json();
+    if (!runnersData.ok) {
+      setBackdatedMessage({ text: runnersData.error || "Failed to load runners", type: "error" });
+      return;
+    }
+
+    const runner = runnersData.data?.find(
+      (r: { bib: number }) => r.bib === parseInt(backdatedBib, 10)
+    );
+    if (!runner) {
+      setBackdatedMessage({ text: `No runner found with bib #${backdatedBib}`, type: "error" });
+      return;
+    }
+
+    const putRes = await fetch("/api/race/laps", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runnerId: runner.id,
+        timestamp: fromLocalDatetimeValue(backdatedTimestamp),
+      }),
+    });
+    const putData = await putRes.json();
+
+    if (putData.ok) {
+      setBackdatedMessage({
+        text: `Backdated lap inserted for #${runner.bib} ${runner.name}`,
+        type: "success",
+      });
+      setBackdatedBib("");
+      setBackdatedTimestamp(toLocalDatetimeValue(new Date().toISOString()));
+      fetchLaps();
+    } else {
+      setBackdatedMessage({ text: putData.error, type: "error" });
+    }
+  }
+
   return (
     <main className="container mx-auto px-4 py-6 max-w-2xl space-y-6">
       <Card>
@@ -122,8 +210,95 @@ export default function LapsPage() {
               {lapMessage.text}
             </p>
           )}
+          {!showBackdated && (
+            <button
+              type="button"
+              onClick={() => setShowBackdated(true)}
+              className="mt-3 text-sm text-amber-700 hover:text-amber-900 font-medium"
+            >
+              + Insert Backdated Lap
+            </button>
+          )}
         </CardContent>
       </Card>
+
+      {showBackdated && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold">Insert Backdated Lap</h2>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowBackdated(false);
+                  setBackdatedMessage(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label="Close"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            <p className="text-sm text-gray-500 mb-3">
+              Use this when a runner missed a check-in and you need to add the lap with the correct time.
+            </p>
+            <form
+              onSubmit={handleInsertBackdatedLap}
+              className="space-y-3"
+            >
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1">
+                  <label htmlFor="backdated-bib" className="block text-sm font-medium text-gray-600 mb-1">
+                    Bib #
+                  </label>
+                  <input
+                    id="backdated-bib"
+                    type="text"
+                    inputMode="numeric"
+                    value={backdatedBib}
+                    onChange={(e) => setBackdatedBib(e.target.value.replace(/\D/g, ""))}
+                    placeholder="Bib number"
+                    className="w-full border rounded-md px-3 py-2 font-mono"
+                    autoComplete="off"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label htmlFor="backdated-timestamp" className="block text-sm font-medium text-gray-600 mb-1">
+                    Timestamp
+                  </label>
+                  <input
+                    id="backdated-timestamp"
+                    type="datetime-local"
+                    step="1"
+                    value={backdatedTimestamp}
+                    onChange={(e) => setBackdatedTimestamp(e.target.value)}
+                    className="w-full border rounded-md px-3 py-2"
+                  />
+                </div>
+              </div>
+              <button
+                type="submit"
+                className="bg-amber-600 text-white px-6 py-2 rounded-md font-semibold hover:bg-amber-700 w-full sm:w-auto"
+              >
+                Insert Lap
+              </button>
+            </form>
+            {backdatedMessage && (
+              <p
+                className={`mt-3 text-sm font-medium ${
+                  backdatedMessage.type === "success"
+                    ? "text-green-700"
+                    : "text-red-600"
+                }`}
+              >
+                {backdatedMessage.text}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardContent className="p-6">
@@ -135,28 +310,59 @@ export default function LapsPage() {
               {recentLaps.map((lap) => (
                 <div
                   key={lap.id}
-                  className="flex items-center justify-between bg-gray-50 rounded-md px-3 py-2"
+                  className="bg-gray-50 rounded-md px-3 py-2"
                 >
-                  <div>
-                    <span className="font-mono font-bold text-gray-600">
-                      #{lap.runner_bib}
-                    </span>{" "}
-                    <span className="font-medium">{lap.runner_name}</span>
-                    <span className="text-gray-500 ml-2">
-                      Lap {lap.lap_number}
-                    </span>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-mono font-bold text-gray-600">
+                        #{lap.runner_bib}
+                      </span>{" "}
+                      <span className="font-medium">{lap.runner_name}</span>
+                      <span className="text-gray-500 ml-2">
+                        Lap {lap.lap_number}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-gray-400">
+                        {formatTimeAgo(lap.timestamp, now)}
+                      </span>
+                      <button
+                        onClick={() => startEditLap(lap)}
+                        className="text-blue-500 hover:text-blue-700 text-sm font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteLap(lap.id)}
+                        className="text-red-500 hover:text-red-700 text-sm font-medium"
+                      >
+                        Undo
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-400">
-                      {formatTimeAgo(lap.timestamp, now)}
-                    </span>
-                    <button
-                      onClick={() => handleDeleteLap(lap.id)}
-                      className="text-red-500 hover:text-red-700 text-sm font-medium"
-                    >
-                      Undo
-                    </button>
-                  </div>
+                  {editingLapId === lap.id && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <input
+                        type="datetime-local"
+                        step="1"
+                        value={editTimestamp}
+                        onChange={(e) => setEditTimestamp(e.target.value)}
+                        className="border rounded px-2 py-1 text-sm flex-1"
+                      />
+                      <button
+                        onClick={() => handleSaveTimestamp(lap.id)}
+                        className="bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium hover:bg-blue-700"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingLapId(null)}
+                        className="text-gray-500 hover:text-gray-700 text-sm font-medium"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

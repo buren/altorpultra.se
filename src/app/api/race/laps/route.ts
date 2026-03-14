@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { handleRegisterLap, handleDeleteLap } from "@/lib/race/api-handlers";
+import { handleRegisterLap, handleDeleteLap, handleEditLapTimestamp, handleInsertBackdatedLap } from "@/lib/race/api-handlers";
 import { getRecentLaps, resolveCurrentEditionFromDb, getEdition } from "@/lib/race/db";
 import { createServerClient } from "@/lib/race/supabase-server";
 
@@ -57,4 +57,30 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json(result, { status });
   }
   return NextResponse.json(result);
+}
+
+export async function PATCH(req: NextRequest) {
+  const body = await req.json();
+  const password = req.cookies.get("race_admin")?.value ?? "";
+  const serverPassword = process.env.RACE_ADMIN_PASSWORD ?? "";
+  const result = await handleEditLapTimestamp(body, password, serverPassword);
+
+  if (!result.ok) {
+    const status = result.error === "Unauthorized" ? 401 : 400;
+    return NextResponse.json(result, { status });
+  }
+  return NextResponse.json(result);
+}
+
+export async function PUT(req: NextRequest) {
+  const body = await req.json();
+  const password = req.cookies.get("race_admin")?.value ?? "";
+  const serverPassword = process.env.RACE_ADMIN_PASSWORD ?? "";
+  const result = await handleInsertBackdatedLap(body, password, serverPassword);
+
+  if (!result.ok) {
+    const status = result.error === "Unauthorized" ? 401 : 400;
+    return NextResponse.json(result, { status });
+  }
+  return NextResponse.json(result, { status: 201 });
 }

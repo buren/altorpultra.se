@@ -4,6 +4,8 @@ import {
   getNextBibNumber,
   buildCsvExport,
   validateNewRunner,
+  validateTimestamp,
+  renumberLaps,
 } from "./services";
 import { LeaderboardEntry, Runner, Lap } from "./types";
 
@@ -108,6 +110,72 @@ describe("validateNewRunner", () => {
     expect(validateNewRunner("Alice", 1, "unknown" as any)).toBe(
       "Gender must be male, female, or other"
     );
+  });
+});
+
+describe("validateTimestamp", () => {
+  it("returns null for valid ISO 8601 string", () => {
+    expect(validateTimestamp("2026-05-09T10:30:00+02:00")).toBeNull();
+  });
+
+  it("returns null for UTC ISO string", () => {
+    expect(validateTimestamp("2026-05-09T08:30:00Z")).toBeNull();
+  });
+
+  it("returns error for empty string", () => {
+    expect(validateTimestamp("")).toBe("Timestamp is required");
+  });
+
+  it("returns error for garbage string", () => {
+    expect(validateTimestamp("not-a-date")).toBe("Invalid timestamp");
+  });
+
+  it("returns error for partial date", () => {
+    expect(validateTimestamp("2026-05-09")).toBe("Invalid timestamp");
+  });
+});
+
+describe("renumberLaps", () => {
+  it("returns lap_number 1 and no updates for empty laps", () => {
+    const result = renumberLaps([], "2026-05-09T10:30:00Z");
+    expect(result).toEqual({ newLapNumber: 1, updates: [] });
+  });
+
+  it("returns next number and no updates when inserting at the end", () => {
+    const laps = [
+      makeLap("r1", 1, "2026-05-09T10:00:00Z"),
+      makeLap("r1", 2, "2026-05-09T10:30:00Z"),
+    ];
+    const result = renumberLaps(laps, "2026-05-09T11:00:00Z");
+    expect(result.newLapNumber).toBe(3);
+    expect(result.updates).toEqual([]);
+  });
+
+  it("renumbers when inserting at the beginning", () => {
+    const laps = [
+      makeLap("r1", 1, "2026-05-09T10:30:00Z"),
+      makeLap("r1", 2, "2026-05-09T11:00:00Z"),
+    ];
+    const result = renumberLaps(laps, "2026-05-09T10:00:00Z");
+    expect(result.newLapNumber).toBe(1);
+    expect(result.updates).toEqual([
+      { lapId: "lap-r1-1", newLapNumber: 2 },
+      { lapId: "lap-r1-2", newLapNumber: 3 },
+    ]);
+  });
+
+  it("renumbers when inserting in the middle", () => {
+    const laps = [
+      makeLap("r1", 1, "2026-05-09T10:00:00Z"),
+      makeLap("r1", 2, "2026-05-09T10:30:00Z"),
+      makeLap("r1", 3, "2026-05-09T11:00:00Z"),
+    ];
+    const result = renumberLaps(laps, "2026-05-09T10:15:00Z");
+    expect(result.newLapNumber).toBe(2);
+    expect(result.updates).toEqual([
+      { lapId: "lap-r1-2", newLapNumber: 3 },
+      { lapId: "lap-r1-3", newLapNumber: 4 },
+    ]);
   });
 });
 

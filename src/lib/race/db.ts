@@ -218,6 +218,79 @@ export async function deleteLap(
   if (error) throw error;
 }
 
+export async function updateLapTimestamp(
+  supabase: SupabaseClient,
+  lapId: string,
+  timestamp: string
+): Promise<Lap> {
+  const { data, error } = await supabase
+    .from("laps")
+    .update({ timestamp })
+    .eq("id", lapId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Lap;
+}
+
+export async function getLapsForRunner(
+  supabase: SupabaseClient,
+  runnerId: string
+): Promise<Lap[]> {
+  const { data, error } = await supabase
+    .from("laps")
+    .select("*")
+    .eq("runner_id", runnerId)
+    .order("timestamp", { ascending: true });
+
+  if (error) throw error;
+  return data as Lap[];
+}
+
+export async function insertBackdatedLap(
+  supabase: SupabaseClient,
+  runnerId: string,
+  timestamp: string,
+  lapNumber: number,
+  renumberUpdates: { lapId: string; newLapNumber: number }[]
+): Promise<Lap> {
+  // Renumber existing laps first
+  for (const update of renumberUpdates) {
+    const { error } = await supabase
+      .from("laps")
+      .update({ lap_number: update.newLapNumber })
+      .eq("id", update.lapId);
+    if (error) throw error;
+  }
+
+  // Insert the new lap
+  const { data, error } = await supabase
+    .from("laps")
+    .insert({ runner_id: runnerId, timestamp, lap_number: lapNumber })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Lap;
+}
+
+export async function updateLapNumber(
+  supabase: SupabaseClient,
+  lapId: string,
+  lapNumber: number
+): Promise<Lap> {
+  const { data, error } = await supabase
+    .from("laps")
+    .update({ lap_number: lapNumber })
+    .eq("id", lapId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Lap;
+}
+
 export async function getAllLaps(
   supabase: SupabaseClient,
   editionYear: number

@@ -1,5 +1,50 @@
 import { Gender, Lap, LeaderboardEntry, Runner } from "./types";
 
+export function validateTimestamp(timestamp: string): string | null {
+  if (!timestamp) return "Timestamp is required";
+  const d = new Date(timestamp);
+  if (isNaN(d.getTime())) return "Invalid timestamp";
+  // Require a time component (not just a date)
+  if (!/T/.test(timestamp)) return "Invalid timestamp";
+  return null;
+}
+
+export function renumberLaps(
+  existingLaps: Lap[],
+  newTimestamp: string
+): { newLapNumber: number; updates: { lapId: string; newLapNumber: number }[] } {
+  if (existingLaps.length === 0) return { newLapNumber: 1, updates: [] };
+
+  const sorted = [...existingLaps].sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  );
+
+  const newTime = new Date(newTimestamp).getTime();
+
+  // Find insertion index
+  let insertIdx = sorted.length;
+  for (let i = 0; i < sorted.length; i++) {
+    if (new Date(sorted[i].timestamp).getTime() > newTime) {
+      insertIdx = i;
+      break;
+    }
+  }
+
+  // If appending at the end, no renumbering needed
+  if (insertIdx === sorted.length) {
+    return { newLapNumber: sorted.length + 1, updates: [] };
+  }
+
+  // The new lap gets insertIdx + 1 as its number
+  const newLapNumber = insertIdx + 1;
+  const updates = sorted.slice(insertIdx).map((lap, i) => ({
+    lapId: lap.id,
+    newLapNumber: insertIdx + 2 + i,
+  }));
+
+  return { newLapNumber, updates };
+}
+
 export function getNextLapNumber(existingLaps: Lap[]): number {
   if (existingLaps.length === 0) return 1;
   const max = Math.max(...existingLaps.map((l) => l.lap_number));

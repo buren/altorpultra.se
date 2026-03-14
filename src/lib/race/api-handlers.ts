@@ -1,5 +1,5 @@
 import { validateAdminPassword } from "./admin-auth";
-import { validateNewRunner, getNextBibNumber } from "./services";
+import { validateNewRunner, getNextBibNumber, validateTimestamp, renumberLaps } from "./services";
 import * as db from "./db";
 import { createServerClient } from "./supabase-server";
 import { Gender } from "./types";
@@ -99,6 +99,61 @@ export async function handleDeleteLap(
   try {
     await db.deleteLap(createServerClient(), lapId);
     return { ok: true };
+  } catch (err: any) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function handleEditLapTimestamp(
+  body: { lapId: string; timestamp: string },
+  inputPassword: string,
+  serverPassword: string
+): Promise<Result> {
+  const authErr = requireAuth(inputPassword, serverPassword);
+  if (authErr) return { ok: false, error: authErr };
+
+  if (!body.lapId) return { ok: false, error: "Lap ID is required" };
+
+  const tsErr = validateTimestamp(body.timestamp);
+  if (tsErr) return { ok: false, error: tsErr };
+
+  try {
+    const lap = await db.updateLapTimestamp(
+      createServerClient(),
+      body.lapId,
+      body.timestamp
+    );
+    return { ok: true, data: lap };
+  } catch (err: any) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function handleInsertBackdatedLap(
+  body: { runnerId: string; timestamp: string },
+  inputPassword: string,
+  serverPassword: string
+): Promise<Result> {
+  const authErr = requireAuth(inputPassword, serverPassword);
+  if (authErr) return { ok: false, error: authErr };
+
+  if (!body.runnerId) return { ok: false, error: "Runner ID is required" };
+
+  const tsErr = validateTimestamp(body.timestamp);
+  if (tsErr) return { ok: false, error: tsErr };
+
+  try {
+    const supabase = createServerClient();
+    const existingLaps = await db.getLapsForRunner(supabase, body.runnerId);
+    const { newLapNumber, updates } = renumberLaps(existingLaps, body.timestamp);
+    const lap = await db.insertBackdatedLap(
+      supabase,
+      body.runnerId,
+      body.timestamp,
+      newLapNumber,
+      updates
+    );
+    return { ok: true, data: lap };
   } catch (err: any) {
     return { ok: false, error: err.message };
   }
