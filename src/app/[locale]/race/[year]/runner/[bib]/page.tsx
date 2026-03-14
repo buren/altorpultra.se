@@ -9,6 +9,7 @@ import { site } from "@/lib/config";
 import { supabase } from "@/lib/race/supabase";
 import { ArrowLeft } from "lucide-react";
 import { LapTimeChart } from "@/components/race/LapTimeChart";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
@@ -103,9 +104,12 @@ export default function RunnerPage() {
             <h1 className="text-2xl font-bold">{site.name} {edition.year}</h1>
             <p className="text-gray-400 text-sm">{t('liveResults')}</p>
           </div>
-          <Link href={leaderboardHref} className="bg-gray-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600">
-            {t('viewLeaderboard')}
-          </Link>
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher scrolled={false} />
+            <Link href={leaderboardHref} className="bg-gray-700 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-gray-600">
+              {t('viewLeaderboard')}
+            </Link>
+          </div>
         </div>
       </header>
 

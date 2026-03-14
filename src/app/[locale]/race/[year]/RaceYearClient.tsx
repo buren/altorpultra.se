@@ -14,6 +14,7 @@ import { supabase } from "@/lib/race/supabase";
 import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
 import { NextLapEstimate } from "@/lib/race/eta";
 import { Search, ChevronDown } from "lucide-react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { LapDistributionChart } from "@/components/race/LapDistributionChart";
 import { LapTimeChart } from "@/components/race/LapTimeChart";
 import { Link } from "@/i18n/navigation";
@@ -634,7 +635,9 @@ export default function RaceYearClient() {
                 : t('results')}
             </p>
           </div>
-          <div className="text-right">
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher scrolled={false} />
+            <div className="text-right">
             {(() => {
               const phase = getRacePhase(
                 edition.startDateTime,
@@ -671,6 +674,7 @@ export default function RaceYearClient() {
                 </span>
               );
             })()}
+            </div>
           </div>
         </div>
       </header>
