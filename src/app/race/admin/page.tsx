@@ -30,6 +30,7 @@ export default function LapsPage() {
   } | null>(null);
   const [editingLapId, setEditingLapId] = useState<string | null>(null);
   const [editTimestamp, setEditTimestamp] = useState("");
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   const [showBackdated, setShowBackdated] = useState(false);
   const [backdatedBib, setBackdatedBib] = useState("");
   const [backdatedTimestamp, setBackdatedTimestamp] = useState(() =>
@@ -96,7 +97,10 @@ export default function LapsPage() {
       method: "DELETE",
     });
     const data = await res.json();
-    if (data.ok) fetchLaps();
+    if (data.ok) {
+      setConfirmingDeleteId(null);
+      fetchLaps();
+    }
   }
 
   function startEditLap(lap: RecentLap) {
@@ -313,54 +317,78 @@ export default function LapsPage() {
                   className="bg-gray-50 rounded-md px-3 py-2"
                 >
                   <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-mono font-bold text-gray-600">
-                        #{lap.runner_bib}
-                      </span>{" "}
-                      <span className="font-medium">{lap.runner_name}</span>
-                      <span className="text-gray-500 ml-2">
-                        Lap {lap.lap_number}
-                      </span>
+                    <div className="min-w-0">
+                      <div>
+                        <span className="font-mono font-bold text-gray-600">
+                          #{lap.runner_bib}
+                        </span>{" "}
+                        <span className="font-medium">{lap.runner_name}</span>
+                        <span className="text-gray-500 ml-2">
+                          Lap {lap.lap_number}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-400 mt-0.5 sm:hidden">
+                        {formatTimeAgo(lap.timestamp, now)}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-gray-400">
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-sm text-gray-400 hidden sm:inline">
                         {formatTimeAgo(lap.timestamp, now)}
                       </span>
                       <button
                         onClick={() => startEditLap(lap)}
-                        className="text-blue-500 hover:text-blue-700 text-sm font-medium"
+                        className="min-h-[36px] min-w-[44px] inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100"
                       >
                         Edit
                       </button>
-                      <button
-                        onClick={() => handleDeleteLap(lap.id)}
-                        className="text-red-500 hover:text-red-700 text-sm font-medium"
-                      >
-                        Undo
-                      </button>
+                      {confirmingDeleteId === lap.id ? (
+                        <span className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleDeleteLap(lap.id)}
+                            className="min-h-[36px] min-w-[44px] inline-flex items-center justify-center rounded-md bg-red-600 px-3 text-sm font-medium text-white hover:bg-red-700 active:bg-red-800"
+                          >
+                            Confirm
+                          </button>
+                          <button
+                            onClick={() => setConfirmingDeleteId(null)}
+                            className="min-h-[36px] min-w-[44px] inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-3 text-sm font-medium text-gray-500 hover:bg-gray-50 active:bg-gray-100"
+                          >
+                            Cancel
+                          </button>
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmingDeleteId(lap.id)}
+                          className="min-h-[36px] min-w-[44px] inline-flex items-center justify-center rounded-md border border-red-200 bg-white px-3 text-sm font-medium text-red-600 hover:bg-red-50 active:bg-red-100"
+                        >
+                          Undo
+                        </button>
+                      )}
                     </div>
                   </div>
                   {editingLapId === lap.id && (
-                    <div className="mt-2 flex items-center gap-2">
+                    <div className="mt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                       <input
                         type="datetime-local"
                         step="1"
                         value={editTimestamp}
                         onChange={(e) => setEditTimestamp(e.target.value)}
-                        className="border rounded px-2 py-1 text-sm flex-1"
+                        className="border rounded px-2 py-2 text-sm flex-1"
                       />
-                      <button
-                        onClick={() => handleSaveTimestamp(lap.id)}
-                        className="bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium hover:bg-blue-700"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => setEditingLapId(null)}
-                        className="text-gray-500 hover:text-gray-700 text-sm font-medium"
-                      >
-                        Cancel
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleSaveTimestamp(lap.id)}
+                          className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 flex-1 sm:flex-none"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setEditingLapId(null)}
+                          className="text-gray-500 hover:text-gray-700 text-sm font-medium px-4 py-2 rounded border flex-1 sm:flex-none"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
