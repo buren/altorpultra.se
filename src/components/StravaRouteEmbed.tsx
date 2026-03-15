@@ -1,14 +1,32 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function StravaRouteEmbed() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const el = containerRef.current;
+    if (!el) return;
 
-    // Load the Strava embed script
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible || !containerRef.current) return;
+
     const script = document.createElement("script");
     script.src = "https://strava-embeds.com/embed.js";
     script.async = true;
@@ -17,7 +35,7 @@ export default function StravaRouteEmbed() {
     return () => {
       script.remove();
     };
-  }, []);
+  }, [isVisible]);
 
   return (
     <div ref={containerRef}>

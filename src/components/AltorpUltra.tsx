@@ -16,13 +16,15 @@ import {
 
 import altorpPic from '../public/altorp.webp'
 import { QuestionMarkIcon } from "@radix-ui/react-icons"
-import StravaRouteEmbed from "./StravaRouteEmbed"
+import dynamic from "next/dynamic"
 import FAQ from "./FAQ"
 import SectionTitle from "./SectionTitle"
 import RegisterButton from "./RegisterButton"
 import { routePhotos } from "@/lib/route-photos"
 import { edition2025Photos } from "@/lib/edition-2025-photos"
-import PhotoGallery from "./PhotoGallery"
+
+const PhotoGallery = dynamic(() => import("./PhotoGallery"))
+const StravaRouteEmbed = dynamic(() => import("./StravaRouteEmbed"))
 import React from "react"
 import Navbar from "./Navbar"
 import Countdown from "./Countdown"
