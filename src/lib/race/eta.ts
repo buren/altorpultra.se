@@ -11,12 +11,36 @@ export interface NextLapEstimate {
 
 export function estimateNextLapSeconds(durations: number[]): number | null {
   if (durations.length === 0) return null;
-  if (durations.length === 1) return durations[0];
-  if (durations.length === 2) return (durations[0] + durations[1]) / 2;
+
+  // Take last 5 laps for outlier detection
+  const recent = durations.slice(-5);
+
+  // Filter out break laps (> 1.5x median of recent window)
+  const filtered = filterBreakLaps(recent);
+
+  if (filtered.length === 0) return median(recent);
+  if (filtered.length === 1) return filtered[0];
+  if (filtered.length === 2) return (filtered[0] + filtered[1]) / 2;
 
   // Weighted average of last 3: weights 1, 2, 3 (oldest to newest)
-  const last3 = durations.slice(-3);
+  const last3 = filtered.slice(-3);
   return (last3[0] * 1 + last3[1] * 2 + last3[2] * 3) / 6;
+}
+
+function median(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? (sorted[mid - 1] + sorted[mid]) / 2
+    : sorted[mid];
+}
+
+function filterBreakLaps(durations: number[]): number[] {
+  if (durations.length <= 1) return durations;
+  const med = median(durations);
+  const threshold = med * 1.5;
+  const filtered = durations.filter((d) => d <= threshold);
+  return filtered.length > 0 ? filtered : durations;
 }
 
 export function buildNextRunnersList(

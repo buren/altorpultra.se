@@ -51,6 +51,43 @@ describe("estimateNextLapSeconds", () => {
     // (3000*1 + 2700*2 + 2100*3) / 6 = (3000 + 5400 + 6300) / 6 = 14700 / 6 = 2450
     expect(estimateNextLapSeconds([9999, 3000, 2700, 2100])).toBe(2450);
   });
+
+  it("filters out break laps that exceed 1.5x median of last 5", () => {
+    // Normal laps ~2400s, one break lap at 5000s
+    // Last 5: [2400, 2400, 5000, 2400, 2400]
+    // Median of last 5 = 2400, threshold = 3600
+    // After filtering: [2400, 2400, 2400, 2400] — last 3: [2400, 2400, 2400]
+    // Weighted avg = 2400
+    expect(estimateNextLapSeconds([2400, 2400, 5000, 2400, 2400])).toBe(2400);
+  });
+
+  it("falls back to median when all laps exceed threshold (impossible in practice but safe)", () => {
+    // If somehow all last-5 laps are outliers relative to median, fall back to median
+    // With [3000, 3000, 3000] — median is 3000, threshold 4500, none filtered
+    // Weighted avg of last 3: (3000*1 + 3000*2 + 3000*3) / 6 = 3000
+    expect(estimateNextLapSeconds([3000, 3000, 3000])).toBe(3000);
+  });
+
+  it("handles break lap as the most recent lap", () => {
+    // Last 5: [2400, 2500, 2400, 2500, 6000]
+    // Median = 2500, threshold = 3750
+    // After filtering: [2400, 2500, 2400, 2500] — last 3: [2500, 2400, 2500]
+    // Weighted: (2500*1 + 2400*2 + 2500*3) / 6 = (2500 + 4800 + 7500) / 6 = 14800/6 ≈ 2466.67
+    expect(estimateNextLapSeconds([2400, 2500, 2400, 2500, 6000])).toBeCloseTo(
+      2466.67,
+      0
+    );
+  });
+
+  it("preserves gradual pace degradation (no false filtering)", () => {
+    // Runner slowing: 2400, 2700, 3000, 3200, 3400
+    // Median of last 5 = 3000, threshold = 4500
+    // None filtered. Last 3: [3000, 3200, 3400]
+    // Weighted: (3000*1 + 3200*2 + 3400*3) / 6 = (3000 + 6400 + 10200) / 6 = 19600/6 ≈ 3266.67
+    expect(
+      estimateNextLapSeconds([2400, 2700, 3000, 3200, 3400])
+    ).toBeCloseTo(3266.67, 0);
+  });
 });
 
 describe("buildNextRunnersList", () => {
