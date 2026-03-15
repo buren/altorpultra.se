@@ -82,5 +82,41 @@ export default async function ArchivePage() {
   // Sort newest first
   summaries.sort((a, b) => b.year - a.year);
 
-  return <ArchiveClient summaries={summaries} />;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: `${site.name} — Results Archive`,
+    itemListElement: summaries.map((s, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "SportsEvent",
+        name: `${site.name} ${s.year}`,
+        startDate: s.date,
+        url: `${site.website}/race/${s.year}`,
+        location: {
+          "@type": "Place",
+          name: "Altorp",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "Djursholm",
+            addressRegion: site.region,
+            addressCountry: "SE",
+          },
+        },
+        sport: "Ultramarathon",
+        description: `${s.durationHours}-hour ultramarathon. ${s.runnerCount} runners, ${s.totalLaps} laps, ${s.totalDistanceKm} km total.`,
+      },
+    })),
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ArchiveClient summaries={summaries} />
+    </>
+  );
 }
