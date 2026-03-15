@@ -8,6 +8,7 @@ import {
   formatLapTime,
   formatTimestamp,
   formatLastCompleted,
+  formatTimeAgo,
 } from "@/lib/race/format";
 import { site } from "@/lib/config";
 import { supabase } from "@/lib/race/supabase";
@@ -88,44 +89,119 @@ function NextRunnersCard({
   year: number;
   t: ReturnType<typeof useTranslations<'race'>>;
 }) {
-  if (nextRunners.length === 0) return null;
-
   return (
     <Card>
       <CardContent className="p-4">
         <h2 className="text-lg font-bold mb-3">{t('comingThroughNext')}</h2>
-        <div className="divide-y divide-gray-100">
-          {nextRunners.map((est) => (
-            <div
-              key={est.runner.id}
-              className="flex items-center justify-between py-2"
-            >
-              <div className="flex items-center gap-3">
-                <span className="font-mono font-bold text-gray-500 w-8 text-right">
-                  {est.runner.bib}
-                </span>
-                <Link
-                  href={`/race/${year}/runner/${est.runner.bib}`}
-                  className="font-medium hover:underline"
+        {nextRunners.length === 0 ? (
+          <p className="text-sm text-gray-400 py-4 text-center">{t('noExpectedRunners')}</p>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {nextRunners.map((est) => (
+              <div
+                key={est.runner.id}
+                className="flex items-center justify-between py-2"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="font-mono font-bold text-gray-500 w-8 text-right">
+                    {est.runner.bib}
+                  </span>
+                  <Link
+                    href={`/race/${year}/runner/${est.runner.bib}`}
+                    className="font-medium hover:underline"
+                  >
+                    {est.runner.name}
+                  </Link>
+                  <span className="text-xs text-gray-400">
+                    {t('lap', { number: est.nextLapNumber })}
+                  </span>
+                </div>
+                <span
+                  className={`text-sm font-medium ${
+                    formatEta(est.estimatedTimestamp, now, t) === t('anyMoment')
+                      ? "text-green-600"
+                      : "text-gray-600"
+                  }`}
                 >
-                  {est.runner.name}
-                </Link>
-                <span className="text-xs text-gray-400">
-                  {t('lap', { number: est.nextLapNumber })}
+                  {formatEta(est.estimatedTimestamp, now, t)}
                 </span>
               </div>
-              <span
-                className={`text-sm font-medium ${
-                  formatEta(est.estimatedTimestamp, now, t) === t('anyMoment')
-                    ? "text-green-600"
-                    : "text-gray-600"
-                }`}
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+interface RecentLap {
+  runner: LeaderboardEntry["runner"];
+  lapNumber: number;
+  timestamp: string;
+}
+
+function getRecentLaps(leaderboard: LeaderboardEntry[], count: number): RecentLap[] {
+  const allLaps: RecentLap[] = [];
+  for (const entry of leaderboard) {
+    for (const lap of entry.laps) {
+      allLaps.push({
+        runner: entry.runner,
+        lapNumber: lap.lap_number,
+        timestamp: lap.timestamp,
+      });
+    }
+  }
+  allLaps.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  return allLaps.slice(0, count);
+}
+
+function RecentLapsCard({
+  leaderboard,
+  now,
+  year,
+  t,
+}: {
+  leaderboard: LeaderboardEntry[];
+  now: Date;
+  year: number;
+  t: ReturnType<typeof useTranslations<'race'>>;
+}) {
+  const recentLaps = getRecentLaps(leaderboard, 10);
+
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <h2 className="text-lg font-bold mb-3">{t('recentLaps')}</h2>
+        {recentLaps.length === 0 ? (
+          <p className="text-sm text-gray-400 py-4 text-center">{t('noRecentLaps')}</p>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {recentLaps.map((lap) => (
+              <div
+                key={`${lap.runner.id}-${lap.lapNumber}`}
+                className="flex items-center justify-between py-2"
               >
-                {formatEta(est.estimatedTimestamp, now, t)}
-              </span>
-            </div>
-          ))}
-        </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-mono font-bold text-gray-500 w-8 text-right">
+                    {lap.runner.bib}
+                  </span>
+                  <Link
+                    href={`/race/${year}/runner/${lap.runner.bib}`}
+                    className="font-medium hover:underline"
+                  >
+                    {lap.runner.name}
+                  </Link>
+                  <span className="text-xs text-gray-400">
+                    {t('lap', { number: lap.lapNumber })}
+                  </span>
+                </div>
+                <span className="text-sm text-gray-600">
+                  {formatTimeAgo(lap.timestamp, now)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -705,7 +781,10 @@ export default function RaceYearClient() {
         </div>
 
         {getRacePhase(edition.startDateTime, edition.endDateTime, now) === "during" && (
-          <NextRunnersCard nextRunners={data.nextRunners} now={now} year={year} t={t} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <NextRunnersCard nextRunners={data.nextRunners} now={now} year={year} t={t} />
+            <RecentLapsCard leaderboard={data.leaderboard} now={now} year={year} t={t} />
+          </div>
         )}
 
         <LeaderboardTable
