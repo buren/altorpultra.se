@@ -75,6 +75,7 @@
     "registerOnRaceID": "Registrera dig på RaceID",
     "routeOnStrava": "Rutt på Strava",
     "editions": "Utgåvor",
+    "allResults": "Alla resultat",
     "contact": "Kontakt"
   },
   "info": {
@@ -157,6 +158,15 @@
     "avg": "Snitt",
     "share": "Dela",
     "linkCopied": "Länk kopierad!"
+  },
+  "archive": {
+    "title": "Resultatarkiv",
+    "subtitle": "Resultatarkiv",
+    "noEditions": "Inga utgåvor hittades.",
+    "upcoming": "Kommande",
+    "loop": "slinga",
+    "runners": "löpare",
+    "laps": "varv"
   },
   "runner": {
     "liveResults": "Liveresultat",

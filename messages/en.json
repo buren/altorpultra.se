@@ -75,6 +75,7 @@
     "registerOnRaceID": "Register on RaceID",
     "routeOnStrava": "Route on Strava",
     "editions": "Editions",
+    "allResults": "All Results",
     "contact": "Contact"
   },
   "info": {
@@ -157,6 +158,15 @@
     "avg": "Avg",
     "share": "Share",
     "linkCopied": "Link copied!"
+  },
+  "archive": {
+    "title": "Results Archive",
+    "subtitle": "Results Archive",
+    "noEditions": "No editions found.",
+    "upcoming": "Upcoming",
+    "loop": "loop",
+    "runners": "runners",
+    "laps": "laps"
   },
   "runner": {
     "liveResults": "Live Results",

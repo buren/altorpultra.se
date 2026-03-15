@@ -65,6 +65,11 @@ export default function Footer({ durationHours, stravaRoute, raceIdUrl, googleMa
             <div>
               <h4 className="font-semibold mb-3 text-gray-300">{t('editions')}</h4>
               <ul className="space-y-2 text-sm text-gray-400">
+                <li>
+                  <Link href="/race/archive" className="hover:text-white transition-colors">
+                    {t('allResults')}
+                  </Link>
+                </li>
                 {publishedYears.map((year) => (
                   <li key={year}>
                     <Link href={`/race/${year}`} className="hover:text-white transition-colors">
