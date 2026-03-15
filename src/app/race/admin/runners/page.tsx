@@ -9,6 +9,7 @@ import {
   validateStartlistRows,
   StartlistRow,
 } from "@/lib/race/import-startlist";
+import { getNextBibNumber } from "@/lib/race/services";
 
 export default function RunnersPage() {
   const [runners, setRunners] = useState<Runner[]>([]);
@@ -31,6 +32,8 @@ export default function RunnersPage() {
   const [importError, setImportError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [autoGenerateBibs, setAutoGenerateBibs] = useState(false);
+  const rawImportRows = useRef<StartlistRow[] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchRunners = useCallback(async () => {
@@ -105,9 +108,19 @@ export default function RunnersPage() {
     }
   }
 
+  function applyBibStrategy(
+    rows: StartlistRow[],
+    autoGenerate: boolean
+  ): StartlistRow[] {
+    if (!autoGenerate) return rows;
+    const startBib = getNextBibNumber(runners);
+    return rows.map((r, i) => ({ ...r, bib: startBib + i }));
+  }
+
   async function handleImportFile(file: File) {
     setImportError(null);
     setImportRows(null);
+    rawImportRows.current = null;
 
     if (!file.name.endsWith(".xlsx")) {
       setImportError("Only .xlsx files are supported");
@@ -116,7 +129,9 @@ export default function RunnersPage() {
 
     try {
       const buffer = await file.arrayBuffer();
-      const rows = await parseStartlistBuffer(buffer);
+      const parsed = await parseStartlistBuffer(buffer);
+      rawImportRows.current = parsed;
+      const rows = applyBibStrategy(parsed, autoGenerateBibs);
       const err = validateStartlistRows(rows, runners);
       if (err) {
         setImportError(err);
@@ -290,6 +305,33 @@ export default function RunnersPage() {
               }}
             />
           </div>
+
+          <label className="flex items-center gap-2 mt-3 text-sm text-gray-700 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={autoGenerateBibs}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setAutoGenerateBibs(checked);
+                if (rawImportRows.current) {
+                  const rows = applyBibStrategy(
+                    rawImportRows.current,
+                    checked
+                  );
+                  const err = validateStartlistRows(rows, runners);
+                  if (err) {
+                    setImportError(err);
+                    setImportRows(null);
+                  } else {
+                    setImportError(null);
+                    setImportRows(rows);
+                  }
+                }
+              }}
+              className="rounded border-gray-300"
+            />
+            Auto-generate new bibs
+          </label>
 
           {importError && (
             <p className="mt-3 text-sm font-medium text-red-600">
