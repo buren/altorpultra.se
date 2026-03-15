@@ -179,6 +179,8 @@
     "backToLeaderboard": "Back to leaderboard",
     "loading": "Loading...",
     "lapTimeProgression": "Lap Time Progression",
-    "avg": "Avg"
+    "avg": "Avg",
+    "share": "Share",
+    "linkCopied": "Link copied!"
   }
 }
