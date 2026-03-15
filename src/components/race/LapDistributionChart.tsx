@@ -31,8 +31,11 @@ export function LapDistributionChart({
 
     const counts = new Map<number, number>();
     for (const e of entries) {
+      if (e.totalLaps === 0) continue;
       counts.set(e.totalLaps, (counts.get(e.totalLaps) ?? 0) + 1);
     }
+
+    if (counts.size === 0) return [];
 
     const min = Math.min(...counts.keys());
     const max = Math.max(...counts.keys());
