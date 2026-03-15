@@ -154,7 +154,9 @@
     "lapDistribution": "Varvfördelning",
     "runners": "Löpare",
     "lapTimeProgression": "Varvtidsutveckling",
-    "avg": "Snitt"
+    "avg": "Snitt",
+    "share": "Dela",
+    "linkCopied": "Länk kopierad!"
   },
   "runner": {
     "liveResults": "Liveresultat",

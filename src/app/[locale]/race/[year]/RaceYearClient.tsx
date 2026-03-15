@@ -14,7 +14,7 @@ import { site } from "@/lib/config";
 import { supabase } from "@/lib/race/supabase";
 import { getRacePhase, secondsUntil, formatDuration } from "@/lib/race/clock";
 import { NextLapEstimate } from "@/lib/race/eta";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, Share2, Check } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { LapDistributionChart } from "@/components/race/LapDistributionChart";
 import { LapTimeChart } from "@/components/race/LapTimeChart";
@@ -592,6 +592,7 @@ export default function RaceYearClient() {
   const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(new Date());
   const [availableYears, setAvailableYears] = useState<number[]>([]);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
@@ -647,6 +648,28 @@ export default function RaceYearClient() {
       supabase.removeChannel(channel);
     };
   }, [fetchData, year]);
+
+  async function handleShare() {
+    const url = window.location.href;
+    const title = `${site.name} ${year} — ${t('liveResults')}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch {
+        // User cancelled or share failed — fall through to clipboard
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API not available
+    }
+  }
 
   if (error) {
     return (
@@ -715,6 +738,14 @@ export default function RaceYearClient() {
             </p>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors"
+              title={t('share')}
+            >
+              {copied ? <Check className="h-4 w-4 text-green-400" /> : <Share2 className="h-4 w-4" />}
+              <span className="text-sm hidden sm:inline">{copied ? t('linkCopied') : t('share')}</span>
+            </button>
             <LanguageSwitcher scrolled={false} />
             <div className="text-right">
             {(() => {

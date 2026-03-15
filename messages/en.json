@@ -154,7 +154,9 @@
     "lapDistribution": "Lap Distribution",
     "runners": "Runners",
     "lapTimeProgression": "Lap Time Progression",
-    "avg": "Avg"
+    "avg": "Avg",
+    "share": "Share",
+    "linkCopied": "Link copied!"
   },
   "runner": {
     "liveResults": "Live Results",
