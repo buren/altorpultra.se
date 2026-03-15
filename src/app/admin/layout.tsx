@@ -121,9 +121,9 @@ export default function AdminLayout({
   }
 
   const navLinks = [
-    { href: "/race/admin", label: "Register Laps" },
-    { href: "/race/admin/runners", label: "Runners" },
-    { href: "/race/admin/editions", label: "Editions" },
+    { href: "/admin", label: "Register Laps" },
+    { href: "/admin/runners", label: "Runners" },
+    { href: "/admin/editions", label: "Editions" },
   ];
 
   const raceTimer = (() => {
@@ -163,7 +163,7 @@ export default function AdminLayout({
           {/* Desktop header */}
           <div className="hidden md:flex items-center justify-between">
             <div className="flex items-center gap-6">
-              <Link href="/race/admin">
+              <Link href="/admin">
                 <h1 className="text-xl font-bold">{site.name} Admin</h1>
                 <p className="text-gray-400 text-sm">{editionYear}</p>
               </Link>
@@ -198,7 +198,7 @@ export default function AdminLayout({
           {/* Mobile header */}
           <div className="md:hidden">
             <div className="flex items-center justify-between">
-              <Link href="/race/admin">
+              <Link href="/admin">
                 <h1 className="text-lg font-bold">{site.name} Admin</h1>
                 <p className="text-gray-400 text-xs">{editionYear}</p>
               </Link>

@@ -64,9 +64,9 @@ The site includes a live race tracking system:
 - `/race` — Redirects to current edition's leaderboard
 - `/race/:year` — Leaderboard for a specific edition with real-time results
 - `/race/:year/runner/:bib` — Individual runner detail page
-- `/race/admin` — Admin dashboard for registering laps
-- `/race/admin/runners` — Manage runners
-- `/race/admin/editions` — Manage editions (create, edit, publish, duplicate)
+- `/admin` — Admin dashboard for registering laps
+- `/admin/runners` — Manage runners
+- `/admin/editions` — Manage editions (create, edit, publish, duplicate)
 
 Race data is stored in Supabase. Admin access is protected by a shared password (`RACE_ADMIN_PASSWORD` env var).
 
@@ -74,7 +74,7 @@ Race data is stored in Supabase. Admin access is protected by a shared password 
 
 Edition data (dates, prices, routes, map links) is stored in the Supabase `editions` table — there are no hardcoded edition values in the codebase. To set up a new edition:
 
-1. **Create a new edition** — Go to `/race/admin/editions` and either duplicate last year's edition or create one from scratch. Fill in all fields (date, times, price, route links, etc.).
+1. **Create a new edition** — Go to `/admin/editions` and either duplicate last year's edition or create one from scratch. Fill in all fields (date, times, price, route links, etc.).
 
 2. **Publish** — Click "Publish" when the edition is ready to go live. The site automatically resolves and displays the current edition based on dates.
 

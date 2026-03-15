@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Altorp Ultra — Race Admin",
     short_name: "Altorp Ultra",
     description: "Race administration for Altorp Ultra",
-    start_url: "/race/admin",
+    start_url: "/admin",
     display: "standalone",
     background_color: "#ffffff",
     theme_color: "#111827",
@@ -17,7 +17,7 @@ export default function manifest(): MetadataRoute.Manifest {
     shortcuts: [
       {
         name: "Register Laps",
-        url: "/race/admin",
+        url: "/admin",
         description: "Register laps for runners",
       },
       {
