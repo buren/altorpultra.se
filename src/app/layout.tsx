@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
+import { Manrope } from "next/font/google";
 import "./globals.css";
 
 import { site } from "@/lib/config";
+
+const manrope = Manrope({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.website),
@@ -25,14 +29,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
-    <html>
-      <body>{children}</body>
+    <html lang={locale} className="scroll-smooth">
+      <body className={`${manrope.className} antialiased`}>{children}</body>
     </html>
   );
 }
