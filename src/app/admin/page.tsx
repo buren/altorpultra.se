@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Lap } from "@/lib/race/types";
 import { formatTimeAgo } from "@/lib/race/format";
+import { QrScannerOverlay } from "@/components/admin/qr-scanner-overlay";
 
 interface RecentLap extends Lap {
   runner_name: string;
@@ -41,6 +42,7 @@ export default function LapsPage() {
     type: "success" | "error";
   } | null>(null);
   const [highlightLapId, setHighlightLapId] = useState<string | null>(null);
+  const [scannerOpen, setScannerOpen] = useState(false);
   const bibRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -208,6 +210,16 @@ export default function LapsPage() {
               className="bg-green-600 text-white px-6 py-3 rounded-md font-semibold text-lg hover:bg-green-700 w-full sm:w-auto"
             >
               Register
+            </button>
+            <button
+              type="button"
+              onClick={() => setScannerOpen(true)}
+              className="bg-gray-800 text-white px-4 py-3 rounded-md font-semibold text-lg hover:bg-gray-900 w-full sm:w-auto flex items-center justify-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 9V6a3 3 0 013-3h3M21 9V6a3 3 0 00-3-3h-3M3 15v3a3 3 0 003 3h3M21 15v3a3 3 0 01-3 3h-3" />
+              </svg>
+              Scan
             </button>
           </form>
           {lapMessage && (
@@ -408,6 +420,12 @@ export default function LapsPage() {
           )}
         </CardContent>
       </Card>
+      {scannerOpen && (
+        <QrScannerOverlay
+          onClose={() => setScannerOpen(false)}
+          fetchLaps={fetchLaps}
+        />
+      )}
     </main>
   );
 }
