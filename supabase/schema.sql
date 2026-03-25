@@ -45,3 +45,12 @@ create index if not exists idx_runners_edition_year on runners(edition_year);
 -- Enable realtime for leaderboard
 alter publication supabase_realtime add table laps;
 alter publication supabase_realtime add table runners;
+
+-- Row Level Security: public read, writes only via service role
+alter table public.laps enable row level security;
+alter table public.runners enable row level security;
+alter table public.editions enable row level security;
+
+create policy "Allow public read access" on public.laps for select using (true);
+create policy "Allow public read access" on public.runners for select using (true);
+create policy "Allow public read access" on public.editions for select using (true);
