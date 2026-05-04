@@ -85,6 +85,8 @@
     "hangArea": "We'll make sure there's a great hangout area at the start/finish with nice music, snacks, and barbecue!",
     "startTimeLabel": "Start time",
     "startTimeText": "The race starts at {startTime} and runs until {endTime}, Saturday May 9 {year}.",
+    "kidsRaceLabel": "Kids race",
+    "kidsRaceText": "Before the start we run a short kids race at 09:30 — all kids welcome, no registration needed.",
     "howToFindLabel": "How do I find the start?",
     "howToFindText1": "Here is a <link>Google Maps pin</link> to where the start is.",
     "howToFindText2": "If you take public transport, you can get here with Roslagsbanan towards Näsbypark from Tekniska Högskolan in under 15 minutes. It's barely 200 meters to the start from the station.",

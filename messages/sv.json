@@ -85,6 +85,8 @@
     "hangArea": "Vi kommer se till att det blir bra häng i start/mål området med nice musik, snacks och grill!",
     "startTimeLabel": "Starttid",
     "startTimeText": "Loppet startar {startTime} och pågår till {endTime}, lördag 9 maj {year}.",
+    "kidsRaceLabel": "Barnlopp",
+    "kidsRaceText": "Innan starten kör vi ett kort barnlopp kl 09:30 – alla barn välkomna, ingen anmälan.",
     "howToFindLabel": "Hur hittar jag till starten?",
     "howToFindText1": "Här är en <link>Google Maps pin</link> till där starten går.",
     "howToFindText2": "Åker ni kommunalt så kan ni ta er hit med Roslagsbanan mot Näsbypark från Tekniska Högskolan på under 15 minuter. Det är knappt 200 meter till starten från stationen.",

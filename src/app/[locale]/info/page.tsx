@@ -46,6 +46,8 @@ export default async function Info({ params }: { params: Promise<{ locale: strin
               <br />
               <p><strong>{t('startTimeLabel')}</strong> {t('startTimeText', { startTime: edition.startTime, endTime: edition.endTime, year: edition.year })}</p>
               <br />
+              <p><strong>{t('kidsRaceLabel')}:</strong> {t('kidsRaceText')}</p>
+              <br />
               <p><strong>{t('howToFindLabel')}</strong></p>
               <p>{t.rich('howToFindText1', {
                 link: (chunks) => <a className="underline text-blue-600" href={edition.googleMaps.startPin}>{chunks}</a>,
