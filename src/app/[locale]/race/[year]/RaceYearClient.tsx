@@ -723,7 +723,7 @@ export default function RaceYearClient() {
       <header className="bg-gray-900 text-white px-4 py-4">
         <div className="container mx-auto flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
               <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <img src="/logo.png" alt="Altorp Ultra logo" width={32} height={32} className="rounded-full invert" />
                 <h1 className="text-2xl font-bold">
@@ -753,17 +753,19 @@ export default function RaceYearClient() {
                 : t('results')}
             </p>
           </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleShare}
-              className="flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors"
-              title={t('share')}
-            >
-              {copied ? <Check className="h-4 w-4 text-green-400" /> : <Share2 className="h-4 w-4" />}
-              <span className="text-sm hidden sm:inline">{copied ? t('linkCopied') : t('share')}</span>
-            </button>
-            <LanguageSwitcher scrolled={false} />
-            <div className="text-right">
+          <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex items-center gap-4 order-2 sm:order-none">
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1.5 text-gray-400 hover:text-white transition-colors"
+                title={t('share')}
+              >
+                {copied ? <Check className="h-4 w-4 text-green-400" /> : <Share2 className="h-4 w-4" />}
+                <span className="text-sm hidden sm:inline">{copied ? t('linkCopied') : t('share')}</span>
+              </button>
+              <LanguageSwitcher scrolled={false} />
+            </div>
+            <div className="text-right order-1 sm:order-none">
             {(() => {
               const phase = getRacePhase(
                 edition.startDateTime,
