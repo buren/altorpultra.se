@@ -5,6 +5,7 @@ import {
   handleDeleteLap,
   handleEditLapTimestamp,
   handleInsertBackdatedLap,
+  handleSetRunnerStopped,
   handleAuth,
   Result,
 } from "./api-handlers";
@@ -18,6 +19,7 @@ vi.mock("./db", () => ({
   updateLapTimestamp: vi.fn(),
   getLapsForRunner: vi.fn(),
   insertBackdatedLap: vi.fn(),
+  setRunnerStopped: vi.fn(),
 }));
 
 // Mock supabase server module
@@ -82,7 +84,7 @@ describe("handleRegisterLap", () => {
   it("calls registerLap and returns result on success", async () => {
     const mockResult = {
       lap: { id: "l1", runner_id: "r1", lap_number: 3, timestamp: "2026-05-09T11:00:00Z" },
-      runner: { id: "r1", bib: 42, name: "Alice", gender: "female" as const, notes: null, edition_year: 2026 },
+      runner: { id: "r1", bib: 42, name: "Alice", gender: "female" as const, notes: null, edition_year: 2026, stopped_at: null },
     };
     vi.mocked(db.registerLap).mockResolvedValue(mockResult);
 
@@ -155,6 +157,7 @@ describe("handleAddRunner", () => {
       gender: "female" as const,
       notes: null,
       edition_year: 2026,
+      stopped_at: null,
     };
     vi.mocked(db.addRunner).mockResolvedValue(mockRunner);
 
@@ -171,7 +174,7 @@ describe("handleAddRunner", () => {
 
   it("auto-assigns next bib number when bib is omitted", async () => {
     vi.mocked(db.getRunners).mockResolvedValue([
-      { id: "r1", bib: 3, name: "Existing", gender: "male", notes: null, edition_year: 2026 },
+      { id: "r1", bib: 3, name: "Existing", gender: "male", notes: null, edition_year: 2026, stopped_at: null },
     ]);
     vi.mocked(db.addRunner).mockImplementation(async (_sb, runner) => ({
       id: "r2",
@@ -209,7 +212,7 @@ describe("handleAddRunner", () => {
 
   it("returns error when bib number is already in use", async () => {
     vi.mocked(db.getRunners).mockResolvedValue([
-      { id: "r1", bib: 5, name: "Existing", gender: "male", notes: null, edition_year: 2026 },
+      { id: "r1", bib: 5, name: "Existing", gender: "male", notes: null, edition_year: 2026, stopped_at: null },
     ]);
 
     const result = await handleAddRunner(
@@ -219,6 +222,60 @@ describe("handleAddRunner", () => {
       ADMIN_PASSWORD
     );
     expectError(result, "Bib number 5 is already in use");
+  });
+});
+
+describe("handleSetRunnerStopped", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns Unauthorized when password is wrong", async () => {
+    const result = await handleSetRunnerStopped(
+      { runnerId: "r1", stopped: true },
+      "wrong",
+      ADMIN_PASSWORD
+    );
+    expectError(result, "Unauthorized");
+  });
+
+  it("returns error when runnerId is missing", async () => {
+    const result = await handleSetRunnerStopped(
+      { stopped: true },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+    expectError(result, "Runner ID is required");
+  });
+
+  it("returns error when stopped is not a boolean", async () => {
+    const result = await handleSetRunnerStopped(
+      { runnerId: "r1" },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+    expectError(result, "stopped must be a boolean");
+  });
+
+  it("calls setRunnerStopped and returns the runner on success", async () => {
+    const mockRunner = {
+      id: "r1",
+      bib: 1,
+      name: "Alice",
+      gender: "female" as const,
+      notes: null,
+      edition_year: 2026,
+      stopped_at: "2026-05-09T13:00:00Z",
+    };
+    vi.mocked(db.setRunnerStopped).mockResolvedValue(mockRunner);
+
+    const result = await handleSetRunnerStopped(
+      { runnerId: "r1", stopped: true },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+
+    const data = expectOk(result);
+    expect(data).toEqual(mockRunner);
+    expect(db.setRunnerStopped).toHaveBeenCalledWith(expect.anything(), "r1", true);
   });
 });
 

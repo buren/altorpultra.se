@@ -25,6 +25,7 @@ create table if not exists runners (
   gender text not null check (gender in ('male', 'female', 'other')),
   notes text,
   edition_year integer not null references editions(year),
+  stopped_at timestamptz,
   created_at timestamptz not null default now(),
   unique (bib, edition_year)
 );

@@ -95,3 +95,18 @@ export function filterByGender(
 ): LeaderboardEntry[] {
   return entries.filter((e) => e.runner.gender === gender);
 }
+
+export function countActiveAndStopped(
+  entries: LeaderboardEntry[]
+): { active: number; stopped: number } {
+  let active = 0;
+  let stopped = 0;
+  for (const entry of entries) {
+    if (entry.runner.stopped_at) {
+      stopped++;
+    } else if (entry.totalLaps >= 1) {
+      active++;
+    }
+  }
+  return { active, stopped };
+}

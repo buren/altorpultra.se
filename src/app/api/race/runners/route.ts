@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { handleAddRunner } from "@/lib/race/api-handlers";
+import { handleAddRunner, handleSetRunnerStopped } from "@/lib/race/api-handlers";
 import { getRunners, updateRunner, deleteRunner, resolveCurrentEditionFromDb, getEdition } from "@/lib/race/db";
 import { createServerClient } from "@/lib/race/supabase-server";
 
@@ -59,6 +59,19 @@ export async function PUT(req: NextRequest) {
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err.message }, { status: 400 });
   }
+}
+
+export async function PATCH(req: NextRequest) {
+  const body = await req.json();
+  const password = req.cookies.get("race_admin")?.value ?? "";
+  const serverPassword = process.env.RACE_ADMIN_PASSWORD ?? "";
+  const result = await handleSetRunnerStopped(body, password, serverPassword);
+
+  if (!result.ok) {
+    const status = result.error === "Unauthorized" ? 401 : 400;
+    return NextResponse.json(result, { status });
+  }
+  return NextResponse.json(result);
 }
 
 export async function DELETE(req: NextRequest) {

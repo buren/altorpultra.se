@@ -3,6 +3,7 @@ import {
   buildLeaderboard,
   filterByGender,
   calcLapDurationsSeconds,
+  countActiveAndStopped,
 } from "./leaderboard";
 import { Runner, Lap } from "./types";
 
@@ -14,6 +15,7 @@ function makeRunner(overrides: Partial<Runner> = {}): Runner {
     gender: "male",
     notes: null,
     edition_year: 2026,
+    stopped_at: null,
     ...overrides,
   };
 }
@@ -140,6 +142,54 @@ describe("calcLapDurationsSeconds", () => {
       makeLap("r1", 2, "2026-05-09T11:25:00+02:00"), // 45 min = 2700s
     ];
     expect(calcLapDurationsSeconds(laps, "2026-05-09T10:00:00+02:00")).toEqual([2400, 2700]);
+  });
+});
+
+describe("countActiveAndStopped", () => {
+  it("returns zeros for empty leaderboard", () => {
+    expect(countActiveAndStopped([])).toEqual({ active: 0, stopped: 0 });
+  });
+
+  it("counts a runner with laps and no stopped_at as active", () => {
+    const runner = makeRunner({ id: "r1" });
+    const laps = [makeLap("r1", 1, "2026-05-09T10:40:00+02:00")];
+    const board = buildLeaderboard([runner], laps, LAP_DISTANCE_KM, LAP_ELEVATION_M);
+    expect(countActiveAndStopped(board)).toEqual({ active: 1, stopped: 0 });
+  });
+
+  it("counts a stopped runner as stopped, not active", () => {
+    const runner = makeRunner({ id: "r1", stopped_at: "2026-05-09T13:00:00+02:00" });
+    const laps = [makeLap("r1", 1, "2026-05-09T10:40:00+02:00")];
+    const board = buildLeaderboard([runner], laps, LAP_DISTANCE_KM, LAP_ELEVATION_M);
+    expect(countActiveAndStopped(board)).toEqual({ active: 0, stopped: 1 });
+  });
+
+  it("excludes zero-lap runners from active count", () => {
+    const runner = makeRunner({ id: "r1" });
+    const board = buildLeaderboard([runner], [], LAP_DISTANCE_KM, LAP_ELEVATION_M);
+    expect(countActiveAndStopped(board)).toEqual({ active: 0, stopped: 0 });
+  });
+
+  it("counts a stopped 0-lap runner as stopped", () => {
+    const runner = makeRunner({ id: "r1", stopped_at: "2026-05-09T13:00:00+02:00" });
+    const board = buildLeaderboard([runner], [], LAP_DISTANCE_KM, LAP_ELEVATION_M);
+    expect(countActiveAndStopped(board)).toEqual({ active: 0, stopped: 1 });
+  });
+
+  it("aggregates a mixed field correctly", () => {
+    const runners = [
+      makeRunner({ id: "r1", bib: 1 }),
+      makeRunner({ id: "r2", bib: 2 }),
+      makeRunner({ id: "r3", bib: 3, stopped_at: "2026-05-09T13:00:00+02:00" }),
+      makeRunner({ id: "r4", bib: 4 }),
+    ];
+    const laps = [
+      makeLap("r1", 1, "2026-05-09T10:40:00+02:00"),
+      makeLap("r2", 1, "2026-05-09T10:42:00+02:00"),
+      makeLap("r3", 1, "2026-05-09T10:45:00+02:00"),
+    ];
+    const board = buildLeaderboard(runners, laps, LAP_DISTANCE_KM, LAP_ELEVATION_M);
+    expect(countActiveAndStopped(board)).toEqual({ active: 2, stopped: 1 });
   });
 });
 

@@ -11,6 +11,7 @@ function makeRunner(overrides: Partial<Runner> = {}): Runner {
     gender: "male",
     notes: null,
     edition_year: 2026,
+    stopped_at: null,
     ...overrides,
   };
 }

@@ -79,6 +79,7 @@ export async function handleAddRunner(
       gender: gender as Gender,
       notes: notes || null,
       edition_year: editionYear,
+      stopped_at: null,
     });
     return { ok: true, data: runner };
   } catch (err: any) {
@@ -124,6 +125,30 @@ export async function handleEditLapTimestamp(
       body.timestamp
     );
     return { ok: true, data: lap };
+  } catch (err: any) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function handleSetRunnerStopped(
+  body: { runnerId?: string; stopped?: boolean },
+  inputPassword: string,
+  serverPassword: string
+): Promise<Result> {
+  const authErr = requireAuth(inputPassword, serverPassword);
+  if (authErr) return { ok: false, error: authErr };
+
+  if (!body.runnerId) return { ok: false, error: "Runner ID is required" };
+  if (typeof body.stopped !== "boolean")
+    return { ok: false, error: "stopped must be a boolean" };
+
+  try {
+    const runner = await db.setRunnerStopped(
+      createServerClient(),
+      body.runnerId,
+      body.stopped
+    );
+    return { ok: true, data: runner };
   } catch (err: any) {
     return { ok: false, error: err.message };
   }

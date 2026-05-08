@@ -160,6 +160,23 @@ export async function deleteRunner(
   if (error) throw error;
 }
 
+export async function setRunnerStopped(
+  supabase: SupabaseClient,
+  runnerId: string,
+  stopped: boolean
+): Promise<Runner> {
+  const stopped_at = stopped ? new Date().toISOString() : null;
+  const { data, error } = await supabase
+    .from("runners")
+    .update({ stopped_at })
+    .eq("id", runnerId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Runner;
+}
+
 export async function getRunners(
   supabase: SupabaseClient,
   editionYear: number
@@ -207,7 +224,20 @@ export async function registerLap(
     .single();
 
   if (lapErr) throw lapErr;
-  return { lap: lap as Lap, runner: runner as Runner };
+
+  // Auto-resume: a fresh lap means the runner is back on course
+  let finalRunner = runner as Runner;
+  if (finalRunner.stopped_at) {
+    const { data: updated } = await supabase
+      .from("runners")
+      .update({ stopped_at: null })
+      .eq("id", finalRunner.id)
+      .select()
+      .single();
+    if (updated) finalRunner = updated as Runner;
+  }
+
+  return { lap: lap as Lap, runner: finalRunner };
 }
 
 export async function deleteLap(

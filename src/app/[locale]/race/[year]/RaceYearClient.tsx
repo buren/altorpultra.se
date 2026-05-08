@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { LeaderboardEntry, Gender } from "@/lib/race/types";
+import { countActiveAndStopped } from "@/lib/race/leaderboard";
 import {
   formatLapTime,
   formatTimestamp,
@@ -335,10 +336,12 @@ function LeaderboardTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {visibleEntries.map(({ entry: e, rank }) => (
+            {visibleEntries.map(({ entry: e, rank }) => {
+              const isStopped = !!e.runner.stopped_at;
+              return (
               <React.Fragment key={e.runner.id}>
                 <tr
-                  className="hover:bg-gray-50 cursor-pointer"
+                  className={`hover:bg-gray-50 cursor-pointer ${isStopped ? "text-gray-400" : ""}`}
                   onClick={() =>
                     setExpandedId(
                       expandedId === e.runner.id ? null : e.runner.id
@@ -370,6 +373,11 @@ function LeaderboardTable({
                     >
                       {e.runner.name}
                     </Link>
+                    {isStopped && (
+                      <span className="ml-2 inline-block bg-gray-200 text-gray-600 text-xs font-semibold px-1.5 py-0.5 rounded">
+                        {t('stopped')}
+                      </span>
+                    )}
                   </td>
                   <td className="px-3 py-2 text-right font-bold">
                     {e.totalLaps}
@@ -411,6 +419,11 @@ function LeaderboardTable({
                       colSpan={(showGender ? 8 : 7) + (now ? 1 : 0)}
                       className="bg-gray-50 px-6 py-3"
                     >
+                      {isStopped && (
+                        <p className="text-xs text-gray-500 mb-2">
+                          {t('stoppedAt', { time: formatTimestamp(e.runner.stopped_at as string) })}
+                        </p>
+                      )}
                       <p className="text-sm font-semibold text-gray-500 mb-2">
                         #{e.runner.bib} {e.runner.name}
                         <Link
@@ -533,7 +546,8 @@ function LeaderboardTable({
                   </tr>
                 )}
               </React.Fragment>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -701,6 +715,8 @@ export default function RaceYearClient() {
     0
   );
   const courseRecordHolderIds = new Set(data.courseRecordHolderIds);
+  const racePhase = getRacePhase(edition.startDateTime, edition.endDateTime, now);
+  const activeStoppedCounts = countActiveAndStopped(data.leaderboard);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -811,7 +827,25 @@ export default function RaceYearClient() {
           </Card>
         </div>
 
-        {getRacePhase(edition.startDateTime, edition.endDateTime, now) === "during" && (
+        {racePhase === "during" && (activeStoppedCounts.active > 0 || activeStoppedCounts.stopped > 0) && (
+          <p className="text-center text-sm text-gray-600">
+            <span className="font-semibold text-green-700">
+              {activeStoppedCounts.active}
+            </span>{" "}
+            {t('stillRunning')}
+            {activeStoppedCounts.stopped > 0 && (
+              <>
+                {" · "}
+                <span className="font-semibold text-gray-500">
+                  {activeStoppedCounts.stopped}
+                </span>{" "}
+                {t('stopped')}
+              </>
+            )}
+          </p>
+        )}
+
+        {racePhase === "during" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <NextRunnersCard nextRunners={data.nextRunners} now={now} year={year} t={t} />
             <RecentLapsCard leaderboard={data.leaderboard} now={now} year={year} t={t} />

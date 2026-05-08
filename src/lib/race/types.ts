@@ -7,6 +7,7 @@ export interface Runner {
   gender: Gender;
   notes: string | null;
   edition_year: number;
+  stopped_at: string | null;
 }
 
 export interface Lap {

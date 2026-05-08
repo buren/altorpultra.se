@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "description": "Join us for an epic day. Altorp {lapDistanceKm} km loop - \"Långa gula\". {dateFormatted}, {startTime}-{endTime}. As many laps as you can."
+    "description": "Join us for an epic day. Altorp 7 km loop - \"Långa gula\". {dateFormatted}, {startTime}-{endTime}. As many laps as you can."
   },
   "nav": {
     "about": "About",
@@ -24,7 +24,7 @@
   },
   "about": {
     "title": "How many laps can you do?",
-    "text1": "Join us for an epic day of pushing your limits on the beautiful <strong>\"Långa gula\" {lapDistanceKm} km loop</strong> in Altorp. With ~{lapElevationM}m of elevation per lap, it's a fun challenge.",
+    "text1": "Join us for an epic day of pushing your limits on the beautiful <strong>\"Långa gula\" 7 km loop</strong> in Altorp. With ~{lapElevationM}m of elevation per lap, it's a fun challenge.",
     "text2": "This isn't just for serious runners. <strong>Everyone is welcome.</strong> Whether you walk one lap or run twelve, the goal is to challenge yourself, enjoy the forest, and be part of an amazing community. Run, walk, rest, and see what you're capable of in {durationHours} hours."
   },
   "kidsRace": {
@@ -36,7 +36,7 @@
     "title": "More Than a Race",
     "subtitle": "Altorp Ultra is a full day out. Bring your friends and family, hang out, and soak up the atmosphere. Good vibes, good food, and good music.",
     "beautifulScenery": "Beautiful Scenery",
-    "beautifulSceneryDesc": "Run on a stunning {lapDistanceKm}km trail loop through the Altorp forest.",
+    "beautifulSceneryDesc": "Run on a stunning 7km trail loop through the Altorp forest.",
     "greatCommunity": "Great Community",
     "greatCommunityDesc": "Enjoy a friendly, supportive atmosphere with fellow runners.",
     "personalChallenge": "Personal Challenge",
@@ -101,7 +101,7 @@
     "fluidsText": "For everyone participating there will be access to water and simple snacks (chocolate bars, cinnamon buns and similar). For those who really want to push themselves all {durationHours} hours, I recommend bringing your own sports drink and gels. If you have friends and family watching, they can buy snacks at a reasonable price — water is free of course.",
     "grillingText": "In addition to snacks, we plan to grill burgers, hot dogs and the like that you can buy.",
     "courseInfoLabel": "Course information",
-    "courseInfoText": "Each lap is {lapDistanceKm} km and about {lapElevationM} meters of elevation. <stravaLink>Here is the route on Strava</stravaLink> and <mapsLink>here on Google Maps</mapsLink>.",
+    "courseInfoText": "Each lap is 7 km and about {lapElevationM} meters of elevation. <stravaLink>Here is the route on Strava</stravaLink> and <mapsLink>here on Google Maps</mapsLink>.",
     "bibLabel": "Bib/race number",
     "bibText": "Race numbers are distributed from 09:00 on race day.",
     "equipmentLabel": "What equipment do I need?",
@@ -159,7 +159,10 @@
     "lapTimeProgression": "Lap Time Progression",
     "avg": "Avg",
     "share": "Share",
-    "linkCopied": "Link copied!"
+    "linkCopied": "Link copied!",
+    "stillRunning": "still running",
+    "stopped": "Stopped",
+    "stoppedAt": "Stopped at {time}"
   },
   "archive": {
     "title": "Results Archive",

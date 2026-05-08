@@ -134,6 +134,7 @@ describe("validateStartlistRows", () => {
     gender: "male",
     notes: null,
     edition_year: 2026,
+    stopped_at: null,
   });
 
   it("returns null for valid rows with no conflicts", () => {

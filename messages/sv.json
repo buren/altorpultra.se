@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "description": "Häng med på en episk dag. Altorp {lapDistanceKm} km-slinga - \"Långa gula\". {dateFormatted}, {startTime}-{endTime}. Så många varv du kan."
+    "description": "Häng med på en episk dag. Altorp 7 km-slinga - \"Långa gula\". {dateFormatted}, {startTime}-{endTime}. Så många varv du kan."
   },
   "nav": {
     "about": "Om",
@@ -24,7 +24,7 @@
   },
   "about": {
     "title": "Hur många varv klarar du?",
-    "text1": "Häng med på en episk dag av att pusha dina gränser på den vackra <strong>\"Långa gula\" {lapDistanceKm} km-rundan</strong> i Altorp. Med ~{lapElevationM}m höjdmeter per varv blir det en rolig utmaning.",
+    "text1": "Häng med på en episk dag av att pusha dina gränser på den vackra <strong>\"Långa gula\" 7 km-rundan</strong> i Altorp. Med ~{lapElevationM}m höjdmeter per varv blir det en rolig utmaning.",
     "text2": "Det här är inte bara för seriösa löpare. <strong>Alla är välkomna.</strong> Oavsett om du promenerar ett varv eller springer tolv, handlar det om att utmana dig själv, njuta av skogen och vara del av en fantastisk gemenskap. Spring, gå, vila — se vad du klarar av på {durationHours} timmar."
   },
   "kidsRace": {
@@ -36,7 +36,7 @@
     "title": "Mer än ett lopp",
     "subtitle": "Altorp Ultra är en heldag ute. Ta med vänner och familj, häng och njut av stämningen. Bra vibes, bra mat och bra musik.",
     "beautifulScenery": "Vacker natur",
-    "beautifulSceneryDesc": "Spring på en fantastisk {lapDistanceKm}km stigslinga genom Altorpskogen.",
+    "beautifulSceneryDesc": "Spring på en fantastisk 7km stigslinga genom Altorpskogen.",
     "greatCommunity": "Fantastisk gemenskap",
     "greatCommunityDesc": "Njut av en vänlig, stöttande atmosfär med andra löpare.",
     "personalChallenge": "Personlig utmaning",
@@ -101,7 +101,7 @@
     "fluidsText": "För alla som är med kommer det finnas tillgång till vatten och enkla snacks (kexchoklad, kanelbullar och liknande). För er som verkligen vill pusha er själva alla {durationHours} timmarna rekommenderar jag att ni tar med er egen sportdryck och gels. Om ni har vänner och familj med er som tittar på så kommer de få köpa snacks till ett rimligt pris, vatten bjuder vi på såklart.",
     "grillingText": "Utöver snacks så planerar vi grilla burgare, korv och dylikt som man kan köpa.",
     "courseInfoLabel": "Information om banan",
-    "courseInfoText": "Varje varv är {lapDistanceKm} km och drygt {lapElevationM} höjdmeter. <stravaLink>Här finns rutten på Strava</stravaLink> och <mapsLink>här på Google Maps</mapsLink>.",
+    "courseInfoText": "Varje varv är 7 km och drygt {lapElevationM} höjdmeter. <stravaLink>Här finns rutten på Strava</stravaLink> och <mapsLink>här på Google Maps</mapsLink>.",
     "bibLabel": "Bib/nummerlapp",
     "bibText": "Nummerlappar delas ut från kl 09:00 på tävlingsdagen.",
     "equipmentLabel": "Vad behöver jag för utrustning?",
@@ -159,7 +159,10 @@
     "lapTimeProgression": "Varvtidsutveckling",
     "avg": "Snitt",
     "share": "Dela",
-    "linkCopied": "Länk kopierad!"
+    "linkCopied": "Länk kopierad!",
+    "stillRunning": "kvar i loppet",
+    "stopped": "Avbrutit",
+    "stoppedAt": "Avbröt {time}"
   },
   "archive": {
     "title": "Resultatarkiv",

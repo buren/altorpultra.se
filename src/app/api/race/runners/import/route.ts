@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
         gender: r.gender as Gender,
         notes: null,
         edition_year: edition.year,
+        stopped_at: null,
       });
     }
     return NextResponse.json({ ok: true, count: body.runners.length }, { status: 201 });
