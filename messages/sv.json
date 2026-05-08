@@ -162,7 +162,12 @@
     "linkCopied": "Länk kopierad!",
     "stillRunning": "kvar i loppet",
     "stopped": "Avbrutit",
-    "stoppedAt": "Avbröt {time}"
+    "stoppedAt": "Avbröt {time}",
+    "genderOverall": "Totalt",
+    "genderMen": "Män",
+    "genderWomen": "Kvinnor",
+    "leadingMan": "Ledande herre",
+    "leadingWoman": "Ledande dam"
   },
   "archive": {
     "title": "Resultatarkiv",

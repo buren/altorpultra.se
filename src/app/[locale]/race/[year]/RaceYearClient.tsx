@@ -50,6 +50,38 @@ interface LeaderboardData {
   nextRunners: NextLapEstimate[];
 }
 
+function LeaderCard({
+  label,
+  entry,
+  t,
+}: {
+  label: string;
+  entry: LeaderboardEntry | undefined;
+  t: ReturnType<typeof useTranslations<'race'>>;
+}) {
+  return (
+    <Card>
+      <CardContent className="p-4 text-center">
+        <p className="text-xs uppercase tracking-wider text-gray-500 font-semibold">
+          {label}
+        </p>
+        <p className="text-base font-semibold mt-1 truncate">
+          {entry?.runner.name ?? '—'}
+        </p>
+        <p className="text-5xl font-bold mt-3 leading-none">
+          {entry?.totalLaps ?? 0}
+        </p>
+        <p className="text-xs text-gray-500 mt-1">{t('laps')}</p>
+        <p className="text-xs text-gray-600 mt-3">
+          {(entry?.totalDistanceKm ?? 0).toLocaleString()} km
+          {' · '}
+          {(entry?.totalElevationM ?? 0).toLocaleString()} m
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
 function GenderIcon({ gender }: { gender: Gender }) {
   if (gender === "male") return <span title="Male">♂</span>;
   if (gender === "female") return <span title="Female">♀</span>;
@@ -218,11 +250,14 @@ function CourseRecordTag() {
   );
 }
 
+type GenderFilter = "all" | "male" | "female";
+
 function LeaderboardTable({
   entries,
   title,
   showMedals,
   showGender,
+  showGenderPills,
   now,
   paginate,
   lapDistanceKm,
@@ -235,6 +270,7 @@ function LeaderboardTable({
   title: string;
   showMedals?: boolean;
   showGender?: boolean;
+  showGenderPills?: boolean;
   now?: Date;
   paginate?: boolean;
   lapDistanceKm: number;
@@ -247,18 +283,24 @@ function LeaderboardTable({
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [nameFilter, setNameFilter] = useState("");
+  const [genderFilter, setGenderFilter] = useState<GenderFilter>("all");
   const [filterFlash, setFilterFlash] = useState(false);
   const filterRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setPage(0);
-  }, [entries.length, nameFilter]);
+  }, [entries.length, nameFilter, genderFilter]);
 
   if (entries.length === 0) {
     return null;
   }
 
-  const indexedEntries = entries.map((e, i) => ({ entry: e, rank: i + 1 }));
+  const genderFiltered =
+    genderFilter === "all"
+      ? entries
+      : entries.filter((e) => e.runner.gender === genderFilter);
+
+  const indexedEntries = genderFiltered.map((e, i) => ({ entry: e, rank: i + 1 }));
   const filteredEntries = nameFilter
     ? indexedEntries.filter((item) =>
         item.entry.runner.name
@@ -310,13 +352,36 @@ function LeaderboardTable({
           </div>
         )}
       </div>
+      {showGenderPills && (
+        <div className="flex gap-2 mb-3">
+          {(["all", "male", "female"] as GenderFilter[]).map((g) => {
+            const active = genderFilter === g;
+            const label =
+              g === "all" ? t('genderOverall') : g === "male" ? t('genderMen') : t('genderWomen');
+            return (
+              <button
+                key={g}
+                type="button"
+                onClick={() => setGenderFilter(g)}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  active
+                    ? "bg-gray-900 text-white"
+                    : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <table className="w-full text-left">
           <thead className="bg-gray-50 text-sm text-gray-500">
             <tr>
               <th className="px-3 py-2 w-10">#</th>
               <th className="px-3 py-2 w-14">Bib</th>
-              {showGender && <th className="px-3 py-2 w-10"></th>}
+              {showGender && <th className="px-3 py-2 w-10 hidden sm:table-cell"></th>}
               <th className="px-3 py-2">{t('name')}</th>
               <th className="px-3 py-2 text-right">{t('laps')}</th>
               <th className="px-3 py-2 text-right hidden sm:table-cell">
@@ -361,7 +426,7 @@ function LeaderboardTable({
                     {e.runner.bib}
                   </td>
                   {showGender && (
-                    <td className="px-3 py-2 text-gray-500">
+                    <td className="px-3 py-2 text-gray-500 hidden sm:table-cell">
                       <GenderIcon gender={e.runner.gender} />
                     </td>
                   )}
@@ -715,6 +780,8 @@ export default function RaceYearClient() {
     0
   );
   const courseRecordHolderIds = new Set(data.courseRecordHolderIds);
+  const topMan = data.topMen[0];
+  const topWoman = data.topWomen[0];
   const racePhase = getRacePhase(edition.startDateTime, edition.endDateTime, now);
   const activeStoppedCounts = countActiveAndStopped(data.leaderboard);
 
@@ -808,25 +875,17 @@ export default function RaceYearClient() {
       </header>
 
       <main className="container mx-auto px-4 py-6 space-y-6">
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <Card>
-            <CardContent className="p-4">
-              <p className="text-2xl font-bold">{totalLaps}</p>
-              <p className="text-sm text-gray-500">{t('totalLaps')}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <p className="text-2xl font-bold">{totalDistanceKm.toLocaleString()} km</p>
-              <p className="text-sm text-gray-500">{t('totalDistance')}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <p className="text-2xl font-bold">{totalElevationM.toLocaleString()} m</p>
-              <p className="text-sm text-gray-500">{t('totalElevation')}</p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-2 gap-4">
+          <LeaderCard
+            label={t('leadingMan')}
+            entry={topMan}
+            t={t}
+          />
+          <LeaderCard
+            label={t('leadingWoman')}
+            entry={topWoman}
+            t={t}
+          />
         </div>
 
         {racePhase === "during" && (activeStoppedCounts.active > 0 || activeStoppedCounts.stopped > 0) && (
@@ -858,6 +917,7 @@ export default function RaceYearClient() {
           entries={data.leaderboard}
           title={t('overallLeaderboard')}
           showGender
+          showGenderPills
           showMedals
           now={now}
           paginate
@@ -899,6 +959,27 @@ export default function RaceYearClient() {
           runnersLabel={t('runners')}
           lapsLabel={t('laps')}
         />
+
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-2xl font-bold">{totalLaps}</p>
+              <p className="text-sm text-gray-500">{t('totalLaps')}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-2xl font-bold">{totalDistanceKm.toLocaleString()} km</p>
+              <p className="text-sm text-gray-500">{t('totalDistance')}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-2xl font-bold">{totalElevationM.toLocaleString()} m</p>
+              <p className="text-sm text-gray-500">{t('totalElevation')}</p>
+            </CardContent>
+          </Card>
+        </div>
 
         {(data.courseRecords.male || data.courseRecords.female) && (
           <Card>

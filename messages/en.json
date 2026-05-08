@@ -162,7 +162,12 @@
     "linkCopied": "Link copied!",
     "stillRunning": "still running",
     "stopped": "Stopped",
-    "stoppedAt": "Stopped at {time}"
+    "stoppedAt": "Stopped at {time}",
+    "genderOverall": "Overall",
+    "genderMen": "Men",
+    "genderWomen": "Women",
+    "leadingMan": "Leading Man",
+    "leadingWoman": "Leading Woman"
   },
   "archive": {
     "title": "Results Archive",

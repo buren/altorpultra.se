@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Lap, LeaderboardEntry } from "@/lib/race/types";
+import { countActiveAndStopped } from "@/lib/race/leaderboard";
 import { formatTimeAgo } from "@/lib/race/format";
 import { QrScannerOverlay } from "@/components/admin/qr-scanner-overlay";
 
@@ -45,6 +46,8 @@ export default function LapsPage() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [runners, setRunners] = useState<LeaderboardEntry[]>([]);
   const [togglingRunnerId, setTogglingRunnerId] = useState<string | null>(null);
+  const [tab, setTab] = useState<"recent" | "status">("recent");
+  const [statusFilter, setStatusFilter] = useState("");
   const bibRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -348,69 +351,133 @@ export default function LapsPage() {
         </Card>
       )}
 
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-baseline justify-between mb-4">
-            <h2 className="text-lg font-bold">Runner Status</h2>
-            {(() => {
-              const active = runners.filter((r) => !r.runner.stopped_at && r.totalLaps >= 1).length;
-              const stopped = runners.filter((r) => r.runner.stopped_at).length;
-              return (
-                <span className="text-sm text-gray-500">
-                  <span className="font-semibold text-green-700">{active}</span> running ·{" "}
-                  <span className="font-semibold text-gray-500">{stopped}</span> stopped
-                </span>
-              );
-            })()}
-          </div>
-          {runners.length === 0 ? (
-            <p className="text-gray-500">No runners yet</p>
-          ) : (
-            <div className="space-y-1">
-              {runners.map((entry) => {
-                const isStopped = !!entry.runner.stopped_at;
-                const isToggling = togglingRunnerId === entry.runner.id;
-                return (
-                  <div
-                    key={entry.runner.id}
-                    className={`flex items-center justify-between rounded-md px-3 py-2 ${
-                      isStopped ? "bg-gray-100 text-gray-400" : "bg-white"
-                    }`}
-                  >
-                    <div className="min-w-0 flex items-center gap-2">
-                      <span className="font-mono font-bold text-gray-600 w-10">
-                        #{entry.runner.bib}
-                      </span>
-                      <span className={`font-medium truncate ${isStopped ? "line-through" : ""}`}>
-                        {entry.runner.name}
-                      </span>
-                      <span className="text-sm text-gray-400 whitespace-nowrap">
-                        {entry.totalLaps} {entry.totalLaps === 1 ? "lap" : "laps"}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => handleToggleStopped(entry.runner.id, !isStopped)}
-                      disabled={isToggling}
-                      className={`min-h-[36px] inline-flex items-center justify-center rounded-md px-3 text-sm font-medium shrink-0 disabled:opacity-50 ${
-                        isStopped
-                          ? "bg-green-600 text-white hover:bg-green-700"
-                          : "border border-red-200 bg-white text-red-600 hover:bg-red-50"
-                      }`}
-                    >
-                      {isStopped ? "Resume" : "Stop"}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {(() => {
+        const { active, stopped } = countActiveAndStopped(runners);
+        if (active === 0 && stopped === 0) return null;
+        return (
+          <p className="text-center text-sm text-gray-600">
+            <span className="font-semibold text-green-700">{active}</span>{" "}
+            still running
+            {stopped > 0 && (
+              <>
+                {" · "}
+                <span className="font-semibold text-gray-500">{stopped}</span>{" "}
+                stopped
+              </>
+            )}
+          </p>
+        );
+      })()}
 
       <Card>
         <CardContent className="p-6">
-          <h2 className="text-lg font-bold mb-4">Recent Laps</h2>
-          {recentLaps.length === 0 ? (
+          <div className="flex border-b border-gray-200 mb-4 -mt-2">
+            <button
+              type="button"
+              onClick={() => setTab("recent")}
+              className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                tab === "recent"
+                  ? "border-gray-900 text-gray-900"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Recent Laps
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("status")}
+              className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                tab === "status"
+                  ? "border-gray-900 text-gray-900"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Runner Status
+            </button>
+          </div>
+
+          {tab === "status" && (() => {
+            const sorted = [...runners].sort((a, b) => {
+              if (!a.lastLapTimestamp && !b.lastLapTimestamp) return 0;
+              if (!a.lastLapTimestamp) return 1;
+              if (!b.lastLapTimestamp) return -1;
+              return (
+                new Date(a.lastLapTimestamp).getTime() -
+                new Date(b.lastLapTimestamp).getTime()
+              );
+            });
+            const q = statusFilter.trim().toLowerCase();
+            const filtered = q
+              ? sorted.filter(
+                  (r) =>
+                    r.runner.name.toLowerCase().includes(q) ||
+                    String(r.runner.bib).includes(q)
+                )
+              : sorted;
+
+            return (
+              <>
+                <input
+                  type="text"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  placeholder="Filter by name or bib"
+                  className="border rounded-md px-3 py-2 text-sm w-full mb-3"
+                />
+                {runners.length === 0 ? (
+                  <p className="text-gray-500">No runners yet</p>
+                ) : filtered.length === 0 ? (
+                  <p className="text-gray-500">No runners match</p>
+                ) : (
+                  <div className="space-y-1">
+                    {filtered.map((entry) => {
+                      const isStopped = !!entry.runner.stopped_at;
+                      const isToggling = togglingRunnerId === entry.runner.id;
+                      return (
+                        <div
+                          key={entry.runner.id}
+                          className={`flex items-center justify-between rounded-md px-3 py-2 ${
+                            isStopped ? "bg-gray-100 text-gray-400" : "bg-white"
+                          }`}
+                        >
+                          <div className="min-w-0 flex items-center gap-2">
+                            <span className="font-mono font-bold text-gray-600 w-10">
+                              #{entry.runner.bib}
+                            </span>
+                            <span className={`font-medium truncate ${isStopped ? "line-through" : ""}`}>
+                              {entry.runner.name}
+                            </span>
+                            <span className="text-sm text-gray-400 whitespace-nowrap">
+                              {entry.totalLaps} {entry.totalLaps === 1 ? "lap" : "laps"}
+                              {" · "}
+                              {entry.lastLapTimestamp
+                                ? formatTimeAgo(entry.lastLapTimestamp, now)
+                                : "—"}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => handleToggleStopped(entry.runner.id, !isStopped)}
+                            disabled={isToggling}
+                            className={`min-h-[36px] inline-flex items-center justify-center rounded-md px-3 text-sm font-medium shrink-0 disabled:opacity-50 ${
+                              isStopped
+                                ? "bg-green-600 text-white hover:bg-green-700"
+                                : "border border-red-200 bg-white text-red-600 hover:bg-red-50"
+                            }`}
+                          >
+                            {isStopped ? "Resume" : "Stop"}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            );
+          })()}
+
+          {tab === "recent" && (
+            <>
+              {recentLaps.length === 0 ? (
             <p className="text-gray-500">No laps registered yet</p>
           ) : (
             <div className="space-y-2">
@@ -501,6 +568,8 @@ export default function LapsPage() {
                 </div>
               ))}
             </div>
+          )}
+            </>
           )}
         </CardContent>
       </Card>
