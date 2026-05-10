@@ -5,9 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Lap, LeaderboardEntry } from "@/lib/race/types";
 import { countActiveAndStopped } from "@/lib/race/leaderboard";
 import { formatTimeAgo, formatLapTime, formatTimestamp } from "@/lib/race/format";
-import { QrScannerOverlay } from "@/components/admin/qr-scanner-overlay";
-import { DuplicateDialog } from "@/components/admin/duplicate-dialog";
-import { findRecentLapWarning } from "@/components/admin/scanner-utils";
+import { RecentLapDialog } from "@/components/admin/recent-lap-dialog";
+import { findRecentLapWarning } from "@/components/admin/lap-warnings";
 import { LapTimeChart } from "@/components/race/LapTimeChart";
 import {
   findLapAnomalies,
@@ -132,7 +131,6 @@ export default function LapsPage() {
     type: "success" | "error";
   } | null>(null);
   const [highlightLapId, setHighlightLapId] = useState<string | null>(null);
-  const [scannerOpen, setScannerOpen] = useState(false);
   const [registeringLap, setRegisteringLap] = useState(false);
   const [recentLapPrompt, setRecentLapPrompt] = useState<{
     bib: number;
@@ -447,16 +445,6 @@ export default function LapsPage() {
             >
               {registeringLap && <Spinner className="h-5 w-5" />}
               Register
-            </button>
-            <button
-              type="button"
-              onClick={() => setScannerOpen(true)}
-              className="bg-gray-800 text-white px-4 rounded-md font-semibold text-lg hover:bg-gray-900 w-full sm:w-auto sm:h-[58px] py-3 sm:py-0 flex items-center justify-center gap-2"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 9V6a3 3 0 013-3h3M21 9V6a3 3 0 00-3-3h-3M3 15v3a3 3 0 003 3h3M21 15v3a3 3 0 01-3 3h-3" />
-              </svg>
-              Scan
             </button>
           </form>
           {lapMessage && (
@@ -1425,22 +1413,10 @@ export default function LapsPage() {
           })()}
         </CardContent>
       </Card>
-      {scannerOpen && (
-        <QrScannerOverlay
-          onClose={() => setScannerOpen(false)}
-          fetchLaps={async () => {
-            setLapsPage(1);
-            await fetchLaps(1);
-          }}
-        />
-      )}
       {recentLapPrompt && (
-        <DuplicateDialog
+        <RecentLapDialog
           bib={recentLapPrompt.bib}
           secondsAgo={recentLapPrompt.secondsAgo}
-          title="Recent lap"
-          verb="registered"
-          autoDismissMs={null}
           onConfirm={handleRecentLapConfirm}
           onCancel={handleRecentLapCancel}
         />
