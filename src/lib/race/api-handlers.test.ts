@@ -6,6 +6,7 @@ import {
   handleEditLapTimestamp,
   handleInsertBackdatedLap,
   handleSetRunnerStopped,
+  handleCheckInRunner,
   handleAuth,
   Result,
 } from "./api-handlers";
@@ -20,6 +21,7 @@ vi.mock("./db", () => ({
   getLapsForRunner: vi.fn(),
   insertBackdatedLap: vi.fn(),
   setRunnerStopped: vi.fn(),
+  checkInRunner: vi.fn(),
 }));
 
 // Mock supabase server module
@@ -84,7 +86,7 @@ describe("handleRegisterLap", () => {
   it("calls registerLap and returns result on success", async () => {
     const mockResult = {
       lap: { id: "l1", runner_id: "r1", lap_number: 3, timestamp: "2026-05-09T11:00:00Z" },
-      runner: { id: "r1", bib: 42, name: "Alice", gender: "female" as const, notes: null, edition_year: 2026, stopped_at: null },
+      runner: { id: "r1", bib: 42, name: "Alice", gender: "female" as const, notes: null, edition_year: 2026, stopped_at: null, checked_in_at: null },
     };
     vi.mocked(db.registerLap).mockResolvedValue(mockResult);
 
@@ -158,6 +160,7 @@ describe("handleAddRunner", () => {
       notes: null,
       edition_year: 2026,
       stopped_at: null,
+      checked_in_at: null,
     };
     vi.mocked(db.addRunner).mockResolvedValue(mockRunner);
 
@@ -174,7 +177,7 @@ describe("handleAddRunner", () => {
 
   it("auto-assigns next bib number when bib is omitted", async () => {
     vi.mocked(db.getRunners).mockResolvedValue([
-      { id: "r1", bib: 3, name: "Existing", gender: "male", notes: null, edition_year: 2026, stopped_at: null },
+      { id: "r1", bib: 3, name: "Existing", gender: "male", notes: null, edition_year: 2026, stopped_at: null, checked_in_at: null },
     ]);
     vi.mocked(db.addRunner).mockImplementation(async (_sb, runner) => ({
       id: "r2",
@@ -212,7 +215,7 @@ describe("handleAddRunner", () => {
 
   it("returns error when bib number is already in use", async () => {
     vi.mocked(db.getRunners).mockResolvedValue([
-      { id: "r1", bib: 5, name: "Existing", gender: "male", notes: null, edition_year: 2026, stopped_at: null },
+      { id: "r1", bib: 5, name: "Existing", gender: "male", notes: null, edition_year: 2026, stopped_at: null, checked_in_at: null },
     ]);
 
     const result = await handleAddRunner(
@@ -264,6 +267,7 @@ describe("handleSetRunnerStopped", () => {
       notes: null,
       edition_year: 2026,
       stopped_at: "2026-05-09T13:00:00Z",
+      checked_in_at: null,
     };
     vi.mocked(db.setRunnerStopped).mockResolvedValue(mockRunner);
 
@@ -276,6 +280,61 @@ describe("handleSetRunnerStopped", () => {
     const data = expectOk(result);
     expect(data).toEqual(mockRunner);
     expect(db.setRunnerStopped).toHaveBeenCalledWith(expect.anything(), "r1", true);
+  });
+});
+
+describe("handleCheckInRunner", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("returns Unauthorized when password is wrong", async () => {
+    const result = await handleCheckInRunner(
+      { runnerId: "r1", checkedIn: true },
+      "wrong",
+      ADMIN_PASSWORD
+    );
+    expectError(result, "Unauthorized");
+  });
+
+  it("returns error when runnerId is missing", async () => {
+    const result = await handleCheckInRunner(
+      { checkedIn: true },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+    expectError(result, "Runner ID is required");
+  });
+
+  it("returns error when checkedIn is not a boolean", async () => {
+    const result = await handleCheckInRunner(
+      { runnerId: "r1" },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+    expectError(result, "checkedIn must be a boolean");
+  });
+
+  it("calls checkInRunner and returns the runner on success", async () => {
+    const mockRunner = {
+      id: "r1",
+      bib: 1,
+      name: "Alice",
+      gender: "female" as const,
+      notes: null,
+      edition_year: 2026,
+      stopped_at: null,
+      checked_in_at: "2026-05-09T08:00:00Z",
+    };
+    vi.mocked(db.checkInRunner).mockResolvedValue(mockRunner);
+
+    const result = await handleCheckInRunner(
+      { runnerId: "r1", checkedIn: true },
+      ADMIN_PASSWORD,
+      ADMIN_PASSWORD
+    );
+
+    const data = expectOk(result);
+    expect(data).toEqual(mockRunner);
+    expect(db.checkInRunner).toHaveBeenCalledWith(expect.anything(), "r1", true);
   });
 });
 

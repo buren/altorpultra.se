@@ -85,6 +85,7 @@ function makeEntry(
       notes: null,
       edition_year: 2026,
       stopped_at: null,
+      checked_in_at: null,
     },
     totalLaps,
     totalDistanceKm: totalLaps * lapDistanceKm,

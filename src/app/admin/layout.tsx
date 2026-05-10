@@ -122,6 +122,7 @@ export default function AdminLayout({
 
   const navLinks = [
     { href: "/admin", label: "Register Laps" },
+    { href: "/admin/check-in", label: "Check-in" },
     { href: "/admin/runners", label: "Runners" },
     { href: "/admin/editions", label: "Editions" },
   ];

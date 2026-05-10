@@ -177,6 +177,23 @@ export async function setRunnerStopped(
   return data as Runner;
 }
 
+export async function checkInRunner(
+  supabase: SupabaseClient,
+  runnerId: string,
+  checkedIn: boolean
+): Promise<Runner> {
+  const checked_in_at = checkedIn ? new Date().toISOString() : null;
+  const { data, error } = await supabase
+    .from("runners")
+    .update({ checked_in_at })
+    .eq("id", runnerId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Runner;
+}
+
 export async function getRunners(
   supabase: SupabaseClient,
   editionYear: number
@@ -225,12 +242,17 @@ export async function registerLap(
 
   if (lapErr) throw lapErr;
 
-  // Auto-resume: a fresh lap means the runner is back on course
+  // A fresh lap means the runner is on course: clear stopped_at and, if they
+  // never explicitly checked in, fill checked_in_at with the lap timestamp.
   let finalRunner = runner as Runner;
-  if (finalRunner.stopped_at) {
+  const runnerUpdates: Record<string, unknown> = {};
+  if (finalRunner.stopped_at) runnerUpdates.stopped_at = null;
+  if (!finalRunner.checked_in_at) runnerUpdates.checked_in_at = (lap as Lap).timestamp;
+
+  if (Object.keys(runnerUpdates).length > 0) {
     const { data: updated } = await supabase
       .from("runners")
-      .update({ stopped_at: null })
+      .update(runnerUpdates)
       .eq("id", finalRunner.id)
       .select()
       .single();

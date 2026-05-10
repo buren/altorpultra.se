@@ -12,6 +12,7 @@ function makeRunner(overrides: Partial<Runner> = {}): Runner {
     notes: null,
     edition_year: 2026,
     stopped_at: null,
+    checked_in_at: null,
     ...overrides,
   };
 }

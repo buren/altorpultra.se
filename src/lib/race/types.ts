@@ -8,6 +8,7 @@ export interface Runner {
   notes: string | null;
   edition_year: number;
   stopped_at: string | null;
+  checked_in_at: string | null;
 }
 
 export interface Lap {

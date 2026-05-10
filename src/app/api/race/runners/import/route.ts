@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
         notes: null,
         edition_year: edition.year,
         stopped_at: null,
+        checked_in_at: null,
       });
     }
     return NextResponse.json({ ok: true, count: body.runners.length }, { status: 201 });

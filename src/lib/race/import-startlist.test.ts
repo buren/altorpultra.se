@@ -135,6 +135,7 @@ describe("validateStartlistRows", () => {
     notes: null,
     edition_year: 2026,
     stopped_at: null,
+    checked_in_at: null,
   });
 
   it("returns null for valid rows with no conflicts", () => {

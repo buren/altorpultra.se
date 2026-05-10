@@ -26,6 +26,7 @@ create table if not exists runners (
   notes text,
   edition_year integer not null references editions(year),
   stopped_at timestamptz,
+  checked_in_at timestamptz,
   created_at timestamptz not null default now(),
   unique (bib, edition_year)
 );

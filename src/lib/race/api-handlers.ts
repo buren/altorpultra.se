@@ -80,6 +80,7 @@ export async function handleAddRunner(
       notes: notes || null,
       edition_year: editionYear,
       stopped_at: null,
+      checked_in_at: null,
     });
     return { ok: true, data: runner };
   } catch (err: any) {
@@ -147,6 +148,30 @@ export async function handleSetRunnerStopped(
       createServerClient(),
       body.runnerId,
       body.stopped
+    );
+    return { ok: true, data: runner };
+  } catch (err: any) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function handleCheckInRunner(
+  body: { runnerId?: string; checkedIn?: boolean },
+  inputPassword: string,
+  serverPassword: string
+): Promise<Result> {
+  const authErr = requireAuth(inputPassword, serverPassword);
+  if (authErr) return { ok: false, error: authErr };
+
+  if (!body.runnerId) return { ok: false, error: "Runner ID is required" };
+  if (typeof body.checkedIn !== "boolean")
+    return { ok: false, error: "checkedIn must be a boolean" };
+
+  try {
+    const runner = await db.checkInRunner(
+      createServerClient(),
+      body.runnerId,
+      body.checkedIn
     );
     return { ok: true, data: runner };
   } catch (err: any) {
