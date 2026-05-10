@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { estimateNextLapSeconds, buildNextRunnersList } from "./eta";
-import { Runner, Lap, LeaderboardEntry } from "./types";
+import {
+  estimateNextLapSeconds,
+  buildNextRunnersList,
+  staleThresholdSeconds,
+  STALE_FALLBACK_SECONDS,
+  STALE_MEDIAN_MULTIPLIER,
+} from "./eta";
+import { Runner, Lap } from "./types";
 import { buildLeaderboard } from "./leaderboard";
 
 function makeRunner(overrides: Partial<Runner> = {}): Runner {
@@ -91,6 +97,31 @@ describe("estimateNextLapSeconds", () => {
   });
 });
 
+describe("staleThresholdSeconds", () => {
+  it("returns the 65 min fallback when there are zero laps", () => {
+    expect(staleThresholdSeconds([])).toBe(STALE_FALLBACK_SECONDS);
+  });
+
+  it("returns the fallback for 1 or 2 laps (too few for a personal median)", () => {
+    expect(staleThresholdSeconds([2400])).toBe(STALE_FALLBACK_SECONDS);
+    expect(staleThresholdSeconds([2400, 2700])).toBe(STALE_FALLBACK_SECONDS);
+  });
+
+  it("uses the runner's median × multiplier once they have 3+ laps", () => {
+    // median of [2400, 2700, 2100] = 2400
+    expect(staleThresholdSeconds([2400, 2700, 2100])).toBe(
+      2400 * STALE_MEDIAN_MULTIPLIER
+    );
+  });
+
+  it("uses the median (not mean) so a single break lap does not inflate the threshold", () => {
+    // median of [1800, 1800, 1800, 1800, 9000] = 1800
+    expect(staleThresholdSeconds([1800, 1800, 1800, 1800, 9000])).toBe(
+      1800 * STALE_MEDIAN_MULTIPLIER
+    );
+  });
+});
+
 describe("buildNextRunnersList", () => {
   it("returns empty list when no runners have laps", () => {
     const entries = buildLeaderboard(
@@ -167,18 +198,90 @@ describe("buildNextRunnersList", () => {
     expect(result[0].estimatedSecondsFromNow).toBe(0);
   });
 
-  it("excludes stale runners (overdue by more than 2x estimated lap)", () => {
+  it("excludes runners silent longer than the 65min fallback when they have <3 laps", () => {
     const runner = makeRunner({ id: "r1" });
     const laps = [
-      makeLap("r1", 1, "2026-05-09T10:40:00+02:00"), // 40min = 2400s
+      makeLap("r1", 1, "2026-05-09T10:40:00+02:00"), // 40min lap
     ];
     const entries = buildLeaderboard([runner], laps, 7, 100, START);
-    // Expected at 11:20. Stale threshold = 2 * 2400s = 4800s = 80min after 11:20 = 12:40
-    // now is 13:00, well past staleness cutoff
-    const now = new Date("2026-05-09T13:00:00+02:00");
+    // Last lap 10:40, now 11:50 → 70min silent > 65min fallback
+    const now = new Date("2026-05-09T11:50:00+02:00");
     const result = buildNextRunnersList(entries, START, now, END);
 
     expect(result).toEqual([]);
+  });
+
+  it("keeps a 1-lap runner under the 65min fallback even if very overdue against their estimate", () => {
+    const runner = makeRunner({ id: "r1" });
+    const laps = [
+      makeLap("r1", 1, "2026-05-09T10:20:00+02:00"), // very fast 20min lap
+    ];
+    const entries = buildLeaderboard([runner], laps, 7, 100, START);
+    // Last lap 10:20, now 11:20 → 60min silent (< 65min fallback)
+    // Old behavior would have dropped this (overdue by way more than 2 × 20min)
+    const now = new Date("2026-05-09T11:20:00+02:00");
+    const result = buildNextRunnersList(entries, START, now, END);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].estimatedSecondsFromNow).toBe(0);
+  });
+
+  it("excludes a runner silent past their personal median threshold once they have 3+ laps", () => {
+    const runner = makeRunner({ id: "r1" });
+    const laps = [
+      makeLap("r1", 1, "2026-05-09T10:30:00+02:00"), // 30min from start
+      makeLap("r1", 2, "2026-05-09T11:00:00+02:00"), // 30min lap
+      makeLap("r1", 3, "2026-05-09T11:30:00+02:00"), // 30min lap
+    ];
+    const entries = buildLeaderboard([runner], laps, 7, 100, START);
+    // Median of [1800, 1800, 1800] = 1800s → stale at 1800 * 1.75 = 3150s = 52.5min
+    // Last lap 11:30, now 12:30 → 60min silent > 52.5min
+    const now = new Date("2026-05-09T12:30:00+02:00");
+    const result = buildNextRunnersList(entries, START, now, END);
+
+    expect(result).toEqual([]);
+  });
+
+  it("keeps a slow runner whose long silence is still within their personal threshold", () => {
+    const runner = makeRunner({ id: "r1" });
+    const laps = [
+      makeLap("r1", 1, "2026-05-09T11:00:00+02:00"), // 60min from start
+      makeLap("r1", 2, "2026-05-09T12:00:00+02:00"), // 60min lap
+      makeLap("r1", 3, "2026-05-09T13:00:00+02:00"), // 60min lap
+    ];
+    const entries = buildLeaderboard([runner], laps, 7, 100, START);
+    // Median = 3600s → stale at 3600 * 1.75 = 6300s = 105min
+    // Last lap 13:00, now 14:30 → 90min silent < 105min, not stale
+    const now = new Date("2026-05-09T14:30:00+02:00");
+    const result = buildNextRunnersList(entries, START, now, END);
+
+    expect(result).toHaveLength(1);
+  });
+
+  it("excludes runners marked as stopped", () => {
+    const r1 = makeRunner({
+      id: "r1",
+      bib: 1,
+      name: "Active",
+    });
+    const r2 = makeRunner({
+      id: "r2",
+      bib: 2,
+      name: "Stopped",
+      stopped_at: "2026-05-09T11:30:00+02:00",
+    });
+    const laps = [
+      makeLap("r1", 1, "2026-05-09T10:40:00+02:00"),
+      makeLap("r1", 2, "2026-05-09T11:25:00+02:00"),
+      makeLap("r2", 1, "2026-05-09T10:35:00+02:00"),
+      makeLap("r2", 2, "2026-05-09T11:20:00+02:00"),
+    ];
+    const entries = buildLeaderboard([r1, r2], laps, 7, 100, START);
+    const now = new Date("2026-05-09T11:30:00+02:00");
+    const result = buildNextRunnersList(entries, START, now, END);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].runner.name).toBe("Active");
   });
 
   it("assigns confidence based on number of durations", () => {
@@ -187,9 +290,11 @@ describe("buildNextRunnersList", () => {
     const r3 = makeRunner({ id: "r3", bib: 3, name: "Three laps" });
 
     const laps = [
-      makeLap("r1", 1, "2026-05-09T10:40:00+02:00"),
-      makeLap("r2", 1, "2026-05-09T10:40:00+02:00"),
-      makeLap("r2", 2, "2026-05-09T11:20:00+02:00"),
+      // All runners have a lap within the last 5 minutes so none are stale,
+      // letting us check confidence purely as a function of lap count.
+      makeLap("r1", 1, "2026-05-09T12:00:00+02:00"),
+      makeLap("r2", 1, "2026-05-09T11:20:00+02:00"),
+      makeLap("r2", 2, "2026-05-09T12:00:00+02:00"),
       makeLap("r3", 1, "2026-05-09T10:40:00+02:00"),
       makeLap("r3", 2, "2026-05-09T11:20:00+02:00"),
       makeLap("r3", 3, "2026-05-09T12:00:00+02:00"),

@@ -9,6 +9,19 @@ export interface NextLapEstimate {
   confidence: "high" | "medium" | "low";
 }
 
+// Fallback when a runner has too few laps for a personal median.
+// Anyone whose last lap is older than this without registering a new one
+// is treated as effectively stopped.
+export const STALE_FALLBACK_SECONDS = 65 * 60;
+
+// Multiplier applied to the runner's median lap to decide when they've
+// been silent long enough to drop off the next-runners list.
+export const STALE_MEDIAN_MULTIPLIER = 1.75;
+
+// Minimum number of completed laps required before we trust the runner's
+// own median for the staleness threshold. Below this, use the fallback.
+export const MIN_LAPS_FOR_PERSONAL_STALE = 3;
+
 export function estimateNextLapSeconds(durations: number[]): number | null {
   if (durations.length === 0) return null;
 
@@ -43,6 +56,13 @@ function filterBreakLaps(durations: number[]): number[] {
   return filtered.length > 0 ? filtered : durations;
 }
 
+export function staleThresholdSeconds(durations: number[]): number {
+  if (durations.length < MIN_LAPS_FOR_PERSONAL_STALE) {
+    return STALE_FALLBACK_SECONDS;
+  }
+  return median(durations) * STALE_MEDIAN_MULTIPLIER;
+}
+
 export function buildNextRunnersList(
   entries: LeaderboardEntry[],
   startDateTime: string,
@@ -55,6 +75,7 @@ export function buildNextRunnersList(
 
   for (const entry of entries) {
     if (entry.totalLaps === 0 || !entry.lastLapTimestamp) continue;
+    if (entry.runner.stopped_at) continue;
 
     const durations = calcLapDurationsSeconds(entry.laps, startDateTime);
     if (durations.length === 0) continue;
@@ -68,8 +89,10 @@ export function buildNextRunnersList(
     // Exclude if estimate is past race end
     if (estimatedMs > raceEndMs) continue;
 
-    // Exclude stale runners (overdue by more than 2x estimated lap)
-    if (nowMs > estimatedMs + estimated * 2 * 1000) continue;
+    // Drop runners who've gone silent for longer than their personal stale
+    // threshold (median-based once they have enough laps, fallback otherwise).
+    const staleSeconds = staleThresholdSeconds(durations);
+    if (nowMs - lastMs > staleSeconds * 1000) continue;
 
     const secondsFromNow = Math.max(0, (estimatedMs - nowMs) / 1000);
 
