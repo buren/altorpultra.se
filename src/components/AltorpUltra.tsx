@@ -90,7 +90,7 @@ export async function AltorpUltra({ edition, publishedYears }: { edition: Editio
     "@context": "https://schema.org",
     "@type": "Event",
     "name": site.name,
-    "description": `Join us for an epic day. Altorp ${edition.lapDistanceKm} km loop - 'Långa gula'. ${edition.dateFormatted}, ${edition.startTime}-${edition.endTime}. As many laps as you can.`,
+    "description": `Join us for an epic day. Altorp 7 km loop - 'Långa gula'. ${edition.dateFormatted}, ${edition.startTime}-${edition.endTime}. As many laps as you can.`,
     "startDate": edition.startDateTime,
     "endDate": edition.endDateTime,
     "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
@@ -142,7 +142,7 @@ export async function AltorpUltra({ edition, publishedYears }: { edition: Editio
     {
       icon: <Route className="h-8 w-8" />,
       title: t('infoCards.stravaRoute'),
-      description: `"Långa gula" ${edition.lapDistanceKm}km`,
+      description: `"Långa gula" 7km`,
       href: edition.stravaRoute,
     },
     {
@@ -157,7 +157,7 @@ export async function AltorpUltra({ edition, publishedYears }: { edition: Editio
     {
       icon: <Trees className="h-10 w-10 text-primary" />,
       title: t('moreThanRace.beautifulScenery'),
-      description: t('moreThanRace.beautifulSceneryDesc', { lapDistanceKm: edition.lapDistanceKm }),
+      description: t('moreThanRace.beautifulSceneryDesc'),
     },
     {
       icon: <Users className="h-10 w-10 text-primary" />,
@@ -231,7 +231,6 @@ export async function AltorpUltra({ edition, publishedYears }: { edition: Editio
             <p className="text-xl text-gray-700 leading-relaxed">
               {t.rich('about.text1', {
                 strong: (chunks) => <strong>{chunks}</strong>,
-                lapDistanceKm: edition.lapDistanceKm,
                 lapElevationM: edition.lapElevationM,
               })}
             </p>

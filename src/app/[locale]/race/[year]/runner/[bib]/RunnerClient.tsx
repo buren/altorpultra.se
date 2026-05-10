@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { LeaderboardEntry } from "@/lib/race/types";
-import { formatLapTime, formatTimestamp } from "@/lib/race/format";
+import { formatDistanceKm, formatLapTime, formatTimestamp } from "@/lib/race/format";
 import { site } from "@/lib/config";
 import { supabase } from "@/lib/race/supabase";
 import { ArrowLeft, Share2, Check } from "lucide-react";
@@ -78,10 +78,10 @@ export default function RunnerClient() {
   async function handleShare() {
     const url = window.location.href;
     const title = entry
-      ? `${entry.runner.name} — ${entry.totalLaps} ${t('laps').toLowerCase()}, ${entry.totalDistanceKm} km`
+      ? `${entry.runner.name} — ${entry.totalLaps} ${t('laps').toLowerCase()}, ${formatDistanceKm(entry.totalDistanceKm)} km`
       : site.name;
     const text = entry
-      ? `${entry.runner.name} — ${entry.totalLaps} ${t('laps').toLowerCase()}, ${entry.totalDistanceKm} km @ ${site.name} ${year}`
+      ? `${entry.runner.name} — ${entry.totalLaps} ${t('laps').toLowerCase()}, ${formatDistanceKm(entry.totalDistanceKm)} km @ ${site.name} ${year}`
       : site.name;
 
     if (navigator.share) {
@@ -175,7 +175,7 @@ export default function RunnerClient() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-2xl font-bold">{e.totalDistanceKm} <span className="text-base font-normal text-gray-500">km</span></p>
+              <p className="text-2xl font-bold">{formatDistanceKm(e.totalDistanceKm)} <span className="text-base font-normal text-gray-500">km</span></p>
               <p className="text-sm text-gray-500">{t('distance')}</p>
             </CardContent>
           </Card>

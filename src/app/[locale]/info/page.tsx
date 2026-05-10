@@ -71,7 +71,6 @@ export default async function Info({ params }: { params: Promise<{ locale: strin
               <p>{t('grillingText')}</p>
               <br />
               <p><strong>{t('courseInfoLabel')}</strong>: {t.rich('courseInfoText', {
-                lapDistanceKm: edition.lapDistanceKm,
                 lapElevationM: edition.lapElevationM,
                 stravaLink: (chunks) => <a className="underline text-blue-600" href={edition.stravaRoute}>{chunks}</a>,
                 mapsLink: (chunks) => <a className="underline text-blue-600" href={edition.googleMaps.routeViewer}>{chunks}</a>,

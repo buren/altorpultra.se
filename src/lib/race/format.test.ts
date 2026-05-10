@@ -1,5 +1,27 @@
 import { describe, it, expect } from "vitest";
-import { formatLapTime, formatTimestamp, formatTimeAgo, formatLastCompleted } from "./format";
+import {
+  formatDistanceKm,
+  formatLapTime,
+  formatTimestamp,
+  formatTimeAgo,
+  formatLastCompleted,
+} from "./format";
+
+describe("formatDistanceKm", () => {
+  it("rounds away floating-point noise from laps × lapDistance", () => {
+    expect(formatDistanceKm(9 * 7.31)).toBe("65.79");
+    expect(formatDistanceKm(7 * 7.31)).toBe("51.17");
+  });
+
+  it("trims trailing zeros", () => {
+    expect(formatDistanceKm(73.1)).toBe("73.1");
+    expect(formatDistanceKm(70)).toBe("70");
+  });
+
+  it("preserves up to two decimals", () => {
+    expect(formatDistanceKm(80.41)).toBe("80.41");
+  });
+});
 
 describe("formatLapTime", () => {
   it("formats seconds into MM:SS", () => {

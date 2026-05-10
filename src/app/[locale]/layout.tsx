@@ -19,13 +19,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   const edition = await getCurrentEdition();
   const dateFormatted = edition?.dateFormatted ?? "";
-  const lapDistanceKm = edition?.lapDistanceKm ?? 7;
   const startTime = edition?.startTime ?? "";
   const endTime = edition?.endTime ?? "";
 
   const description = locale === 'sv'
-    ? `Häng med på en episk dag. Altorp ${lapDistanceKm} km-slinga - "Långa gula". ${dateFormatted}, ${startTime}-${endTime}. Så många varv du kan.`
-    : `Join us for an epic day. Altorp ${lapDistanceKm} km loop - "Långa gula". ${dateFormatted}, ${startTime}-${endTime}. As many laps as you can.`;
+    ? `Häng med på en episk dag. Altorp 7 km-slinga - "Långa gula". ${dateFormatted}, ${startTime}-${endTime}. Så många varv du kan.`
+    : `Join us for an epic day. Altorp 7 km loop - "Långa gula". ${dateFormatted}, ${startTime}-${endTime}. As many laps as you can.`;
 
   const canonical = locale === defaultLocale
     ? site.website

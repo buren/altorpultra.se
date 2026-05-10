@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { site } from "@/lib/config";
 import { getEdition, getRunners, getAllLaps } from "@/lib/race/db";
 import { buildLeaderboard } from "@/lib/race/leaderboard";
+import { formatDistanceKm } from "@/lib/race/format";
 import { createServerClient } from "@/lib/race/supabase-server";
 import RaceYearClient from "./RaceYearClient";
 
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `${site.name} ${year} – Results`
     : `${site.name} ${year}`;
   const description = edition
-    ? `Live leaderboard and results for ${site.name} ${year}. ${edition.lapDistanceKm} km loop, ${edition.durationHours}-hour ultramarathon in ${site.location}.`
+    ? `Live leaderboard and results for ${site.name} ${year}. 7 km loop, ${edition.durationHours}-hour ultramarathon in ${site.location}.`
     : `Results for ${site.name} ${year}.`;
 
   return {
@@ -56,7 +57,7 @@ export default async function RaceYearPage({ params }: Props) {
       "@context": "https://schema.org",
       "@type": "SportsEvent",
       name: `${site.name} ${year}`,
-      description: `${edition.durationHours}-hour ultramarathon on a ${edition.lapDistanceKm} km loop in ${site.location}.`,
+      description: `${edition.durationHours}-hour ultramarathon on a 7 km loop in ${site.location}.`,
       startDate: edition.startDateTime,
       endDate: edition.endDateTime,
       location: {
@@ -80,7 +81,7 @@ export default async function RaceYearPage({ params }: Props) {
         competitor: leaderboard.slice(0, 20).map((entry, i) => ({
           "@type": "Person",
           name: entry.runner.name,
-          description: `#${i + 1} — ${entry.totalLaps} laps, ${entry.totalDistanceKm} km`,
+          description: `#${i + 1} — ${entry.totalLaps} laps, ${formatDistanceKm(entry.totalDistanceKm)} km`,
         })),
       }),
     };

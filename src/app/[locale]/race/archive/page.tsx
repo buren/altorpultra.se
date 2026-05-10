@@ -3,6 +3,7 @@ import { site } from "@/lib/config";
 import { createServerClient } from "@/lib/race/supabase-server";
 import { getPublishedEditions, getRunners, getAllLaps } from "@/lib/race/db";
 import { buildLeaderboard, filterByGender } from "@/lib/race/leaderboard";
+import { formatDistanceKm } from "@/lib/race/format";
 import { getEditionStatus } from "@/lib/race/editions";
 import ArchiveClient from "./ArchiveClient";
 
@@ -105,7 +106,7 @@ export default async function ArchivePage() {
           },
         },
         sport: "Ultramarathon",
-        description: `${s.durationHours}-hour ultramarathon. ${s.runnerCount} runners, ${s.totalLaps} laps, ${s.totalDistanceKm} km total.`,
+        description: `${s.durationHours}-hour ultramarathon. ${s.runnerCount} runners, ${s.totalLaps} laps, ${formatDistanceKm(s.totalDistanceKm)} km total.`,
       },
     })),
   };

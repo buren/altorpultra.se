@@ -20,8 +20,24 @@ export async function GET(req: NextRequest) {
     if (!edition) {
       return NextResponse.json({ ok: false, error: "No edition found" }, { status: 404 });
     }
-    const laps = await getRecentLaps(createServerClient(), edition.year, 20);
-    return NextResponse.json({ ok: true, data: laps });
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, Number(searchParams.get("page")) || 1);
+    const pageSize = Math.min(
+      100,
+      Math.max(1, Number(searchParams.get("pageSize")) || 20)
+    );
+    const offset = (page - 1) * pageSize;
+    const { laps, total } = await getRecentLaps(
+      createServerClient(),
+      edition.year,
+      pageSize,
+      offset
+    );
+    return NextResponse.json({
+      ok: true,
+      data: laps,
+      pagination: { total, page, pageSize },
+    });
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
   }

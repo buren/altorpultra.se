@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LeaderboardEntry, Gender } from "@/lib/race/types";
 import { countActiveAndStopped } from "@/lib/race/leaderboard";
 import {
+  formatDistanceKm,
   formatLapTime,
   formatTimestamp,
   formatLastCompleted,
@@ -73,7 +74,7 @@ function LeaderCard({
         </p>
         <p className="text-xs text-gray-500 mt-1">{t('laps')}</p>
         <p className="text-xs text-gray-600 mt-3">
-          {(entry?.totalDistanceKm ?? 0).toLocaleString()} km
+          {formatDistanceKm(entry?.totalDistanceKm ?? 0)} km
           {' · '}
           {(entry?.totalElevationM ?? 0).toLocaleString()} m
         </p>
@@ -451,7 +452,7 @@ function LeaderboardTable({
                     )}
                   </td>
                   <td className="px-3 py-2 text-right text-gray-600 hidden sm:table-cell">
-                    {e.totalDistanceKm} km
+                    {formatDistanceKm(e.totalDistanceKm)} km
                   </td>
                   <td className="px-3 py-2 text-right text-gray-600 hidden md:table-cell">
                     {formatLapTime(e.avgLapSeconds)}
@@ -504,7 +505,7 @@ function LeaderboardTable({
                             {t('distance')}
                           </span>
                           <span className="font-semibold">
-                            {e.totalDistanceKm} km
+                            {formatDistanceKm(e.totalDistanceKm)} km
                           </span>
                         </div>
                         <div className="bg-white border rounded px-3 py-2 text-sm">
@@ -969,7 +970,7 @@ export default function RaceYearClient() {
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-2xl font-bold">{totalDistanceKm.toLocaleString()} km</p>
+              <p className="text-2xl font-bold">{formatDistanceKm(totalDistanceKm)} km</p>
               <p className="text-sm text-gray-500">{t('totalDistance')}</p>
             </CardContent>
           </Card>
@@ -991,7 +992,7 @@ export default function RaceYearClient() {
                     <p className="text-sm text-gray-500 mb-1">{t('men')}</p>
                     <p className="text-lg font-bold">{data.courseRecords.male.name}</p>
                     <p className="text-gray-700">
-                      {data.courseRecords.male.totalLaps} {t('laps')} ({data.courseRecords.male.totalDistanceKm} km)
+                      {data.courseRecords.male.totalLaps} {t('laps')} ({formatDistanceKm(data.courseRecords.male.totalDistanceKm)} km)
                     </p>
                     <p className="text-sm text-gray-500">{data.courseRecords.male.year}</p>
                   </Link>
@@ -1001,7 +1002,7 @@ export default function RaceYearClient() {
                     <p className="text-sm text-gray-500 mb-1">{t('women')}</p>
                     <p className="text-lg font-bold">{data.courseRecords.female.name}</p>
                     <p className="text-gray-700">
-                      {data.courseRecords.female.totalLaps} {t('laps')} ({data.courseRecords.female.totalDistanceKm} km)
+                      {data.courseRecords.female.totalLaps} {t('laps')} ({formatDistanceKm(data.courseRecords.female.totalDistanceKm)} km)
                     </p>
                     <p className="text-sm text-gray-500">{data.courseRecords.female.year}</p>
                   </Link>

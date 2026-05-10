@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { createServerClient } from "@/lib/race/supabase-server";
 import { getRunners, getAllLaps, getEdition } from "@/lib/race/db";
 import { buildLeaderboard } from "@/lib/race/leaderboard";
+import { formatDistanceKm } from "@/lib/race/format";
 import { site } from "@/lib/config";
 import RunnerClient from "./RunnerClient";
 
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const entry = leaderboard[idx];
     const rank = idx + 1;
     const title = `${entry.runner.name} — ${site.name} ${year}`;
-    const description = `#${rank} · ${entry.totalLaps} laps · ${entry.totalDistanceKm} km · ${entry.totalElevationM} m elevation`;
+    const description = `#${rank} · ${entry.totalLaps} laps · ${formatDistanceKm(entry.totalDistanceKm)} km · ${entry.totalElevationM} m elevation`;
 
     return {
       title,
@@ -122,7 +123,7 @@ export default async function RunnerPage({ params }: Props) {
             competitor: {
               "@type": "Person",
               name: entry.runner.name,
-              description: `#${rank} — ${entry.totalLaps} laps, ${entry.totalDistanceKm} km, ${entry.totalElevationM} m elevation`,
+              description: `#${rank} — ${entry.totalLaps} laps, ${formatDistanceKm(entry.totalDistanceKm)} km, ${entry.totalElevationM} m elevation`,
             },
           },
         ];

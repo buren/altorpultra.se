@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { site } from "@/lib/config";
+import { formatDistanceKm } from "@/lib/race/format";
 import { ArrowRight, Trophy, Users, MapPin } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { Link } from "@/i18n/navigation";
@@ -48,7 +49,7 @@ export default function ArchiveClient({ summaries }: { summaries: EditionSummary
                       )}
                     </div>
                     <p className="text-sm text-gray-500">
-                      {ed.dateFormatted} &middot; {ed.durationHours}h &middot; {ed.lapDistanceKm} km {t("loop")}
+                      {ed.dateFormatted} &middot; {ed.durationHours}h &middot; 7 km {t("loop")}
                     </p>
 
                     <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-gray-600">
@@ -58,7 +59,7 @@ export default function ArchiveClient({ summaries }: { summaries: EditionSummary
                       </span>
                       <span className="flex items-center gap-1">
                         <MapPin className="h-3.5 w-3.5" />
-                        {ed.totalLaps} {t("laps")} &middot; {ed.totalDistanceKm} km
+                        {ed.totalLaps} {t("laps")} &middot; {formatDistanceKm(ed.totalDistanceKm)} km
                       </span>
                     </div>
 
@@ -68,14 +69,14 @@ export default function ArchiveClient({ summaries }: { summaries: EditionSummary
                           <p className="text-sm text-gray-600 flex items-center gap-1">
                             <Trophy className="h-3.5 w-3.5 text-yellow-500" />
                             <span className="text-gray-400">♂</span>
-                            {ed.winnerMen.name} — {ed.winnerMen.laps} {t("laps")} ({ed.winnerMen.distanceKm} km)
+                            {ed.winnerMen.name} — {ed.winnerMen.laps} {t("laps")} ({formatDistanceKm(ed.winnerMen.distanceKm)} km)
                           </p>
                         )}
                         {ed.winnerWomen && (
                           <p className="text-sm text-gray-600 flex items-center gap-1">
                             <Trophy className="h-3.5 w-3.5 text-yellow-500" />
                             <span className="text-gray-400">♀</span>
-                            {ed.winnerWomen.name} — {ed.winnerWomen.laps} {t("laps")} ({ed.winnerWomen.distanceKm} km)
+                            {ed.winnerWomen.name} — {ed.winnerWomen.laps} {t("laps")} ({formatDistanceKm(ed.winnerWomen.distanceKm)} km)
                           </p>
                         )}
                       </div>

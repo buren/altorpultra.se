@@ -1,3 +1,7 @@
+export function formatDistanceKm(km: number): string {
+  return (Math.round(km * 100) / 100).toString();
+}
+
 export function formatLapTime(seconds: number | null): string {
   if (seconds === null) return "–";
   const m = Math.floor(seconds / 60);
