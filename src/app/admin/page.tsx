@@ -69,10 +69,10 @@ const REASON_CLASSES: Record<AnomalyReason, string> = {
   absolute_slow: "bg-amber-100 text-amber-700",
 };
 
-function Spinner() {
+function Spinner({ className = "h-3.5 w-3.5" }: { className?: string } = {}) {
   return (
     <svg
-      className="animate-spin h-3.5 w-3.5"
+      className={`animate-spin ${className}`}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
@@ -133,6 +133,7 @@ export default function LapsPage() {
   } | null>(null);
   const [highlightLapId, setHighlightLapId] = useState<string | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [registeringLap, setRegisteringLap] = useState(false);
   const [recentLapPrompt, setRecentLapPrompt] = useState<{
     bib: number;
     secondsAgo: number;
@@ -212,32 +213,37 @@ export default function LapsPage() {
   }, [lapMessage]);
 
   async function submitLap(bib: number) {
-    const res = await fetch("/api/race/laps", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bib }),
-    });
-    const data = await res.json();
-
-    if (data.ok) {
-      const { runner, lap } = data.data;
-      setLapMessage({
-        text: `Lap ${lap.lap_number} registered for #${runner.bib} ${runner.name}`,
-        type: "success",
+    setRegisteringLap(true);
+    try {
+      const res = await fetch("/api/race/laps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bib }),
       });
-      setHighlightLapId(lap.id);
-      setTimeout(() => setHighlightLapId(null), 3000);
-      setBibInput("");
-      if (lapsPage === 1) {
-        fetchLaps(1);
+      const data = await res.json();
+
+      if (data.ok) {
+        const { runner, lap } = data.data;
+        setLapMessage({
+          text: `Lap ${lap.lap_number} registered for #${runner.bib} ${runner.name}`,
+          type: "success",
+        });
+        setHighlightLapId(lap.id);
+        setTimeout(() => setHighlightLapId(null), 3000);
+        setBibInput("");
+        if (lapsPage === 1) {
+          fetchLaps(1);
+        } else {
+          setLapsPage(1);
+        }
+        fetchRunners();
       } else {
-        setLapsPage(1);
+        setLapMessage({ text: data.error, type: "error" });
       }
-      fetchRunners();
-    } else {
-      setLapMessage({ text: data.error, type: "error" });
+    } finally {
+      setRegisteringLap(false);
+      bibRef.current?.focus();
     }
-    bibRef.current?.focus();
   }
 
   async function handleRegisterLap(e: React.FormEvent) {
@@ -428,21 +434,24 @@ export default function LapsPage() {
                 value={bibInput}
                 onChange={(e) => setBibInput(e.target.value.replace(/\D/g, ""))}
                 placeholder="Bib number"
-                className="w-full border rounded-md px-3 py-3 text-2xl font-mono text-center"
+                className="w-full border rounded-md px-3 py-3 text-2xl font-mono text-center disabled:bg-gray-100 disabled:text-gray-400"
                 autoComplete="off"
                 autoFocus
+                disabled={registeringLap}
               />
             </div>
             <button
               type="submit"
-              className="bg-green-600 text-white px-6 py-3 rounded-md font-semibold text-lg hover:bg-green-700 w-full sm:w-auto"
+              disabled={registeringLap}
+              className="bg-green-600 text-white px-6 rounded-md font-semibold text-lg hover:bg-green-700 w-full sm:w-auto sm:h-[58px] py-3 sm:py-0 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
+              {registeringLap && <Spinner className="h-5 w-5" />}
               Register
             </button>
             <button
               type="button"
               onClick={() => setScannerOpen(true)}
-              className="bg-gray-800 text-white px-4 py-3 rounded-md font-semibold text-lg hover:bg-gray-900 w-full sm:w-auto flex items-center justify-center gap-2"
+              className="bg-gray-800 text-white px-4 rounded-md font-semibold text-lg hover:bg-gray-900 w-full sm:w-auto sm:h-[58px] py-3 sm:py-0 flex items-center justify-center gap-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 9V6a3 3 0 013-3h3M21 9V6a3 3 0 00-3-3h-3M3 15v3a3 3 0 003 3h3M21 15v3a3 3 0 01-3 3h-3" />
