@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
+import { computeLapTimeDomain } from "@/lib/race/lap-chart-domain";
 import { Lap } from "@/lib/race/types";
 
 interface LapTimeChartProps {
@@ -67,9 +68,7 @@ export function LapTimeChart({
   const validSeconds = data
     .map((d) => d.seconds)
     .filter((s): s is number => s != null);
-  const minSec = Math.min(...validSeconds);
-  const maxSec = Math.max(...validSeconds);
-  const padding = (maxSec - minSec) * 0.15 || 60;
+  const yDomain = computeLapTimeDomain(validSeconds);
 
   return (
     <Card>
@@ -92,10 +91,7 @@ export function LapTimeChart({
               }}
             />
             <YAxis
-              domain={[
-                Math.max(0, Math.floor(minSec - padding)),
-                Math.ceil(maxSec + padding),
-              ]}
+              domain={yDomain}
               tickFormatter={formatMmSs}
               tick={{ fontSize: 12 }}
               width={50}
