@@ -21,6 +21,7 @@ interface LapTimeChartProps {
   avgLabel: string;
   lapLabel: string;
   lapDistanceKm: number;
+  highlightLapNumber?: number;
 }
 
 function formatMmSs(seconds: number): string {
@@ -44,6 +45,7 @@ export function LapTimeChart({
   avgLabel,
   lapLabel,
   lapDistanceKm,
+  highlightLapNumber,
 }: LapTimeChartProps) {
   const data = useMemo(() => {
     if (laps.length < 2) return [];
@@ -136,7 +138,20 @@ export function LapTimeChart({
               dataKey="seconds"
               stroke="#2563eb"
               strokeWidth={2}
-              dot={{ r: 4, fill: "#2563eb" }}
+              dot={(props: { cx?: number; cy?: number; payload?: { lap: number } }) => {
+                const { cx, cy, payload } = props;
+                if (cx == null || cy == null || !payload) return <g />;
+                const isHighlight = payload.lap === highlightLapNumber;
+                return (
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={isHighlight ? 6 : 4}
+                    fill={isHighlight ? "#dc2626" : "#2563eb"}
+                    stroke={isHighlight ? "#dc2626" : "#2563eb"}
+                  />
+                );
+              }}
               activeDot={{ r: 6 }}
               connectNulls
             />

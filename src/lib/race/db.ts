@@ -285,8 +285,14 @@ export async function insertBackdatedLap(
   lapNumber: number,
   renumberUpdates: { lapId: string; newLapNumber: number }[]
 ): Promise<Lap> {
-  // Renumber existing laps first
-  for (const update of renumberUpdates) {
+  // Apply renumbering from highest new lap_number down so each target slot is
+  // free before we write to it — otherwise the (runner_id, lap_number) unique
+  // constraint fails on the very first update (e.g. setting lap 4 → 5 while
+  // lap 5 still exists).
+  const ordered = [...renumberUpdates].sort(
+    (a, b) => b.newLapNumber - a.newLapNumber
+  );
+  for (const update of ordered) {
     const { error } = await supabase
       .from("laps")
       .update({ lap_number: update.newLapNumber })
@@ -343,18 +349,22 @@ export async function getAllLaps(
 export async function getRecentLaps(
   supabase: SupabaseClient,
   editionYear: number,
-  limit: number = 10
-): Promise<(Lap & { runner_name: string; runner_bib: number })[]> {
-  const { data, error } = await supabase
+  limit: number = 10,
+  offset: number = 0
+): Promise<{
+  laps: (Lap & { runner_name: string; runner_bib: number })[];
+  total: number;
+}> {
+  const { data, error, count } = await supabase
     .from("laps")
-    .select("*, runners!inner(name, bib, edition_year)")
+    .select("*, runners!inner(name, bib, edition_year)", { count: "exact" })
     .eq("runners.edition_year", editionYear)
     .order("timestamp", { ascending: false })
-    .limit(limit);
+    .range(offset, offset + limit - 1);
 
   if (error) throw error;
 
-  return (data ?? []).map((row: any) => ({
+  const laps = (data ?? []).map((row: any) => ({
     id: row.id,
     runner_id: row.runner_id,
     timestamp: row.timestamp,
@@ -362,4 +372,6 @@ export async function getRecentLaps(
     runner_name: row.runners.name,
     runner_bib: row.runners.bib,
   }));
+
+  return { laps, total: count ?? laps.length };
 }
