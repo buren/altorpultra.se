@@ -22,6 +22,34 @@ interface RecentLap extends Lap {
 const LAPS_PAGE_SIZE = 20;
 
 const AUDIT_CONFIG_KEY = "altorp.audit.config";
+const AUDIT_HIDDEN_REASONS_KEY = "altorp.audit.hidden_reasons";
+
+const ALL_REASONS: AnomalyReason[] = [
+  "runner_fast",
+  "runner_slow",
+  "absolute_fast",
+  "absolute_slow",
+];
+
+function isAnomalyReason(value: unknown): value is AnomalyReason {
+  return (
+    typeof value === "string" &&
+    (ALL_REASONS as string[]).includes(value)
+  );
+}
+
+function loadHiddenReasons(): Set<AnomalyReason> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = window.localStorage.getItem(AUDIT_HIDDEN_REASONS_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.filter(isAnomalyReason));
+  } catch {
+    return new Set();
+  }
+}
 
 const DEFAULT_AUDIT_CONFIG: AuditConfig = {
   perRunner: { enabled: true, multiplier: 1.8 },
@@ -143,17 +171,38 @@ export default function LapsPage() {
   const [tab, setTab] = useState<"recent" | "status" | "audit">("recent");
   const [statusFilter, setStatusFilter] = useState("");
   const [auditConfig, setAuditConfig] = useState<AuditConfig>(DEFAULT_AUDIT_CONFIG);
+  const [hiddenReasons, setHiddenReasons] = useState<Set<AnomalyReason>>(
+    () => new Set()
+  );
   const bibRef = useRef<HTMLInputElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setAuditConfig(loadAuditConfig());
+    setHiddenReasons(loadHiddenReasons());
   }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem(AUDIT_CONFIG_KEY, JSON.stringify(auditConfig));
   }, [auditConfig]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(
+      AUDIT_HIDDEN_REASONS_KEY,
+      JSON.stringify([...hiddenReasons])
+    );
+  }, [hiddenReasons]);
+
+  function toggleReasonHidden(reason: AnomalyReason) {
+    setHiddenReasons((prev) => {
+      const next = new Set(prev);
+      if (next.has(reason)) next.delete(reason);
+      else next.add(reason);
+      return next;
+    });
+  }
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
@@ -318,6 +367,30 @@ export default function LapsPage() {
     if (!startDateTime) return [];
     return findLapAnomalies(runners, startDateTime, auditConfig);
   }, [runners, startDateTime, auditConfig]);
+
+  // A lap is hidden only when every one of its reasons is on the hidden list,
+  // so a lap flagged by both runner_slow and absolute_slow stays visible if
+  // either reason is still active.
+  const visibleAnomalies = useMemo(
+    () =>
+      anomalies.filter((a) =>
+        a.reasons.some((r) => !hiddenReasons.has(r))
+      ),
+    [anomalies, hiddenReasons]
+  );
+
+  const reasonCounts = useMemo(() => {
+    const counts: Record<AnomalyReason, number> = {
+      runner_fast: 0,
+      runner_slow: 0,
+      absolute_fast: 0,
+      absolute_slow: 0,
+    };
+    for (const a of anomalies) {
+      for (const r of a.reasons) counts[r]++;
+    }
+    return counts;
+  }, [anomalies]);
 
   function startInsertMissed(
     lapId: string,
@@ -808,8 +881,40 @@ export default function LapsPage() {
                   No anomalies for current thresholds.
                 </p>
               ) : (
+                <>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-gray-500">Filter:</span>
+                    {ALL_REASONS.map((reason) => {
+                      const count = reasonCounts[reason];
+                      if (count === 0) return null;
+                      const hidden = hiddenReasons.has(reason);
+                      return (
+                        <button
+                          key={reason}
+                          type="button"
+                          onClick={() => toggleReasonHidden(reason)}
+                          aria-pressed={!hidden}
+                          className={`text-xs font-medium rounded px-1.5 py-0.5 transition-opacity ${REASON_CLASSES[reason]} ${
+                            hidden ? "opacity-40 line-through" : ""
+                          }`}
+                        >
+                          {REASON_LABELS[reason]} ({count})
+                        </button>
+                      );
+                    })}
+                    {hiddenReasons.size > 0 && (
+                      <span className="text-xs text-gray-500">
+                        Showing {visibleAnomalies.length} of {anomalies.length}
+                      </span>
+                    )}
+                  </div>
+                  {visibleAnomalies.length === 0 ? (
+                    <p className="text-gray-500 text-sm">
+                      All anomalies hidden by filter.
+                    </p>
+                  ) : (
                 <div className="space-y-2">
-                  {anomalies.map((a) => {
+                  {visibleAnomalies.map((a) => {
                     const isSlow = a.reasons.some(
                       (r) => r === "runner_slow" || r === "absolute_slow"
                     );
@@ -1267,6 +1372,8 @@ export default function LapsPage() {
                     );
                   })}
                 </div>
+                  )}
+                </>
               )}
             </div>
           )}
