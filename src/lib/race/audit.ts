@@ -107,8 +107,13 @@ export function findLapAnomalies(
         severity = Math.max(severity, duration / cfg.absoluteSlow.seconds);
       }
       if (perRunnerEligible && runnerMedian > 0) {
-        baseline = localBaseline(durations, i, runnerMedian);
-        if (baseline !== null && baseline > 0) {
+        // Prefer a local baseline so we don't false-flag laps inside a
+        // pace-drift window. When local neighbors are themselves outliers
+        // (e.g. a 3-lap runner with one huge and one impossibly-short lap),
+        // fall back to the runner's overall median so the anomaly still
+        // surfaces instead of being silently dropped.
+        baseline = localBaseline(durations, i, runnerMedian) ?? runnerMedian;
+        if (baseline > 0) {
           const m = cfg.perRunner.multiplier;
           if (duration >= baseline * m) {
             reasons.push("runner_slow");

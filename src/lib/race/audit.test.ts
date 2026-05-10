@@ -299,6 +299,38 @@ describe("findLapAnomalies", () => {
     expect(result[0].reasons).toContain("runner_fast");
   });
 
+  it("falls back to the runner's overall median when local baseline is null (William pattern)", () => {
+    // Real-world durations from bib #12 in 2026 edition (in seconds):
+    // 9705 (huge first lap), 361 (impossibly fast second lap), 3228 (normal).
+    // Both lap 1 and lap 2 are obvious anomalies, but the local-baseline rule
+    // alone returns null for every lap here: each lap's only viable neighbor
+    // gets filtered out as an outlier, leaving fewer than 2 in the window.
+    // The runner's overall median (3228s) is itself sensible — falling back
+    // to it flags both bad laps.
+    const runner = makeRunner();
+    const cumulative = [0, 9705, 10066, 13294];
+    const laps = cumulative
+      .slice(1)
+      .map((sec, idx) => makeLap("r1", idx + 1, at(sec)));
+    const entries = makeEntries([runner], laps);
+
+    const result = findLapAnomalies(entries, START, {
+      ...allDisabled,
+      perRunner: { enabled: true, multiplier: 1.8 },
+    });
+
+    const flaggedLaps = result.map((a) => a.lap.lap_number).sort();
+    expect(flaggedLaps).toEqual([1, 2]);
+    const lap1 = result.find((a) => a.lap.lap_number === 1)!;
+    const lap2 = result.find((a) => a.lap.lap_number === 2)!;
+    expect(lap1.reasons).toContain("runner_slow");
+    expect(lap2.reasons).toContain("runner_fast");
+    // Baseline reported should be the runner's median (3228s), since local
+    // baseline is null for both of these laps.
+    expect(lap1.runnerBaselineSeconds).toBe(3228);
+    expect(lap2.runnerBaselineSeconds).toBe(3228);
+  });
+
   it("local baseline catches a missed lap that global median would miss (Filip pattern)", () => {
     // Real-world durations from bib #17 in 2026 edition (in minutes):
     // 36:05, 36:55, 39:08, 78:35 (missed lap), 47:01, 49:10, 53:48, 61:14, 56:13

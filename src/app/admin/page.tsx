@@ -25,8 +25,8 @@ const AUDIT_CONFIG_KEY = "altorp.audit.config";
 
 const DEFAULT_AUDIT_CONFIG: AuditConfig = {
   perRunner: { enabled: true, multiplier: 1.8 },
-  absoluteFast: { enabled: false, seconds: 600 },
-  absoluteSlow: { enabled: false, seconds: 1800 },
+  absoluteFast: { enabled: true, seconds: 30 * 60 },
+  absoluteSlow: { enabled: true, seconds: 90 * 60 },
 };
 
 function loadAuditConfig(): AuditConfig {
@@ -42,11 +42,11 @@ function loadAuditConfig(): AuditConfig {
       },
       absoluteFast: {
         enabled: !!parsed?.absoluteFast?.enabled,
-        seconds: Number(parsed?.absoluteFast?.seconds) || 600,
+        seconds: Number(parsed?.absoluteFast?.seconds) || 30 * 60,
       },
       absoluteSlow: {
         enabled: !!parsed?.absoluteSlow?.enabled,
-        seconds: Number(parsed?.absoluteSlow?.seconds) || 1800,
+        seconds: Number(parsed?.absoluteSlow?.seconds) || 90 * 60,
       },
     };
   } catch {
