@@ -265,6 +265,7 @@ function LeaderboardTable({
   startDateTime,
   year,
   courseRecordHolderIds,
+  racePhase,
   t,
 }: {
   entries: LeaderboardEntry[];
@@ -278,6 +279,7 @@ function LeaderboardTable({
   startDateTime: string;
   year: number;
   courseRecordHolderIds?: Set<string>;
+  racePhase: ReturnType<typeof getRacePhase>;
   t: ReturnType<typeof useTranslations<'race'>>;
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -403,7 +405,7 @@ function LeaderboardTable({
           </thead>
           <tbody className="divide-y divide-gray-100">
             {visibleEntries.map(({ entry: e, rank }) => {
-              const isStopped = !!e.runner.stopped_at;
+              const isStopped = racePhase === "during" && !!e.runner.stopped_at;
               return (
               <React.Fragment key={e.runner.id}>
                 <tr
@@ -926,6 +928,7 @@ export default function RaceYearClient() {
           startDateTime={edition.startDateTime}
           year={year}
           courseRecordHolderIds={courseRecordHolderIds}
+          racePhase={racePhase}
           t={t}
         />
 
@@ -939,6 +942,7 @@ export default function RaceYearClient() {
               startDateTime={edition.startDateTime}
               year={year}
               courseRecordHolderIds={courseRecordHolderIds}
+              racePhase={racePhase}
               t={t}
             />
             <LeaderboardTable
@@ -949,6 +953,7 @@ export default function RaceYearClient() {
               startDateTime={edition.startDateTime}
               year={year}
               courseRecordHolderIds={courseRecordHolderIds}
+              racePhase={racePhase}
               t={t}
             />
           </div>
