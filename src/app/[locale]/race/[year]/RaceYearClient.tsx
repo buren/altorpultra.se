@@ -112,6 +112,8 @@ function formatEta(estimatedTimestamp: string, now: Date, t: ReturnType<typeof u
   return `~${h}h ${m}m`;
 }
 
+const NEXT_RUNNERS_PAGE_SIZE = 10;
+
 function NextRunnersCard({
   nextRunners,
   now,
@@ -123,6 +125,16 @@ function NextRunnersCard({
   year: number;
   t: ReturnType<typeof useTranslations<'race'>>;
 }) {
+  const [page, setPage] = useState(0);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(nextRunners.length / NEXT_RUNNERS_PAGE_SIZE)
+  );
+  // Clamp page when the list shrinks (runner scans, list updates).
+  const safePage = Math.min(page, totalPages - 1);
+  const offset = safePage * NEXT_RUNNERS_PAGE_SIZE;
+  const visible = nextRunners.slice(offset, offset + NEXT_RUNNERS_PAGE_SIZE);
+
   return (
     <Card>
       <CardContent className="p-4">
@@ -130,38 +142,63 @@ function NextRunnersCard({
         {nextRunners.length === 0 ? (
           <p className="text-sm text-gray-400 py-4 text-center">{t('noExpectedRunners')}</p>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {nextRunners.map((est) => (
-              <div
-                key={est.runner.id}
-                className="flex items-center justify-between py-2"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="font-mono font-bold text-gray-500 w-8 text-right">
-                    {est.runner.bib}
-                  </span>
-                  <Link
-                    href={`/race/${year}/runner/${est.runner.bib}`}
-                    className="font-medium hover:underline"
+          <>
+            <div className="divide-y divide-gray-100">
+              {visible.map((est) => (
+                <div
+                  key={est.runner.id}
+                  className="flex items-center justify-between py-2"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono font-bold text-gray-500 w-8 text-right">
+                      {est.runner.bib}
+                    </span>
+                    <Link
+                      href={`/race/${year}/runner/${est.runner.bib}`}
+                      className="font-medium hover:underline"
+                    >
+                      {est.runner.name}
+                    </Link>
+                    <span className="text-xs text-gray-400">
+                      {t('lap', { number: est.nextLapNumber })}
+                    </span>
+                  </div>
+                  <span
+                    className={`text-sm font-medium ${
+                      formatEta(est.estimatedTimestamp, now, t) === t('anyMoment')
+                        ? "text-green-600"
+                        : "text-gray-600"
+                    }`}
                   >
-                    {est.runner.name}
-                  </Link>
-                  <span className="text-xs text-gray-400">
-                    {t('lap', { number: est.nextLapNumber })}
+                    {formatEta(est.estimatedTimestamp, now, t)}
                   </span>
                 </div>
-                <span
-                  className={`text-sm font-medium ${
-                    formatEta(est.estimatedTimestamp, now, t) === t('anyMoment')
-                      ? "text-green-600"
-                      : "text-gray-600"
-                  }`}
-                >
-                  {formatEta(est.estimatedTimestamp, now, t)}
+              ))}
+            </div>
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-3 text-sm">
+                <span className="text-gray-500">
+                  {offset + 1}–{Math.min(offset + NEXT_RUNNERS_PAGE_SIZE, nextRunners.length)} {t('of')} {nextRunners.length}
                 </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPage(safePage - 1)}
+                    disabled={safePage === 0}
+                    className="px-3 py-1 border rounded bg-white hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    {t('prev')}
+                  </button>
+                  <button
+                    onClick={() => setPage(safePage + 1)}
+                    disabled={safePage >= totalPages - 1}
+                    className="px-3 py-1 border rounded bg-white hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    {t('next')}
+                  </button>
+                </div>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

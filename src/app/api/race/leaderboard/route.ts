@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
       edition.startDateTime,
       new Date(),
       edition.endDateTime
-    ).slice(0, 10);
+    );
 
     return NextResponse.json({
       ok: true,
