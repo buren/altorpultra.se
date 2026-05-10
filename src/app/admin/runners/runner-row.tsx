@@ -1,6 +1,7 @@
 "use client";
 
-import { Pencil } from "lucide-react";
+import Link from "next/link";
+import { ListOrdered, Pencil } from "lucide-react";
 import { Runner } from "@/lib/race/types";
 
 interface RunnerRowProps {
@@ -109,22 +110,40 @@ export function RunnerRow({
 
   return (
     <div
-      onClick={() => onEdit(runner)}
-      className={`flex items-center justify-between px-3 py-2 rounded cursor-pointer hover:bg-gray-100 transition-colors duration-1000 ${
+      className={`flex items-center justify-between px-3 py-2 rounded hover:bg-gray-100 transition-colors duration-1000 ${
         isHighlighted ? "bg-green-100" : "bg-gray-50"
       }`}
     >
-      <div>
+      <div
+        onClick={() => onEdit(runner)}
+        className="flex-1 min-w-0 cursor-pointer"
+      >
         <span className="font-mono font-bold text-gray-600">
           #{runner.bib}
         </span>{" "}
         <span className="font-medium">{runner.name}</span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         <span className="text-sm text-gray-400 capitalize">
           {runner.gender}
         </span>
-        <Pencil className="h-3.5 w-3.5 text-gray-300" />
+        <Link
+          href={`/admin/runners/${runner.id}/laps`}
+          onClick={(e) => e.stopPropagation()}
+          className="text-gray-400 hover:text-gray-700 p-1"
+          title="Review laps"
+          aria-label={`Review laps for ${runner.name}`}
+        >
+          <ListOrdered className="h-4 w-4" />
+        </Link>
+        <button
+          type="button"
+          onClick={() => onEdit(runner)}
+          className="text-gray-300 hover:text-gray-600 p-1"
+          aria-label={`Edit ${runner.name}`}
+        >
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
       </div>
     </div>
   );

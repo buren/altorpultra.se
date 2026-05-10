@@ -7,11 +7,12 @@ import { LeaderboardEntry } from "@/lib/race/types";
 import { formatDistanceKm, formatLapTime, formatTimestamp } from "@/lib/race/format";
 import { site } from "@/lib/config";
 import { supabase } from "@/lib/race/supabase";
-import { ArrowLeft, Share2, Check } from "lucide-react";
+import { ArrowLeft, Pencil, Share2, Check } from "lucide-react";
 import { LapTimeChart } from "@/components/race/LapTimeChart";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { useIsAdmin } from "@/lib/race/use-is-admin";
 
 interface EditionInfo {
   year: number;
@@ -41,6 +42,7 @@ export default function RunnerClient() {
   const [rank, setRank] = useState<number | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
+  const isAdmin = useIsAdmin();
 
   const fetchData = useCallback(async () => {
     const res = await fetch(`/api/race/leaderboard?year=${year}`);
@@ -156,6 +158,17 @@ export default function RunnerClient() {
               {rank != null && <span className="ml-2">&middot; {t('rank', { rank })}</span>}
             </p>
           </div>
+          {isAdmin && (
+            // eslint-disable-next-line @next/next/no-html-link-for-pages
+            <a
+              href={`/admin/runners/${e.runner.id}/laps`}
+              className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              title="Edit laps"
+            >
+              <Pencil className="h-4 w-4" />
+              <span className="hidden sm:inline">Edit</span>
+            </a>
+          )}
           <button
             onClick={handleShare}
             className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors"

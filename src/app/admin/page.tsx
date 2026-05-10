@@ -1,13 +1,21 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Lap, LeaderboardEntry } from "@/lib/race/types";
 import { countActiveAndStopped } from "@/lib/race/leaderboard";
 import { formatTimeAgo, formatLapTime, formatTimestamp } from "@/lib/race/format";
 import { RecentLapDialog } from "@/components/admin/recent-lap-dialog";
 import { findRecentLapWarning } from "@/components/admin/lap-warnings";
-import { LapTimeChart } from "@/components/race/LapTimeChart";
+import { LapEditForm } from "@/components/admin/lap-edit-form";
+import { LapInsertForm } from "@/components/admin/lap-insert-form";
+import { DeleteLapButton } from "@/components/admin/delete-lap-button";
+import { Spinner } from "@/components/admin/spinner";
+import {
+  toLocalDatetimeValue,
+  fromLocalDatetimeValue,
+} from "@/components/admin/lap-datetime";
 import {
   findLapAnomalies,
   AuditConfig,
@@ -96,42 +104,6 @@ const REASON_CLASSES: Record<AnomalyReason, string> = {
   absolute_slow: "bg-amber-100 text-amber-700",
 };
 
-function Spinner({ className = "h-3.5 w-3.5" }: { className?: string } = {}) {
-  return (
-    <svg
-      className={`animate-spin ${className}`}
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-    >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-      />
-    </svg>
-  );
-}
-
-function toLocalDatetimeValue(iso: string): string {
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-}
-
-function fromLocalDatetimeValue(local: string): string {
-  return new Date(local).toISOString();
-}
-
 export default function LapsPage() {
   const [recentLaps, setRecentLaps] = useState<RecentLap[]>([]);
   const [lapsPage, setLapsPage] = useState(1);
@@ -147,8 +119,6 @@ export default function LapsPage() {
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   const [deletingLapId, setDeletingLapId] = useState<string | null>(null);
   const [insertingForLapId, setInsertingForLapId] = useState<string | null>(null);
-  const [insertTimestamp, setInsertTimestamp] = useState("");
-  const [savingInsertionFor, setSavingInsertionFor] = useState<string | null>(null);
   const [showBackdated, setShowBackdated] = useState(false);
   const [backdatedBib, setBackdatedBib] = useState("");
   const [backdatedTimestamp, setBackdatedTimestamp] = useState(() =>
@@ -169,6 +139,18 @@ export default function LapsPage() {
   const [lapDistanceKm, setLapDistanceKm] = useState<number | null>(null);
   const [togglingRunnerId, setTogglingRunnerId] = useState<string | null>(null);
   const [tab, setTab] = useState<"recent" | "status" | "audit">("recent");
+
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (hash === "recent" || hash === "status" || hash === "audit") {
+      setTab(hash);
+    }
+  }, []);
+
+  function selectTab(next: "recent" | "status" | "audit") {
+    setTab(next);
+    history.replaceState(null, "", `#${next}`);
+  }
   const [statusFilter, setStatusFilter] = useState("");
   const [auditConfig, setAuditConfig] = useState<AuditConfig>(DEFAULT_AUDIT_CONFIG);
   const [hiddenReasons, setHiddenReasons] = useState<Set<AnomalyReason>>(
@@ -392,47 +374,6 @@ export default function LapsPage() {
     return counts;
   }, [anomalies]);
 
-  function startInsertMissed(
-    lapId: string,
-    previousTimestamp: string | null,
-    lapTimestamp: string
-  ) {
-    const prev = previousTimestamp
-      ? new Date(previousTimestamp).getTime()
-      : startDateTime
-        ? new Date(startDateTime).getTime()
-        : new Date(lapTimestamp).getTime();
-    const curr = new Date(lapTimestamp).getTime();
-    const midpoint = new Date((prev + curr) / 2).toISOString();
-    setInsertingForLapId(lapId);
-    setInsertTimestamp(toLocalDatetimeValue(midpoint));
-    setEditingLapId(null);
-    setConfirmingDeleteId(null);
-  }
-
-  async function handleSaveInsertion(runnerId: string, lapId: string) {
-    if (!insertTimestamp) return;
-    setSavingInsertionFor(lapId);
-    try {
-      const res = await fetch("/api/race/laps", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          runnerId,
-          timestamp: fromLocalDatetimeValue(insertTimestamp),
-        }),
-      });
-      const data = await res.json();
-      if (data.ok) {
-        setInsertingForLapId(null);
-        setInsertTimestamp("");
-        await Promise.all([fetchLaps(lapsPage), fetchRunners()]);
-      }
-    } finally {
-      setSavingInsertionFor(null);
-    }
-  }
-
   async function handleInsertBackdatedLap(e: React.FormEvent) {
     e.preventDefault();
     if (!backdatedBib || !backdatedTimestamp) {
@@ -644,7 +585,7 @@ export default function LapsPage() {
           <div className="flex border-b border-gray-200 mb-4 -mt-2">
             <button
               type="button"
-              onClick={() => setTab("recent")}
+              onClick={() => selectTab("recent")}
               className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                 tab === "recent"
                   ? "border-gray-900 text-gray-900"
@@ -655,7 +596,7 @@ export default function LapsPage() {
             </button>
             <button
               type="button"
-              onClick={() => setTab("status")}
+              onClick={() => selectTab("status")}
               className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                 tab === "status"
                   ? "border-gray-900 text-gray-900"
@@ -666,7 +607,7 @@ export default function LapsPage() {
             </button>
             <button
               type="button"
-              onClick={() => setTab("audit")}
+              onClick={() => selectTab("audit")}
               className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                 tab === "audit"
                   ? "border-gray-900 text-gray-900"
@@ -741,17 +682,25 @@ export default function LapsPage() {
                                 : "—"}
                             </span>
                           </div>
-                          <button
-                            onClick={() => handleToggleStopped(entry.runner.id, !isStopped)}
-                            disabled={isToggling}
-                            className={`min-h-[36px] inline-flex items-center justify-center rounded-md px-3 text-sm font-medium shrink-0 disabled:opacity-50 ${
-                              isStopped
-                                ? "bg-green-600 text-white hover:bg-green-700"
-                                : "border border-red-200 bg-white text-red-600 hover:bg-red-50"
-                            }`}
-                          >
-                            {isStopped ? "Resume" : "Stop"}
-                          </button>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Link
+                              href={`/admin/runners/${entry.runner.id}/laps`}
+                              className="min-h-[36px] inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            >
+                              Laps
+                            </Link>
+                            <button
+                              onClick={() => handleToggleStopped(entry.runner.id, !isStopped)}
+                              disabled={isToggling}
+                              className={`min-h-[36px] inline-flex items-center justify-center rounded-md px-3 text-sm font-medium disabled:opacity-50 ${
+                                isStopped
+                                  ? "bg-green-600 text-white hover:bg-green-700"
+                                  : "border border-red-200 bg-white text-red-600 hover:bg-red-50"
+                              }`}
+                            >
+                              {isStopped ? "Resume" : "Stop"}
+                            </button>
+                          </div>
                         </div>
                       );
                     })}
@@ -930,10 +879,16 @@ export default function LapsPage() {
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0 flex-1">
                             <div>
-                              <span className="font-mono font-bold text-gray-600">
-                                #{a.runner.bib}
-                              </span>{" "}
-                              <span className="font-medium">{a.runner.name}</span>
+                              <Link
+                                href={`/admin/runners/${a.runner.id}/laps`}
+                                className="hover:underline"
+                                title="View all laps for this runner"
+                              >
+                                <span className="font-mono font-bold text-gray-600">
+                                  #{a.runner.bib}
+                                </span>{" "}
+                                <span className="font-medium">{a.runner.name}</span>
+                              </Link>
                               <span className="text-gray-500 ml-2">
                                 Lap {a.lap.lap_number}
                               </span>
@@ -979,393 +934,71 @@ export default function LapsPage() {
                             </button>
                             {isSlow && (
                               <button
-                                onClick={() =>
-                                  startInsertMissed(
-                                    a.lap.id,
-                                    a.previousTimestamp,
-                                    a.lap.timestamp
-                                  )
-                                }
+                                onClick={() => {
+                                  setInsertingForLapId(a.lap.id);
+                                  setEditingLapId(null);
+                                  setConfirmingDeleteId(null);
+                                }}
                                 className="min-h-[32px] inline-flex items-center justify-center rounded-md border border-amber-200 bg-white px-3 text-sm font-medium text-amber-700 hover:bg-amber-50 whitespace-nowrap"
                               >
                                 Insert missed
                               </button>
                             )}
-                            {confirmingDeleteId === a.lap.id ? (
-                              <span className="flex gap-1">
-                                <button
-                                  onClick={() => handleDeleteLap(a.lap.id)}
-                                  disabled={deletingLapId === a.lap.id}
-                                  className="min-h-[32px] inline-flex items-center justify-center gap-1.5 rounded-md bg-red-600 px-2 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-60"
-                                >
-                                  {deletingLapId === a.lap.id ? (
-                                    <>
-                                      <Spinner />
-                                      Deleting…
-                                    </>
-                                  ) : (
-                                    "Confirm"
-                                  )}
-                                </button>
-                                <button
-                                  onClick={() => setConfirmingDeleteId(null)}
-                                  disabled={deletingLapId === a.lap.id}
-                                  className="min-h-[32px] inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-2 text-xs font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-60"
-                                >
-                                  Cancel
-                                </button>
-                              </span>
-                            ) : (
-                              <button
-                                onClick={() => setConfirmingDeleteId(a.lap.id)}
-                                className="min-h-[32px] inline-flex items-center justify-center rounded-md border border-red-200 bg-white px-3 text-sm font-medium text-red-600 hover:bg-red-50"
-                              >
-                                Delete
-                              </button>
-                            )}
+                            <DeleteLapButton
+                              lapId={a.lap.id}
+                              onDeleted={() =>
+                                Promise.all([
+                                  fetchLaps(lapsPage),
+                                  fetchRunners(),
+                                ])
+                              }
+                              size="sm"
+                            />
                           </div>
                         </div>
                         {editingLapId === a.lap.id && (() => {
                           const entry = runners.find(
                             (r) => r.runner.id === a.runner.id
                           );
-                          const sortedLaps = entry
-                            ? [...entry.laps].sort(
-                                (x, y) => x.lap_number - y.lap_number
-                              )
-                            : [];
-                          const idx = sortedLaps.findIndex(
-                            (l) => l.id === a.lap.id
-                          );
-                          const prevLap = idx > 0 ? sortedLaps[idx - 1] : null;
-                          const nextLap =
-                            idx >= 0 && idx < sortedLaps.length - 1
-                              ? sortedLaps[idx + 1]
-                              : null;
-
-                          let proposedMs: number | null = null;
-                          try {
-                            if (editTimestamp) {
-                              proposedMs = new Date(
-                                fromLocalDatetimeValue(editTimestamp)
-                              ).getTime();
-                              if (Number.isNaN(proposedMs)) proposedMs = null;
-                            }
-                          } catch {
-                            proposedMs = null;
-                          }
-
-                          const prevMs = prevLap
-                            ? new Date(prevLap.timestamp).getTime()
-                            : startDateTime
-                              ? new Date(startDateTime).getTime()
-                              : null;
-                          const nextMs = nextLap
-                            ? new Date(nextLap.timestamp).getTime()
-                            : null;
-                          const origThisMs = new Date(a.lap.timestamp).getTime();
-
-                          const newDurThis =
-                            proposedMs !== null && prevMs !== null
-                              ? (proposedMs - prevMs) / 1000
-                              : null;
-                          const newDurNext =
-                            proposedMs !== null && nextMs !== null
-                              ? (nextMs - proposedMs) / 1000
-                              : null;
-                          const origDurNext =
-                            nextMs !== null
-                              ? (nextMs - origThisMs) / 1000
-                              : null;
-
+                          if (!entry) return null;
                           return (
-                            <div className="mt-3 space-y-3 border-t pt-3">
-                              <div className="text-xs font-mono space-y-1">
-                                {prevLap ? (
-                                  <div className="grid grid-cols-[3rem_1fr_auto] gap-3 text-gray-600 px-2">
-                                    <span>Lap {prevLap.lap_number}</span>
-                                    <span>{formatTimestamp(prevLap.timestamp)}</span>
-                                    <span className="text-gray-400">—</span>
-                                  </div>
-                                ) : (
-                                  <div className="grid grid-cols-[3rem_1fr_auto] gap-3 text-gray-400 px-2">
-                                    <span>start</span>
-                                    <span>
-                                      {startDateTime
-                                        ? formatTimestamp(startDateTime)
-                                        : "—"}
-                                    </span>
-                                    <span>—</span>
-                                  </div>
-                                )}
-                                <div className="grid grid-cols-[3rem_1fr_auto] gap-3 bg-amber-50 rounded px-2 py-1 font-semibold">
-                                  <span>Lap {a.lap.lap_number}</span>
-                                  <span>
-                                    {proposedMs !== null
-                                      ? formatTimestamp(
-                                          new Date(proposedMs).toISOString()
-                                        )
-                                      : formatTimestamp(a.lap.timestamp)}
-                                  </span>
-                                  <span>
-                                    {newDurThis !== null
-                                      ? formatLapTime(newDurThis)
-                                      : formatLapTime(a.durationSeconds)}
-                                    {newDurThis !== null &&
-                                      Math.abs(
-                                        newDurThis - a.durationSeconds
-                                      ) > 0.5 && (
-                                        <span className="text-gray-400 line-through font-normal ml-1">
-                                          {formatLapTime(a.durationSeconds)}
-                                        </span>
-                                      )}
-                                  </span>
-                                </div>
-                                {nextLap && (
-                                  <div className="grid grid-cols-[3rem_1fr_auto] gap-3 text-gray-600 px-2">
-                                    <span>Lap {nextLap.lap_number}</span>
-                                    <span>{formatTimestamp(nextLap.timestamp)}</span>
-                                    <span>
-                                      {newDurNext !== null
-                                        ? formatLapTime(newDurNext)
-                                        : origDurNext !== null
-                                          ? formatLapTime(origDurNext)
-                                          : "—"}
-                                      {newDurNext !== null &&
-                                        origDurNext !== null &&
-                                        Math.abs(newDurNext - origDurNext) >
-                                          0.5 && (
-                                          <span className="text-gray-400 line-through font-normal ml-1">
-                                            {formatLapTime(origDurNext)}
-                                          </span>
-                                        )}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-
-                              {entry &&
-                                startDateTime &&
-                                lapDistanceKm !== null &&
-                                entry.laps.length >= 2 && (
-                                  <div className="-mx-2">
-                                    <LapTimeChart
-                                      laps={entry.laps}
-                                      startDateTime={startDateTime}
-                                      avgLapSeconds={entry.avgLapSeconds}
-                                      title=""
-                                      avgLabel="avg"
-                                      lapLabel="Lap"
-                                      lapDistanceKm={lapDistanceKm}
-                                      highlightLapNumber={a.lap.lap_number}
-                                    />
-                                  </div>
-                                )}
-
-                              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                                <input
-                                  type="datetime-local"
-                                  step="1"
-                                  value={editTimestamp}
-                                  onChange={(e) =>
-                                    setEditTimestamp(e.target.value)
-                                  }
-                                  className="border rounded px-2 py-2 text-sm flex-1"
-                                />
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() =>
-                                      handleSaveTimestamp(a.lap.id)
-                                    }
-                                    className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 flex-1 sm:flex-none"
-                                  >
-                                    Save
-                                  </button>
-                                  <button
-                                    onClick={() => setEditingLapId(null)}
-                                    className="text-gray-500 hover:text-gray-700 text-sm font-medium px-4 py-2 rounded border flex-1 sm:flex-none"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
+                            <LapEditForm
+                              lap={a.lap}
+                              runnerLaps={entry.laps}
+                              durationSeconds={a.durationSeconds}
+                              startDateTime={startDateTime}
+                              lapDistanceKm={lapDistanceKm}
+                              avgLapSeconds={entry.avgLapSeconds}
+                              onSaved={() => {
+                                setEditingLapId(null);
+                                fetchLaps(lapsPage);
+                                fetchRunners();
+                              }}
+                              onCancel={() => setEditingLapId(null)}
+                            />
                           );
                         })()}
                         {insertingForLapId === a.lap.id && (() => {
                           const entry = runners.find(
                             (r) => r.runner.id === a.runner.id
                           );
-                          const sortedLaps = entry
-                            ? [...entry.laps].sort(
-                                (x, y) => x.lap_number - y.lap_number
-                              )
-                            : [];
-                          const idx = sortedLaps.findIndex(
-                            (l) => l.id === a.lap.id
-                          );
-                          const prevLap = idx > 0 ? sortedLaps[idx - 1] : null;
-
-                          const prevMs = prevLap
-                            ? new Date(prevLap.timestamp).getTime()
-                            : startDateTime
-                              ? new Date(startDateTime).getTime()
-                              : null;
-                          const suspectMs = new Date(a.lap.timestamp).getTime();
-
-                          let proposedMs: number | null = null;
-                          try {
-                            if (insertTimestamp) {
-                              proposedMs = new Date(
-                                fromLocalDatetimeValue(insertTimestamp)
-                              ).getTime();
-                              if (Number.isNaN(proposedMs)) proposedMs = null;
-                            }
-                          } catch {
-                            proposedMs = null;
-                          }
-
-                          const firstHalf =
-                            proposedMs !== null && prevMs !== null
-                              ? (proposedMs - prevMs) / 1000
-                              : null;
-                          const secondHalf =
-                            proposedMs !== null
-                              ? (suspectMs - proposedMs) / 1000
-                              : null;
-
-                          const inOrder =
-                            proposedMs !== null &&
-                            prevMs !== null &&
-                            proposedMs > prevMs &&
-                            proposedMs < suspectMs;
-                          const isSaving = savingInsertionFor === a.lap.id;
-
+                          if (!entry) return null;
                           return (
-                            <div className="mt-3 space-y-3 border-t pt-3">
-                              <div className="text-xs font-mono space-y-1">
-                                {prevLap ? (
-                                  <div className="grid grid-cols-[5rem_1fr_auto] gap-3 text-gray-600 px-2">
-                                    <span>Lap {prevLap.lap_number}</span>
-                                    <span>
-                                      {formatTimestamp(prevLap.timestamp)}
-                                    </span>
-                                    <span className="text-gray-400">—</span>
-                                  </div>
-                                ) : (
-                                  <div className="grid grid-cols-[5rem_1fr_auto] gap-3 text-gray-400 px-2">
-                                    <span>start</span>
-                                    <span>
-                                      {startDateTime
-                                        ? formatTimestamp(startDateTime)
-                                        : "—"}
-                                    </span>
-                                    <span>—</span>
-                                  </div>
-                                )}
-                                <div className="grid grid-cols-[5rem_1fr_auto] gap-3 bg-emerald-50 rounded px-2 py-1 font-semibold">
-                                  <span className="text-emerald-700">+ insert</span>
-                                  <span>
-                                    {proposedMs !== null
-                                      ? formatTimestamp(
-                                          new Date(proposedMs).toISOString()
-                                        )
-                                      : "—"}
-                                  </span>
-                                  <span>
-                                    {firstHalf !== null
-                                      ? formatLapTime(firstHalf)
-                                      : "—"}
-                                  </span>
-                                </div>
-                                <div className="grid grid-cols-[5rem_1fr_auto] gap-3 text-gray-600 px-2">
-                                  <span>Lap {a.lap.lap_number}</span>
-                                  <span>
-                                    {formatTimestamp(a.lap.timestamp)}
-                                  </span>
-                                  <span>
-                                    {secondHalf !== null
-                                      ? formatLapTime(secondHalf)
-                                      : formatLapTime(a.durationSeconds)}
-                                    {secondHalf !== null &&
-                                      Math.abs(
-                                        secondHalf - a.durationSeconds
-                                      ) > 0.5 && (
-                                        <span className="text-gray-400 line-through font-normal ml-1">
-                                          {formatLapTime(a.durationSeconds)}
-                                        </span>
-                                      )}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {entry &&
-                                startDateTime &&
-                                lapDistanceKm !== null &&
-                                entry.laps.length >= 2 && (
-                                  <div className="-mx-2">
-                                    <LapTimeChart
-                                      laps={entry.laps}
-                                      startDateTime={startDateTime}
-                                      avgLapSeconds={entry.avgLapSeconds}
-                                      title=""
-                                      avgLabel="avg"
-                                      lapLabel="Lap"
-                                      lapDistanceKm={lapDistanceKm}
-                                      highlightLapNumber={a.lap.lap_number}
-                                    />
-                                  </div>
-                                )}
-
-                              {!inOrder && proposedMs !== null && (
-                                <p className="text-xs text-red-600">
-                                  Timestamp must be between the previous lap
-                                  and this lap.
-                                </p>
-                              )}
-
-                              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                                <input
-                                  type="datetime-local"
-                                  step="1"
-                                  value={insertTimestamp}
-                                  onChange={(e) =>
-                                    setInsertTimestamp(e.target.value)
-                                  }
-                                  className="border rounded px-2 py-2 text-sm flex-1"
-                                />
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() =>
-                                      handleSaveInsertion(
-                                        a.runner.id,
-                                        a.lap.id
-                                      )
-                                    }
-                                    disabled={isSaving || !inOrder}
-                                    className="bg-emerald-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-emerald-700 flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 disabled:opacity-60"
-                                  >
-                                    {isSaving ? (
-                                      <>
-                                        <Spinner />
-                                        Inserting…
-                                      </>
-                                    ) : (
-                                      "Insert"
-                                    )}
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      setInsertingForLapId(null)
-                                    }
-                                    disabled={isSaving}
-                                    className="text-gray-500 hover:text-gray-700 text-sm font-medium px-4 py-2 rounded border flex-1 sm:flex-none disabled:opacity-60"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
+                            <LapInsertForm
+                              lap={a.lap}
+                              runnerId={a.runner.id}
+                              runnerLaps={entry.laps}
+                              durationSeconds={a.durationSeconds}
+                              startDateTime={startDateTime}
+                              lapDistanceKm={lapDistanceKm}
+                              avgLapSeconds={entry.avgLapSeconds}
+                              onSaved={() => {
+                                setInsertingForLapId(null);
+                                fetchLaps(lapsPage);
+                                fetchRunners();
+                              }}
+                              onCancel={() => setInsertingForLapId(null)}
+                            />
                           );
                         })()}
                       </div>
