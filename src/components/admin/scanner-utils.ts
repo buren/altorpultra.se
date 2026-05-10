@@ -1,5 +1,6 @@
 const DUPLICATE_WINDOW_MS = 25 * 60 * 1_000;
 const DEBOUNCE_MS = 1_000;
+const RECENT_LAP_WARNING_WINDOW_MS = 35 * 60 * 1_000;
 
 export function parseBibFromQr(text: string): number | null {
   const trimmed = text.trim();
@@ -26,4 +27,16 @@ export function shouldShowDuplicateDialog(
   const lastTime = recentScans.get(bib);
   if (lastTime === undefined) return false;
   return now - lastTime < DUPLICATE_WINDOW_MS;
+}
+
+export function findRecentLapWarning(
+  lastLapTimestamp: string | null,
+  now: number,
+): { secondsAgo: number } | null {
+  if (!lastLapTimestamp) return null;
+  const lastTime = new Date(lastLapTimestamp).getTime();
+  if (isNaN(lastTime)) return null;
+  const diff = now - lastTime;
+  if (diff < 0 || diff >= RECENT_LAP_WARNING_WINDOW_MS) return null;
+  return { secondsAgo: Math.round(diff / 1000) };
 }

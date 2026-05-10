@@ -7,20 +7,32 @@ interface Props {
   secondsAgo: number;
   onConfirm: () => void;
   onCancel: () => void;
+  title?: string;
+  verb?: string;
+  autoDismissMs?: number | null;
 }
 
-const AUTO_DISMISS_MS = 3000;
+const DEFAULT_AUTO_DISMISS_MS = 3000;
 
-export function DuplicateDialog({ bib, secondsAgo, onConfirm, onCancel }: Props) {
-  const [remaining, setRemaining] = useState(AUTO_DISMISS_MS);
+export function DuplicateDialog({
+  bib,
+  secondsAgo,
+  onConfirm,
+  onCancel,
+  title = "Duplicate scan",
+  verb = "scanned",
+  autoDismissMs = DEFAULT_AUTO_DISMISS_MS,
+}: Props) {
+  const [remaining, setRemaining] = useState(autoDismissMs ?? 0);
   const onCancelRef = useRef(onCancel);
   onCancelRef.current = onCancel;
 
   useEffect(() => {
+    if (!autoDismissMs) return;
     const start = Date.now();
     const interval = setInterval(() => {
       const elapsed = Date.now() - start;
-      const next = AUTO_DISMISS_MS - elapsed;
+      const next = autoDismissMs - elapsed;
       if (next <= 0) {
         clearInterval(interval);
         setRemaining(0);
@@ -30,14 +42,14 @@ export function DuplicateDialog({ bib, secondsAgo, onConfirm, onCancel }: Props)
       }
     }, 100);
     return () => clearInterval(interval);
-  }, []);
+  }, [autoDismissMs]);
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60">
       <div className="bg-white rounded-xl mx-6 p-6 max-w-sm w-full shadow-2xl">
-        <h3 className="text-lg font-bold mb-2">Duplicate scan</h3>
+        <h3 className="text-lg font-bold mb-2">{title}</h3>
         <p className="text-gray-600 mb-4">
-          Runner <span className="font-mono font-bold">#{bib}</span> was scanned{" "}
+          Runner <span className="font-mono font-bold">#{bib}</span> was {verb}{" "}
           <span className="font-bold">{secondsAgo >= 60 ? `${Math.floor(secondsAgo / 60)}m` : `${secondsAgo}s`}</span> ago — register another lap?
         </p>
         <div className="flex gap-3">
@@ -51,7 +63,7 @@ export function DuplicateDialog({ bib, secondsAgo, onConfirm, onCancel }: Props)
             onClick={onCancel}
             className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-300"
           >
-            Cancel ({Math.ceil(remaining / 1000)}s)
+            {autoDismissMs ? `Cancel (${Math.ceil(remaining / 1000)}s)` : "Cancel"}
           </button>
         </div>
       </div>

@@ -6,6 +6,8 @@ import { Lap, LeaderboardEntry } from "@/lib/race/types";
 import { countActiveAndStopped } from "@/lib/race/leaderboard";
 import { formatTimeAgo, formatLapTime, formatTimestamp } from "@/lib/race/format";
 import { QrScannerOverlay } from "@/components/admin/qr-scanner-overlay";
+import { DuplicateDialog } from "@/components/admin/duplicate-dialog";
+import { findRecentLapWarning } from "@/components/admin/scanner-utils";
 import { LapTimeChart } from "@/components/race/LapTimeChart";
 import {
   findLapAnomalies,
@@ -131,6 +133,10 @@ export default function LapsPage() {
   } | null>(null);
   const [highlightLapId, setHighlightLapId] = useState<string | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [recentLapPrompt, setRecentLapPrompt] = useState<{
+    bib: number;
+    secondsAgo: number;
+  } | null>(null);
   const [runners, setRunners] = useState<LeaderboardEntry[]>([]);
   const [startDateTime, setStartDateTime] = useState<string | null>(null);
   const [lapDistanceKm, setLapDistanceKm] = useState<number | null>(null);
@@ -205,14 +211,7 @@ export default function LapsPage() {
     bibRef.current?.focus();
   }, [lapMessage]);
 
-  async function handleRegisterLap(e: React.FormEvent) {
-    e.preventDefault();
-    const bib = parseInt(bibInput, 10);
-    if (isNaN(bib)) {
-      setLapMessage({ text: "Enter a valid bib number", type: "error" });
-      return;
-    }
-
+  async function submitLap(bib: number) {
     const res = await fetch("/api/race/laps", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -238,6 +237,39 @@ export default function LapsPage() {
     } else {
       setLapMessage({ text: data.error, type: "error" });
     }
+    bibRef.current?.focus();
+  }
+
+  async function handleRegisterLap(e: React.FormEvent) {
+    e.preventDefault();
+    const bib = parseInt(bibInput, 10);
+    if (isNaN(bib)) {
+      setLapMessage({ text: "Enter a valid bib number", type: "error" });
+      return;
+    }
+
+    const entry = runners.find((r) => r.runner.bib === bib);
+    const warning = findRecentLapWarning(
+      entry?.lastLapTimestamp ?? null,
+      Date.now(),
+    );
+    if (warning) {
+      setRecentLapPrompt({ bib, secondsAgo: warning.secondsAgo });
+      return;
+    }
+
+    await submitLap(bib);
+  }
+
+  async function handleRecentLapConfirm() {
+    if (!recentLapPrompt) return;
+    const { bib } = recentLapPrompt;
+    setRecentLapPrompt(null);
+    await submitLap(bib);
+  }
+
+  function handleRecentLapCancel() {
+    setRecentLapPrompt(null);
     bibRef.current?.focus();
   }
 
@@ -1391,6 +1423,17 @@ export default function LapsPage() {
             setLapsPage(1);
             await fetchLaps(1);
           }}
+        />
+      )}
+      {recentLapPrompt && (
+        <DuplicateDialog
+          bib={recentLapPrompt.bib}
+          secondsAgo={recentLapPrompt.secondsAgo}
+          title="Recent lap"
+          verb="registered"
+          autoDismissMs={null}
+          onConfirm={handleRecentLapConfirm}
+          onCancel={handleRecentLapCancel}
         />
       )}
     </main>
