@@ -72,13 +72,22 @@ export function RunnersTable({
                 : runners.length}
             </span>
           </h2>
-          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-          <a
-            href="/api/race/export"
-            className="bg-gray-900 text-white px-4 py-1.5 rounded-md text-sm font-semibold hover:bg-gray-800"
-          >
-            Export CSV
-          </a>
+          <div className="flex gap-2">
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a
+              href="/api/race/export"
+              className="bg-gray-900 text-white px-4 py-1.5 rounded-md text-sm font-semibold hover:bg-gray-800"
+            >
+              Export CSV
+            </a>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a
+              href="/api/race/export-duv"
+              className="bg-gray-900 text-white px-4 py-1.5 rounded-md text-sm font-semibold hover:bg-gray-800"
+            >
+              Export DUV
+            </a>
+          </div>
         </div>
 
         <div className="space-y-3 mb-4">
