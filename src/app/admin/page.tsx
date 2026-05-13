@@ -625,6 +625,9 @@ export default function LapsPage() {
 
           {tab === "status" && (() => {
             const sorted = [...runners].sort((a, b) => {
+              const aStopped = !!a.runner.stopped_at;
+              const bStopped = !!b.runner.stopped_at;
+              if (aStopped !== bStopped) return aStopped ? 1 : -1;
               if (!a.lastLapTimestamp && !b.lastLapTimestamp) return 0;
               if (!a.lastLapTimestamp) return 1;
               if (!b.lastLapTimestamp) return -1;
@@ -668,12 +671,17 @@ export default function LapsPage() {
                           }`}
                         >
                           <div className="min-w-0 flex items-center gap-2">
-                            <span className="font-mono font-bold text-gray-600 w-10">
-                              #{entry.runner.bib}
-                            </span>
-                            <span className={`font-medium truncate ${isStopped ? "line-through" : ""}`}>
-                              {entry.runner.name}
-                            </span>
+                            <Link
+                              href={`/admin/runners/${entry.runner.id}/laps`}
+                              className="min-w-0 flex items-center gap-2 hover:underline"
+                            >
+                              <span className="font-mono font-bold text-gray-600 w-10">
+                                #{entry.runner.bib}
+                              </span>
+                              <span className={`font-medium truncate ${isStopped ? "line-through" : ""}`}>
+                                {entry.runner.name}
+                              </span>
+                            </Link>
                             <span className="text-sm text-gray-400 whitespace-nowrap">
                               {entry.totalLaps} {entry.totalLaps === 1 ? "lap" : "laps"}
                               {" · "}
@@ -1034,10 +1042,15 @@ export default function LapsPage() {
                   <div className="flex items-center justify-between">
                     <div className="min-w-0">
                       <div>
-                        <span className="font-mono font-bold text-gray-600">
-                          #{lap.runner_bib}
-                        </span>{" "}
-                        <span className="font-medium">{lap.runner_name}</span>
+                        <Link
+                          href={`/admin/runners/${lap.runner_id}/laps`}
+                          className="hover:underline"
+                        >
+                          <span className="font-mono font-bold text-gray-600">
+                            #{lap.runner_bib}
+                          </span>{" "}
+                          <span className="font-medium">{lap.runner_name}</span>
+                        </Link>
                         <span className="text-gray-500 ml-2">
                           Lap {lap.lap_number}
                         </span>
@@ -1050,12 +1063,6 @@ export default function LapsPage() {
                       <span className="text-sm text-gray-400 hidden sm:inline">
                         {formatTimeAgo(lap.timestamp, now)}
                       </span>
-                      <button
-                        onClick={() => startEditLap(lap)}
-                        className="min-h-[36px] min-w-[44px] inline-flex items-center justify-center rounded-md border border-gray-200 bg-white px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100"
-                      >
-                        Edit
-                      </button>
                       {confirmingDeleteId === lap.id ? (
                         <span className="flex items-center gap-2">
                           <button
@@ -1090,31 +1097,6 @@ export default function LapsPage() {
                       )}
                     </div>
                   </div>
-                  {editingLapId === lap.id && (
-                    <div className="mt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                      <input
-                        type="datetime-local"
-                        step="1"
-                        value={editTimestamp}
-                        onChange={(e) => setEditTimestamp(e.target.value)}
-                        className="border rounded px-2 py-2 text-sm flex-1"
-                      />
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleSaveTimestamp(lap.id)}
-                          className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 flex-1 sm:flex-none"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => setEditingLapId(null)}
-                          className="text-gray-500 hover:text-gray-700 text-sm font-medium px-4 py-2 rounded border flex-1 sm:flex-none"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
